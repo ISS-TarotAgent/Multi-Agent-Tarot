@@ -1,0 +1,29 @@
+{
+  "spread_id": "past_present_future",
+  "name": "Past Present Future Spread",
+  "description": "A simple three-card spread that explores past influence, present condition, and possible future direction.",
+  "deck_scope": ["major"],
+  "card_count": 3,
+  "allow_reversed": true,
+  "supported_topics": ["general", "love", "career", "study", "self_growth"],
+  "positions": [
+    {
+      "position": 1,
+      "label": "past",
+      "display_name": "Past",
+      "meaning": "A past influence, experience, or pattern that still affects the current situation."
+    },
+    {
+      "position": 2,
+      "label": "present",
+      "display_name": "Present",
+      "meaning": "The current emotional state, situation, or main energy surrounding the question."
+    },
+    {
+      "position": 3,
+      "label": "future_direction",
+      "display_name": "Future Direction",
+      "meaning": "A likely direction, possible development, or reflection for what may come next."
+    }
+  ]
+}

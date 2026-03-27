@@ -1,0 +1,28 @@
+{
+  "spread_id": "three_card",
+  "name": "Three Card Spread",
+  "description": "A simple three-card spread for structured reflection.",
+  "card_count": 3,
+  "allow_reversed": true,
+  "supported_topics": ["general", "love", "career", "study", "self_growth"],
+  "positions": [
+    {
+      "position": 1,
+      "label": "current_state",
+      "display_name": "Current State",
+      "meaning": "The present situation, emotional state, or main energy around the question."
+    },
+    {
+      "position": 2,
+      "label": "challenge",
+      "display_name": "Challenge",
+      "meaning": "The main obstacle, hidden tension, or factor that needs attention."
+    },
+    {
+      "position": 3,
+      "label": "guidance",
+      "display_name": "Guidance",
+      "meaning": "A possible direction, insight, or reflection for the next step."
+    }
+  ]
+}

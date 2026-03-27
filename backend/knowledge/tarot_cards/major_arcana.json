@@ -1,0 +1,618 @@
+[
+  {
+    "card_id": "the_fool",
+    "name": "The Fool",
+    "arcana": "major",
+    "number": 0,
+    "keywords_upright": ["new beginnings", "freedom", "curiosity", "potential"],
+    "keywords_reversed": ["recklessness", "naivety", "poor planning", "distraction"],
+    "meanings": {
+      "upright": {
+        "general": "A card of new beginnings, openness, and stepping into the unknown with trust and curiosity.",
+        "love": "May suggest a fresh emotional start, openness to love, or approaching relationships with sincerity and curiosity.",
+        "career": "Can indicate a new opportunity, a bold step, or the start of a different professional direction.",
+        "study": "Suggests learning through exploration, experimentation, and willingness to try something new.",
+        "self_growth": "Encourages trust in your journey, openness to experience, and courage to begin again."
+      },
+      "reversed": {
+        "general": "May indicate poor judgment, hesitation, acting too quickly, or moving without enough grounding.",
+        "love": "Could reflect emotional impulsiveness, uncertainty, or entering a relationship without clarity.",
+        "career": "May suggest risky decisions, lack of preparation, or anxiety around taking a new step.",
+        "study": "Can point to distraction, inconsistency, or beginning without a clear plan.",
+        "self_growth": "Invites you to balance openness with reflection and to ground your next step more carefully."
+      }
+    },
+    "reflection_questions": [
+      "What new beginning am I being invited to notice?",
+      "Where do I need more trust, and where do I need more grounding?"
+    ]
+  },
+  {
+    "card_id": "the_magician",
+    "name": "The Magician",
+    "arcana": "major",
+    "number": 1,
+    "keywords_upright": ["manifestation", "skill", "focus", "resourcefulness"],
+    "keywords_reversed": ["manipulation", "scattered energy", "illusion", "underused potential"],
+    "meanings": {
+      "upright": {
+        "general": "Represents focused intention, practical ability, and the power to turn ideas into action.",
+        "love": "Can suggest confidence in expressing feelings, clear intention, and actively shaping relationship dynamics.",
+        "career": "Indicates capability, initiative, and effective use of skills and opportunities.",
+        "study": "Suggests disciplined learning, concentration, and the ability to apply knowledge well.",
+        "self_growth": "Encourages confidence in your own abilities and alignment between intention and action."
+      },
+      "reversed": {
+        "general": "May point to misused influence, self-doubt, scattered effort, or the gap between words and action.",
+        "love": "Could reflect mixed signals, emotional manipulation, or uncertainty about true intentions.",
+        "career": "May suggest underusing your strengths, poor focus, or trying to force results without clarity.",
+        "study": "Can indicate lack of concentration or not using available learning resources effectively.",
+        "self_growth": "Invites you to reconnect with your real strengths and act with honesty and clarity."
+      }
+    },
+    "reflection_questions": [
+      "What strengths do I already have that I may be overlooking?",
+      "How can I align intention, honesty, and action more clearly?"
+    ]
+  },
+  {
+    "card_id": "the_high_priestess",
+    "name": "The High Priestess",
+    "arcana": "major",
+    "number": 2,
+    "keywords_upright": ["intuition", "inner knowing", "mystery", "stillness"],
+    "keywords_reversed": ["confusion", "disconnection", "hidden truth", "ignoring intuition"],
+    "meanings": {
+      "upright": {
+        "general": "Points to intuition, inner wisdom, and the value of pausing before acting.",
+        "love": "May suggest unspoken emotions, subtle connection, or the need to trust your deeper feelings.",
+        "career": "Can indicate that not all information is visible yet and careful observation is needed.",
+        "study": "Suggests thoughtful learning, reflection, and understanding beyond surface information.",
+        "self_growth": "Encourages listening inwardly, honoring intuition, and allowing insight to emerge naturally."
+      },
+      "reversed": {
+        "general": "May indicate emotional confusion, blocked intuition, or difficulty seeing what is beneath the surface.",
+        "love": "Could reflect uncertainty, hidden feelings, or not trusting your own emotional signals.",
+        "career": "May suggest incomplete information, office ambiguity, or acting before understanding enough.",
+        "study": "Can point to mental overload or reading information without integrating it deeply.",
+        "self_growth": "Invites you to slow down and rebuild trust in your own inner voice."
+      }
+    },
+    "reflection_questions": [
+      "What am I sensing beneath the surface of this situation?",
+      "Where would stillness help me see more clearly?"
+    ]
+  },
+  {
+    "card_id": "the_empress",
+    "name": "The Empress",
+    "arcana": "major",
+    "number": 3,
+    "keywords_upright": ["nurturing", "abundance", "creativity", "care"],
+    "keywords_reversed": ["overgiving", "dependence", "creative block", "neglect"],
+    "meanings": {
+      "upright": {
+        "general": "Represents care, creativity, growth, and the nurturing of what matters.",
+        "love": "May suggest warmth, affection, emotional support, and a desire for deeper connection.",
+        "career": "Can indicate creative productivity, sustainable growth, and supportive collaboration.",
+        "study": "Suggests steady growth through patience, encouragement, and a healthy learning environment.",
+        "self_growth": "Encourages self-care, creative expression, and building a life that feels emotionally nourishing."
+      },
+      "reversed": {
+        "general": "May point to depletion, overgiving, imbalance in care, or disconnection from creativity.",
+        "love": "Could reflect unhealthy dependence, emotional imbalance, or giving too much without reciprocity.",
+        "career": "May suggest burnout, poor boundaries, or frustration in creative work.",
+        "study": "Can indicate low motivation, neglecting personal wellbeing, or lack of supportive structure.",
+        "self_growth": "Invites you to restore balance between caring for others and caring for yourself."
+      }
+    },
+    "reflection_questions": [
+      "What in my life needs more nurturing right now?",
+      "Am I giving from fullness, or from exhaustion?"
+    ]
+  },
+  {
+    "card_id": "the_emperor",
+    "name": "The Emperor",
+    "arcana": "major",
+    "number": 4,
+    "keywords_upright": ["structure", "authority", "stability", "discipline"],
+    "keywords_reversed": ["rigidity", "control", "stubbornness", "instability"],
+    "meanings": {
+      "upright": {
+        "general": "Represents structure, responsibility, order, and grounded leadership.",
+        "love": "May suggest emotional steadiness, commitment, or the need for healthy boundaries in a relationship.",
+        "career": "Can indicate leadership, strategic thinking, and building stable long-term foundations.",
+        "study": "Suggests discipline, planning, and strong study structure.",
+        "self_growth": "Encourages personal responsibility, boundaries, and deliberate action."
+      },
+      "reversed": {
+        "general": "May point to excessive control, inflexibility, or shaky foundations disguised as strength.",
+        "love": "Could reflect controlling patterns, emotional distance, or difficulty balancing stability with warmth.",
+        "career": "May suggest authoritarian dynamics, poor leadership, or overly rigid structures.",
+        "study": "Can indicate overpressure, perfectionism, or resistance to adapting your methods.",
+        "self_growth": "Invites you to consider where structure is helpful and where control becomes limiting."
+      }
+    },
+    "reflection_questions": [
+      "Where would more structure support me right now?",
+      "Where might control be replacing trust or flexibility?"
+    ]
+  },
+  {
+    "card_id": "the_hierophant",
+    "name": "The Hierophant",
+    "arcana": "major",
+    "number": 5,
+    "keywords_upright": ["tradition", "guidance", "learning", "shared values"],
+    "keywords_reversed": ["rebellion", "rigid belief", "conformity pressure", "misalignment"],
+    "meanings": {
+      "upright": {
+        "general": "Points to guidance, tradition, shared values, and learning through established wisdom.",
+        "love": "May suggest commitment, shared principles, or reflecting on the values that shape a relationship.",
+        "career": "Can indicate formal learning, mentorship, institutions, or following trusted processes.",
+        "study": "Suggests disciplined study, good teaching, and learning through structure or guidance.",
+        "self_growth": "Encourages reflection on what you truly believe and which traditions still support you."
+      },
+      "reversed": {
+        "general": "May point to rigid conformity, pressure to fit in, or tension with established systems.",
+        "love": "Could reflect conflict between personal desires and social expectations.",
+        "career": "May suggest frustration with bureaucracy, outdated systems, or values mismatch in a role.",
+        "study": "Can indicate resistance to standard methods or struggling in overly rigid educational settings.",
+        "self_growth": "Invites you to examine whether your beliefs are chosen consciously or inherited without reflection."
+      }
+    },
+    "reflection_questions": [
+      "Which values are truly mine, and which have I simply inherited?",
+      "Where would guidance help, and where do I need independent thinking?"
+    ]
+  },
+  {
+    "card_id": "the_lovers",
+    "name": "The Lovers",
+    "arcana": "major",
+    "number": 6,
+    "keywords_upright": ["connection", "choice", "alignment", "values"],
+    "keywords_reversed": ["disharmony", "misalignment", "indecision", "conflict"],
+    "meanings": {
+      "upright": {
+        "general": "Represents meaningful connection, alignment, and choices guided by values.",
+        "love": "Strongly linked to intimacy, emotional honesty, mutual attraction, and relationship choice.",
+        "career": "Can indicate a decision that must align with your deeper values rather than surface benefit.",
+        "study": "Suggests choosing a learning path that feels genuinely meaningful and aligned.",
+        "self_growth": "Encourages integrity, emotional honesty, and choices that reflect who you really are."
+      },
+      "reversed": {
+        "general": "May point to inner conflict, misalignment, or difficulty making a wholehearted choice.",
+        "love": "Could reflect tension, poor communication, emotional distance, or uncertainty in commitment.",
+        "career": "May suggest misalignment between your work and your personal values.",
+        "study": "Can indicate uncertainty about direction or lack of motivation because the path feels disconnected.",
+        "self_growth": "Invites you to look honestly at where your decisions are not aligned with your deeper self."
+      }
+    },
+    "reflection_questions": [
+      "What choice would feel most aligned with my values?",
+      "Where am I being asked to choose with honesty rather than convenience?"
+    ]
+  },
+  {
+    "card_id": "the_chariot",
+    "name": "The Chariot",
+    "arcana": "major",
+    "number": 7,
+    "keywords_upright": ["determination", "direction", "control", "momentum"],
+    "keywords_reversed": ["scattered effort", "loss of control", "conflict", "stalling"],
+    "meanings": {
+      "upright": {
+        "general": "Represents focus, determination, and moving forward through disciplined effort.",
+        "love": "May suggest taking clear action in love, navigating emotional tension, or moving a relationship forward.",
+        "career": "Can indicate ambition, strategic progress, and determination to overcome obstacles.",
+        "study": "Suggests disciplined effort, strong direction, and pushing through academic challenges.",
+        "self_growth": "Encourages self-mastery, emotional direction, and confidence in moving forward."
+      },
+      "reversed": {
+        "general": "May point to lack of direction, internal conflict, or effort that is not well coordinated.",
+        "love": "Could reflect emotional push-pull, impatience, or trying to force progress.",
+        "career": "May suggest scattered ambition, burnout, or friction that slows progress.",
+        "study": "Can indicate struggling to stay focused or being pulled in too many directions.",
+        "self_growth": "Invites you to slow down and align intention before pushing ahead."
+      }
+    },
+    "reflection_questions": [
+      "What am I trying to move toward right now?",
+      "Do I need more force, or more alignment?"
+    ]
+  },
+  {
+    "card_id": "strength",
+    "name": "Strength",
+    "arcana": "major",
+    "number": 8,
+    "keywords_upright": ["inner strength", "patience", "courage", "compassion"],
+    "keywords_reversed": ["self-doubt", "fatigue", "overcontrol", "fragility"],
+    "meanings": {
+      "upright": {
+        "general": "Represents calm strength, patience, courage, and steady emotional resilience.",
+        "love": "May suggest compassionate communication, emotional maturity, and gentle strength in relationships.",
+        "career": "Can indicate perseverance, emotional steadiness, and quiet confidence under pressure.",
+        "study": "Suggests consistency, patience, and trusting your progress even when results feel slow.",
+        "self_growth": "Encourages self-compassion, emotional balance, and strength that does not rely on force."
+      },
+      "reversed": {
+        "general": "May point to low confidence, exhaustion, frustration, or difficulty regulating emotions.",
+        "love": "Could reflect insecurity, defensiveness, or reacting from fear instead of openness.",
+        "career": "May suggest burnout, self-doubt, or pressure that is testing your resilience.",
+        "study": "Can indicate discouragement or feeling emotionally drained by academic pressure.",
+        "self_growth": "Invites you to be gentler with yourself and rebuild strength from steadiness, not pressure."
+      }
+    },
+    "reflection_questions": [
+      "What kind of strength is needed here: force, patience, or compassion?",
+      "How can I support myself more kindly in this situation?"
+    ]
+  },
+  {
+    "card_id": "the_hermit",
+    "name": "The Hermit",
+    "arcana": "major",
+    "number": 9,
+    "keywords_upright": ["introspection", "wisdom", "solitude", "reflection"],
+    "keywords_reversed": ["isolation", "withdrawal", "avoidance", "disconnection"],
+    "meanings": {
+      "upright": {
+        "general": "Points to introspection, inner guidance, and stepping back to see more clearly.",
+        "love": "May suggest emotional distance for reflection, or the need to understand your true feelings before acting.",
+        "career": "Can indicate a reflective phase, independent work, or reassessing professional direction.",
+        "study": "Suggests deep focus, self-study, and learning through quiet concentration.",
+        "self_growth": "Encourages introspection, self-honesty, and learning from inner experience."
+      },
+      "reversed": {
+        "general": "May point to isolation, avoidance, or staying withdrawn longer than is helpful.",
+        "love": "Could reflect emotional distancing, fear of vulnerability, or disconnect in intimacy.",
+        "career": "May suggest feeling cut off, uninspired, or over-isolated in your work life.",
+        "study": "Can indicate unproductive withdrawal or studying alone without enough support.",
+        "self_growth": "Invites you to notice whether solitude is nourishing reflection or avoidance."
+      }
+    },
+    "reflection_questions": [
+      "What truth becomes clearer when I slow down?",
+      "Is my distance helping me reflect, or helping me avoid?"
+    ]
+  },
+  {
+    "card_id": "wheel_of_fortune",
+    "name": "Wheel of Fortune",
+    "arcana": "major",
+    "number": 10,
+    "keywords_upright": ["change", "cycles", "turning point", "movement"],
+    "keywords_reversed": ["resistance", "setback", "delay", "lack of control"],
+    "meanings": {
+      "upright": {
+        "general": "Represents change, cycles, turning points, and the movement of events beyond full control.",
+        "love": "May suggest a shift in relationship dynamics, a new phase, or unexpected emotional movement.",
+        "career": "Can indicate career transition, changing opportunities, or timing becoming more significant.",
+        "study": "Suggests a change in pace, new direction, or turning point in learning.",
+        "self_growth": "Encourages adaptability and trust in the unfolding process of change."
+      },
+      "reversed": {
+        "general": "May point to resistance to change, repeated patterns, delays, or frustration with timing.",
+        "love": "Could reflect repeating relationship patterns or difficulty adjusting to change.",
+        "career": "May suggest delays, unstable timing, or frustration when plans do not unfold as expected.",
+        "study": "Can indicate disrupted rhythm or difficulty adapting to changes in academic demands.",
+        "self_growth": "Invites you to reflect on how you respond when life feels uncertain or outside your control."
+      }
+    },
+    "reflection_questions": [
+      "What cycle is changing for me right now?",
+      "How can I respond to uncertainty with more flexibility?"
+    ]
+  },
+  {
+    "card_id": "justice",
+    "name": "Justice",
+    "arcana": "major",
+    "number": 11,
+    "keywords_upright": ["fairness", "truth", "clarity", "accountability"],
+    "keywords_reversed": ["avoidance", "bias", "imbalance", "dishonesty"],
+    "meanings": {
+      "upright": {
+        "general": "Represents truth, fairness, accountability, and seeing things clearly.",
+        "love": "May suggest honest communication, emotional accountability, and facing relationship truths directly.",
+        "career": "Can indicate evaluation, fairness, contracts, and the need for balanced judgment.",
+        "study": "Suggests disciplined effort, fairness in outcomes, and honest self-assessment.",
+        "self_growth": "Encourages integrity, responsibility, and clear reflection on actions and consequences."
+      },
+      "reversed": {
+        "general": "May point to imbalance, avoidance of truth, or judging a situation through distortion.",
+        "love": "Could reflect unresolved tension, dishonesty, or imbalance in mutual responsibility.",
+        "career": "May suggest unfair dynamics, lack of transparency, or discomfort with accountability.",
+        "study": "Can indicate blaming external factors without fully examining your own choices.",
+        "self_growth": "Invites you to look honestly at where clarity has been avoided."
+      }
+    },
+    "reflection_questions": [
+      "What truth needs to be faced more clearly?",
+      "Where can I take responsibility without becoming harsh with myself?"
+    ]
+  },
+  {
+    "card_id": "the_hanged_man",
+    "name": "The Hanged Man",
+    "arcana": "major",
+    "number": 12,
+    "keywords_upright": ["pause", "perspective", "surrender", "reframing"],
+    "keywords_reversed": ["stagnation", "delay", "resistance", "indecision"],
+    "meanings": {
+      "upright": {
+        "general": "Represents pause, surrender, and seeing a situation from a new perspective.",
+        "love": "May suggest waiting, emotional reconsideration, or learning to see a relationship differently.",
+        "career": "Can indicate delay, reassessment, or the need to stop forcing progress for now.",
+        "study": "Suggests that stepping back may help understanding more than pushing harder.",
+        "self_growth": "Encourages letting go of control and allowing a deeper perspective to emerge."
+      },
+      "reversed": {
+        "general": "May point to unhelpful delay, avoidance disguised as patience, or resistance to needed change in viewpoint.",
+        "love": "Could reflect emotional limbo, stuck patterns, or reluctance to see relationship truth differently.",
+        "career": "May suggest stalling, passive frustration, or indecision that prevents movement.",
+        "study": "Can indicate waiting without meaningful reflection or not adapting when a method is not working.",
+        "self_growth": "Invites you to ask whether your pause is conscious reflection or fear of action."
+      }
+    },
+    "reflection_questions": [
+      "What changes when I look at this differently?",
+      "Is this a meaningful pause, or am I staying stuck?"
+    ]
+  },
+  {
+    "card_id": "death",
+    "name": "Death",
+    "arcana": "major",
+    "number": 13,
+    "keywords_upright": ["transformation", "ending", "release", "transition"],
+    "keywords_reversed": ["resistance to change", "clinging", "stagnation", "unfinished ending"],
+    "meanings": {
+      "upright": {
+        "general": "Represents endings, release, and necessary transformation that makes space for something new.",
+        "love": "May suggest the end of an old emotional pattern, a major shift in the relationship, or emotional renewal through release.",
+        "career": "Can indicate a significant transition, closing a chapter, or leaving outdated structures behind.",
+        "study": "Suggests letting go of ineffective habits or moving into a new academic phase.",
+        "self_growth": "Encourages release, acceptance of change, and trust in personal transformation."
+      },
+      "reversed": {
+        "general": "May point to resisting necessary endings, holding on too tightly, or difficulty accepting change.",
+        "love": "Could reflect clinging to old patterns, fear of emotional transition, or inability to release what no longer works.",
+        "career": "May suggest staying in an unsustainable situation out of fear of change.",
+        "study": "Can indicate repeating ineffective methods because change feels uncomfortable.",
+        "self_growth": "Invites you to notice what needs to be released in order for growth to happen."
+      }
+    },
+    "reflection_questions": [
+      "What am I being asked to release?",
+      "What ending may actually be creating space for new life?"
+    ]
+  },
+  {
+    "card_id": "temperance",
+    "name": "Temperance",
+    "arcana": "major",
+    "number": 14,
+    "keywords_upright": ["balance", "moderation", "integration", "patience"],
+    "keywords_reversed": ["imbalance", "excess", "friction", "disharmony"],
+    "meanings": {
+      "upright": {
+        "general": "Represents balance, integration, patience, and the steady blending of different elements.",
+        "love": "May suggest emotional harmony, compromise, and growing connection through mutual balance.",
+        "career": "Can indicate sustainable progress, collaboration, and measured decision-making.",
+        "study": "Suggests balanced study habits, consistency, and avoiding extremes.",
+        "self_growth": "Encourages patience, integration, and a calmer rhythm of growth."
+      },
+      "reversed": {
+        "general": "May point to imbalance, impatience, excess, or difficulty bringing different needs into harmony.",
+        "love": "Could reflect emotional extremes, poor compromise, or mismatched expectations.",
+        "career": "May suggest burnout, poor pacing, or conflicting demands that need better integration.",
+        "study": "Can indicate inconsistency, overwork, or imbalance between effort and rest.",
+        "self_growth": "Invites you to restore balance gently rather than through self-criticism."
+      }
+    },
+    "reflection_questions": [
+      "What would balance look like in this situation?",
+      "Where do I need a steadier pace instead of an extreme response?"
+    ]
+  },
+  {
+    "card_id": "the_devil",
+    "name": "The Devil",
+    "arcana": "major",
+    "number": 15,
+    "keywords_upright": ["attachment", "temptation", "shadow", "restriction"],
+    "keywords_reversed": ["release", "awareness", "detachment", "breaking patterns"],
+    "meanings": {
+      "upright": {
+        "general": "Represents unhealthy attachment, fear-based patterns, temptation, or feeling trapped.",
+        "love": "May suggest jealousy, unhealthy attachment, control patterns, or relationship dynamics driven by fear rather than trust.",
+        "career": "Can indicate burnout, overidentification with work, material pressure, or feeling bound by external demands.",
+        "study": "Suggests unhealthy pressure, procrastination cycles, or being trapped in self-defeating habits.",
+        "self_growth": "Encourages honest recognition of what is binding you and how fear may be shaping choices."
+      },
+      "reversed": {
+        "general": "May point to awareness, loosening unhealthy patterns, and beginning to reclaim freedom.",
+        "love": "Could reflect breaking attachment cycles or becoming more honest about what is not healthy.",
+        "career": "May suggest stepping back from unhealthy pressure or redefining your relationship with success.",
+        "study": "Can indicate release from unhelpful habits and a more conscious learning rhythm.",
+        "self_growth": "Invites you to notice where freedom becomes possible through awareness and choice."
+      }
+    },
+    "reflection_questions": [
+      "What pattern feels binding right now?",
+      "What would reclaiming freedom look like in a realistic first step?"
+    ]
+  },
+  {
+    "card_id": "the_tower",
+    "name": "The Tower",
+    "arcana": "major",
+    "number": 16,
+    "keywords_upright": ["sudden change", "disruption", "revelation", "breakthrough"],
+    "keywords_reversed": ["avoidance", "delayed change", "inner upheaval", "fragile stability"],
+    "meanings": {
+      "upright": {
+        "general": "Represents disruption, revelation, and the breaking apart of structures that can no longer hold.",
+        "love": "May suggest sudden truth, emotional upheaval, or a breakthrough that changes how the relationship is understood.",
+        "career": "Can indicate sudden workplace shifts, instability, or necessary structural change.",
+        "study": "Suggests disruption in plans or a realization that current methods are not sustainable.",
+        "self_growth": "Encourages honest acceptance when old foundations are no longer serving growth."
+      },
+      "reversed": {
+        "general": "May point to resisting change, inner instability, or sensing that something unsustainable is being avoided.",
+        "love": "Could reflect avoided truth, building tension, or fear of emotional disruption.",
+        "career": "May suggest quiet instability or avoiding necessary change in a professional setting.",
+        "study": "Can indicate procrastinated adjustment or stress accumulating beneath the surface.",
+        "self_growth": "Invites you to consider whether something needs to shift before pressure builds further."
+      }
+    },
+    "reflection_questions": [
+      "What truth is becoming impossible to ignore?",
+      "What foundation in my life may need to change?"
+    ]
+  },
+  {
+    "card_id": "the_star",
+    "name": "The Star",
+    "arcana": "major",
+    "number": 17,
+    "keywords_upright": ["hope", "healing", "clarity", "renewal"],
+    "keywords_reversed": ["discouragement", "doubt", "drained hope", "disconnection"],
+    "meanings": {
+      "upright": {
+        "general": "Represents hope, healing, emotional openness, and renewed trust in the future.",
+        "love": "May suggest emotional healing, honesty, and renewed faith in connection.",
+        "career": "Can indicate inspiration, long-term hope, and recovering confidence in your path.",
+        "study": "Suggests renewed motivation, clarity of purpose, and trust in gradual progress.",
+        "self_growth": "Encourages healing, sincerity, and reconnecting with what gives your life meaning."
+      },
+      "reversed": {
+        "general": "May point to discouragement, emotional fatigue, or difficulty seeing possibility clearly.",
+        "love": "Could reflect disappointment or guardedness after emotional hurt.",
+        "career": "May suggest losing sight of purpose or feeling detached from long-term direction.",
+        "study": "Can indicate low motivation or doubting your ability to improve.",
+        "self_growth": "Invites you to reconnect with small sources of hope rather than demanding certainty."
+      }
+    },
+    "reflection_questions": [
+      "What is still quietly hopeful in this situation?",
+      "How can I support healing without rushing it?"
+    ]
+  },
+  {
+    "card_id": "the_moon",
+    "name": "The Moon",
+    "arcana": "major",
+    "number": 18,
+    "keywords_upright": ["uncertainty", "intuition", "emotion", "illusion"],
+    "keywords_reversed": ["clarity emerging", "releasing fear", "truth surfacing", "reduced confusion"],
+    "meanings": {
+      "upright": {
+        "general": "Represents uncertainty, emotional depth, intuition, and situations that are not fully clear yet.",
+        "love": "May suggest emotional ambiguity, projection, hidden fears, or difficulty reading the relationship clearly.",
+        "career": "Can indicate uncertainty, incomplete information, or anxiety shaping perception of work matters.",
+        "study": "Suggests confusion, emotional pressure, or difficulty seeing the next step clearly.",
+        "self_growth": "Encourages patience with uncertainty and attention to what fear or intuition may be revealing."
+      },
+      "reversed": {
+        "general": "May point to truth gradually emerging, confusion lifting, or becoming more aware of emotional distortions.",
+        "love": "Could reflect increased honesty or beginning to see a relationship more clearly.",
+        "career": "May suggest uncertainty easing or hidden issues in work becoming more visible.",
+        "study": "Can indicate improved clarity after a period of confusion.",
+        "self_growth": "Invites you to sort intuition from fear with gentleness and honesty."
+      }
+    },
+    "reflection_questions": [
+      "What part of this situation feels unclear or emotionally charged?",
+      "What might be fear, and what might be intuition?"
+    ]
+  },
+  {
+    "card_id": "the_sun",
+    "name": "The Sun",
+    "arcana": "major",
+    "number": 19,
+    "keywords_upright": ["clarity", "joy", "success", "confidence"],
+    "keywords_reversed": ["temporary cloudiness", "delay in joy", "self-doubt", "dimmed confidence"],
+    "meanings": {
+      "upright": {
+        "general": "Represents clarity, vitality, confidence, and a sense of openness or positive momentum.",
+        "love": "May suggest warmth, honesty, joy, and a relationship dynamic that feels more open and alive.",
+        "career": "Can indicate visible progress, confidence, recognition, or renewed energy in work.",
+        "study": "Suggests confidence, understanding, and positive momentum in learning.",
+        "self_growth": "Encourages joy, authenticity, and trusting your light more openly."
+      },
+      "reversed": {
+        "general": "May point to temporary discouragement, muted joy, or difficulty fully recognizing what is going well.",
+        "love": "Could reflect emotional warmth that is present but blocked by doubt or hesitation.",
+        "career": "May suggest success delayed by uncertainty or not fully owning your progress.",
+        "study": "Can indicate underestimating your ability despite real improvement.",
+        "self_growth": "Invites you to notice where confidence is available but not fully accepted."
+      }
+    },
+    "reflection_questions": [
+      "What is becoming clearer for me now?",
+      "Where can I allow more honesty, joy, or confidence?"
+    ]
+  },
+  {
+    "card_id": "judgement",
+    "name": "Judgement",
+    "arcana": "major",
+    "number": 20,
+    "keywords_upright": ["awakening", "evaluation", "renewal", "calling"],
+    "keywords_reversed": ["self-doubt", "avoidance", "harsh judgment", "hesitation"],
+    "meanings": {
+      "upright": {
+        "general": "Represents awakening, reflection, evaluation, and the call to move into a truer version of yourself.",
+        "love": "May suggest honest reassessment, relationship renewal, or facing emotional truth with maturity.",
+        "career": "Can indicate a vocational turning point, review of past decisions, or a stronger sense of calling.",
+        "study": "Suggests honest evaluation, learning from past effort, and stepping into a more intentional phase.",
+        "self_growth": "Encourages self-reflection, forgiveness, and answering what feels genuinely meaningful."
+      },
+      "reversed": {
+        "general": "May point to self-doubt, avoidance of truth, or harsh self-judgment that blocks renewal.",
+        "love": "Could reflect fear of confronting relationship truth or difficulty letting go of emotional guilt.",
+        "career": "May suggest hesitation around an important decision or fear of stepping into a new direction.",
+        "study": "Can indicate being stuck in self-criticism instead of constructive reflection.",
+        "self_growth": "Invites you to examine whether you are reflecting honestly or simply judging yourself harshly."
+      }
+    },
+    "reflection_questions": [
+      "What truth is asking to be acknowledged now?",
+      "How can I reflect honestly without becoming self-punishing?"
+    ]
+  },
+  {
+    "card_id": "the_world",
+    "name": "The World",
+    "arcana": "major",
+    "number": 21,
+    "keywords_upright": ["completion", "integration", "fulfillment", "wholeness"],
+    "keywords_reversed": ["unfinished cycle", "delay", "incompletion", "loose ends"],
+    "meanings": {
+      "upright": {
+        "general": "Represents completion, integration, fulfillment, and the closing of an important cycle.",
+        "love": "May suggest emotional maturity, relational fulfillment, or reaching a meaningful stage of understanding.",
+        "career": "Can indicate completion, achievement, or stepping into a broader stage of growth.",
+        "study": "Suggests finishing an important learning cycle and recognizing how much has been integrated.",
+        "self_growth": "Encourages honoring completion, seeing the whole journey, and recognizing your growth."
+      },
+      "reversed": {
+        "general": "May point to loose ends, delayed completion, or feeling that something important is not yet fully integrated.",
+        "love": "Could reflect unfinished emotional business or a relationship cycle that still needs closure or understanding.",
+        "career": "May suggest being close to completion but still needing refinement or final effort.",
+        "study": "Can indicate unfinished work, incomplete integration, or needing to consolidate what you have learned.",
+        "self_growth": "Invites you to ask what remains unresolved before this chapter can close well."
+      }
+    },
+    "reflection_questions": [
+      "What cycle in my life is nearing completion?",
+      "What still needs to be integrated before I can move on fully?"
+    ]
+  }
+]
