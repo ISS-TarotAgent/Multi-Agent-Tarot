@@ -1,0 +1,18 @@
+# ── Python ─────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# ── Environment secrets ────────────────────────────────────
+.env
+
+# ── IDE / OS ───────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
