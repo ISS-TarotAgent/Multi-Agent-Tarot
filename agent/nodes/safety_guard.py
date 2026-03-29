@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional,Any
 
 from agent.core.schemas import RequiredAction, RiskLevel, SafetyDecision, TrustTaggedContent,OrchestratorState
 
@@ -30,6 +30,72 @@ HIGH_RISK_MESSAGE = (
 )
 
 
+def build_safe_fallback_response(
+        decision: Optional[SafetyDecision] = None,
+) -> SafeFallbackResponse:
+    """
+    Build a safe fallback response when the workflow must stop or downgrade
+
+    This function intentionally avoids exposing internal security rules,
+    detecotr logic, or workflow details
+    """
+    if decision is None:
+        return SafeFallbackResponse(
+            message = DEFAULT_BLOCK_MESSAGE,
+            fallback_type="default_block",
+            should_ask_rephrase=True,
+            metadata={"reason": "missing_decision"},
+        )
+    
+    if decision.required_action == RequiredAction.ASK_CLARIFICATION:
+        return SafeFallbackResponse(
+            message = REPHRASE_MESSAGE,
+            fallback_type="ask_rephrase",
+            should_ask_rephrase=True,
+            metadata={
+                "risk_level": decision.risk_level.value,
+                "detected_risks": decision.detected_risks
+            },
+        )
+    
+    if decision.risk_level in {RiskLevel.HIGH, RiskLevel.CRITICAL}:
+        return SafeFallbackResponse(
+            message = HIGH_RISK_MESSAGE,
+            fallback_type="high_risk_block",
+            should_ask_rephrase=True,
+            metadata={
+                "risk_level": decision.risk_level.value,
+                "detected_risks": decision.detected_risks
+            },
+        )
+    
+    return SafeFallbackResponse(
+        message = DEFAULT_BLOCK_MESSAGE,
+        fallback_type="default_block",
+        should_ask_rephrase=True,
+        metadata={
+            "risk_level": decision.risk_level.value,
+            "detected_risks": decision.detected_risks
+        },
+    )
+
+def safe_fallback_node(
+    decision: Optional[SafetyDecision] = None,
+) -> dict[str,Any]:
+    """
+    Node-style wrapper for workflow integration,
+    Returns a simple dict so it can be easily consumed by orchestrators.
+    """
+    fallback = build_safe_fallback_response(decision)
+
+    return {
+        "status":"safe_fallback",
+        "final_response":fallback.message,
+        "fallback_type":fallback.fallback_type,
+        "should_ask_rephrase":fallback.should_ask_rephrase,
+        "metadata":fallback.metadata or {},
+    }
+    
 async def safety_guard_node(state: OrchestratorState) -> OrchestratorState:
     """Run policy checks and rewrite risky outputs if needed.
 
