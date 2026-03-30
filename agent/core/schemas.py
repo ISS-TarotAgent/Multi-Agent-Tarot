@@ -7,6 +7,8 @@ owners who will supply final business logic.
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel
 from dataclasses import dataclass,field
 from enum import Enum
@@ -74,27 +76,53 @@ class SanitizedPayload:
 
 # Other shared schemas for the Tarot Agent workflow (placeholders for now)
 class ClarificationRequest(BaseModel):
-    """Incoming payload for the Clarifier Agent.
+    """Incoming payload for Phase 1 of the Clarifier Agent."""
 
-    TODO:
-        - add raw user question
-        - add optional conversation/session identifiers
-        - add guardrails metadata (language, tone, etc.)
-    """
-
-    pass
+    session_id: str
+    raw_question: str
 
 
 class ClarificationResult(BaseModel):
-    """Structured output from the Clarifier Agent.
+    """Structured output from Phase 1 of the Clarifier Agent.
 
-    TODO:
-        - add canonical question statement
-        - add intent taxonomy tags / confidence score
-        - add downstream instructions (e.g., spread preference)
+    Maps to the frontend ``SessionDraft`` type (camelCase conversion is handled
+    at the API layer via ``model_config`` / ``alias_generator``).
     """
 
-    pass
+    session_id: str
+    original_question: str
+    normalized_question: str
+    intent_tag: IntentTag
+    clarification_prompts: list[ClarificationPrompt]
+
+
+# ---------------------------------------------------------------------------
+# Clarifier Agent -- Phase 2 (clarify_finalize)
+# ---------------------------------------------------------------------------
+
+
+class ClarificationFinalizeRequest(BaseModel):
+    """Incoming payload for Phase 2 of the Clarifier Agent."""
+
+    session_id: str
+    original_question: str
+    intent_tag: IntentTag
+    clarification_answers: dict[str, str]
+
+
+class ClarificationFinalizeResult(BaseModel):
+    """Structured output from Phase 2 of the Clarifier Agent.
+
+    ``reframed_question`` is the single enriched question passed downstream to
+    the DrawAndInterpret node.  The remaining fields provide semantic context
+    that the Synthesis and Safety agents may consume.
+    """
+
+    reframed_question: str
+    topic: str
+    time_horizon: str
+    intent: str
+    constraints: list[str]
 
 
 class CardInterpretation(BaseModel):
@@ -148,10 +176,25 @@ class SafetyReport(BaseModel):
 class OrchestratorState(BaseModel):
     """State container passed between LangGraph nodes.
 
-    TODO:
-        - aggregate fields above into a single workflow state
-        - include trace/log identifiers for Langfuse or JSON logging
-        - carry retry counters and escalation flags
+    Fields are populated incrementally as the workflow progresses through each
+    node.  Optional fields are ``None`` until the responsible node runs.
     """
 
-    pass
+    # ---- session identity ----
+    session_id: str = ""
+
+    # ---- Phase 1 clarification outputs ----
+    raw_question: str = ""
+    clarification_result: ClarificationResult | None = None
+
+    # ---- Phase 2 finalization inputs / outputs ----
+    clarification_answers: dict[str, str] = {}
+    finalize_result: ClarificationFinalizeResult | None = None
+
+    # ---- downstream draw & interpret ----
+    final_question: str = ""
+    card_interpretations: list[CardInterpretation] = []
+
+    # ---- synthesis & safety ----
+    synthesis_output: SynthesisOutput | None = None
+    safety_report: SafetyReport | None = None
