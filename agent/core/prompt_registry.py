@@ -9,24 +9,31 @@ PROMPT_ROOT = Path(__file__).resolve().parents[2] / "prompts"
 
 
 def load_prompt(name: str) -> str:
-    """Return the raw prompt template text.
+    """Return the raw prompt template text for the given name.
 
-    TODO:
-        - define naming convention (e.g., clarifier/system_v1)
-        - add caching and checksum validation
-        - add error classes for missing/invalid prompts
+    Args:
+        name: Prompt file name without the ``.md`` extension
+              (e.g. ``"clarifier_init"``).
+
+    Returns:
+        Full text content of the prompt template.
+
+    Raises:
+        FileNotFoundError: When no matching ``.md`` file exists under
+            ``prompts/``.
     """
-
     target = PROMPT_ROOT / f"{name}.md"
-    raise NotImplementedError(f"Prompt loader pending; expected file at {target}")
+    if not target.exists():
+        raise FileNotFoundError(
+            f"Prompt template '{name}' not found. Expected file at: {target}"
+        )
+    return target.read_text(encoding="utf-8")
 
 
 def list_prompts() -> Dict[str, Path]:
-    """Enumerate available prompt templates for tooling support.
+    """Enumerate available prompt templates.
 
-    TODO:
-        - integrate with Promptfoo test suite
-        - surface prompt versions for the frontend/debug UI
+    Returns:
+        Mapping of prompt name (without ``.md``) to its absolute ``Path``.
     """
-
-    raise NotImplementedError("Prompt listing not implemented yet")
+    return {p.stem: p for p in sorted(PROMPT_ROOT.glob("*.md"))}
