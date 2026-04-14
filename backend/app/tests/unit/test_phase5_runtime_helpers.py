@@ -18,13 +18,15 @@ def _load_promptfoo_provider_module():
     return module
 
 
-def test_promptfoo_provider_discovers_backend_venv_site_packages() -> None:
+def test_promptfoo_provider_discovers_backend_venv_site_packages(tmp_path: Path) -> None:
     module = _load_promptfoo_provider_module()
-    venv_root = Path(__file__).resolve().parents[3] / ".venv"
+    venv_root = tmp_path / ".venv"
+    expected_site_packages = venv_root / "Lib" / "site-packages"
+    expected_site_packages.mkdir(parents=True)
 
     discovered_paths = module._discover_venv_site_packages(venv_root, platform="win32")
 
-    assert venv_root / "Lib" / "site-packages" in discovered_paths
+    assert expected_site_packages in discovered_paths
 
 
 def test_docker_available_returns_false_with_cli_error(monkeypatch) -> None:
