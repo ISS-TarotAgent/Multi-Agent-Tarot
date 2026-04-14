@@ -10,8 +10,6 @@ from app.api.errors import register_exception_handlers
 from app.api.router import api_router
 from app.infrastructure.config.settings import AppSettings, get_settings
 from app.infrastructure.logging.setup import configure_logging
-from app.web import demo_router
-
 logger = logging.getLogger("app.http")
 
 
@@ -26,7 +24,6 @@ def create_app(settings: AppSettings | None = None) -> FastAPI:
     app.state.settings = resolved_settings
     register_exception_handlers(app)
     app.include_router(api_router, prefix=resolved_settings.api_v1_prefix)
-    app.include_router(demo_router)
 
     @app.middleware("http")
     async def request_logging_middleware(request: Request, call_next):
