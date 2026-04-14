@@ -22,7 +22,7 @@
 * Node.js 与 npm
 * Python: 统一3.12版本
 * Docker Desktop
-* MySQL
+* PostgreSQL
 #### 推荐开发工具
 * VS Code
 * PyCharm

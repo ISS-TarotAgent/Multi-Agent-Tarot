@@ -112,7 +112,7 @@
 
 ### 数据存储
 
-* **MySQL: 存储用户对话,澄清结果.抽牌结果等**
+* **PostgreSQL: 存储用户对话,澄清结果,抽牌结果等**
 
 ### 测试
 
@@ -229,3 +229,45 @@ project-root/
 ### 7.8 .github/workflows/
 
 **存放 GitHub Actions 的 CI/CD 工作流配置**
+
+## 8.后端阶段 6 启动说明
+
+阶段 6 已补齐本地演示所需的最小交付底座。推荐直接在仓库根目录执行：
+
+```bash
+docker compose up --build
+```
+
+启动成功后，可访问：
+
+- `http://127.0.0.1:8000/api/v1/health`
+- `http://127.0.0.1:8000/docs`
+- `http://127.0.0.1:8000/openapi.json`
+
+如果只想运行后端，不走容器，详见 `backend/README.md`。
+
+## 9.回归验证入口
+
+后端测试：
+
+```bash
+cd backend
+python -m pytest app/tests -q
+```
+
+Promptfoo 回归：
+
+```bash
+npx promptfoo@latest eval -c evals/promptfoo/promptfooconfig.yaml
+```
+
+## 10.排障文档
+
+阶段 6 的常见问题与排查命令已整理到：
+
+- `docs/07-Backend-Delivery-Runbook.md`
+- `backend/README.md`
+
+如果需要查看基于当前源码实现的详细后端说明，见：
+
+- `docs/08-Backend-Implementation-Guide.md`

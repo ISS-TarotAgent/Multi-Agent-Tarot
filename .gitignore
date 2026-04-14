@@ -1,0 +1,27 @@
+.ace-tool/
+.jj/
+.playwright-mcp/
+.serena/
+
+# Python caches and local environments
+**/__pycache__/
+**/*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+backend/.venv/
+*.egg-info/
+backend/multi_agent_tarot_backend.egg-info/
+
+# Local configuration and reports
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+.coverage
+.coverage.*
+htmlcov/
+*.log

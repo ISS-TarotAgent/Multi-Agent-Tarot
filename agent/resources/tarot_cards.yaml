@@ -1,0 +1,51 @@
+cards:
+  - code: the_fool
+    name: 愚者
+    theme: 新的尝试
+    upright_meaning: 你正被新的可能性吸引，适合先迈出试探性的一步。
+    reversed_meaning: 你可能太急着跳进未知，需要先确认脚下是否稳固。
+  - code: the_magician
+    name: 魔术师
+    theme: 主动创造
+    upright_meaning: 你已经拥有启动事情所需的资源，关键在于主动整合。
+    reversed_meaning: 资源并不少，但注意不要把精力耗散在表面忙碌上。
+  - code: the_high_priestess
+    name: 女祭司
+    theme: 内在判断
+    upright_meaning: 比起马上行动，你更需要先听清楚自己真正的感受和判断。
+    reversed_meaning: 你可能忽略了内心已经给出的提醒，导致外部信息越看越乱。
+  - code: the_empress
+    name: 皇后
+    theme: 滋养与成长
+    upright_meaning: 当前适合用更有耐心、更能滋养自己的方式推进事情。
+    reversed_meaning: 你可能在过度照顾他人或结果，反而挤压了自己的空间。
+  - code: the_hermit
+    name: 隐者
+    theme: 沉淀与复盘
+    upright_meaning: 先独处、复盘、收拢注意力，会比立刻追求结论更有效。
+    reversed_meaning: 过度封闭会让你错过外部反馈，适合适度向外求证。
+  - code: strength
+    name: 力量
+    theme: 稳定与节奏
+    upright_meaning: 真正推动你前进的，不是硬扛，而是稳住情绪与行动节奏。
+    reversed_meaning: 当下更要留意情绪透支，别让焦虑代替你做决定。
+  - code: the_star
+    name: 星星
+    theme: 希望与修复
+    upright_meaning: 你正在慢慢看见新的希望，适合恢复长期视角。
+    reversed_meaning: 先别急着否定自己，信心不足不等于方向错误。
+  - code: two_of_wands
+    name: 权杖二
+    theme: 方向评估
+    upright_meaning: 你已经站在新的起点，接下来要做的是比较方向而不是原地犹豫。
+    reversed_meaning: 信息还不够完整，过早拍板可能让你忽视关键条件。
+  - code: six_of_swords
+    name: 宝剑六
+    theme: 过渡与离开
+    upright_meaning: 某些旧模式正在离开，你更适合把注意力放到过渡期管理上。
+    reversed_meaning: 你可能还在被旧问题拖住，先处理残留影响比硬往前冲更有效。
+  - code: queen_of_cups
+    name: 圣杯皇后
+    theme: 情绪觉察
+    upright_meaning: 当前议题和情绪感受紧密相关，温和地觉察比压抑更重要。
+    reversed_meaning: 情绪边界有些模糊，先区分自己的感受与外界期待会更清楚。

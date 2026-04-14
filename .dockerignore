@@ -1,0 +1,9 @@
+.ace-tool/
+.git/
+.github/workflows/.gitkeep
+.serena/
+**/__pycache__/
+**/*.py[cod]
+backend/.venv/
+backend/multi_agent_tarot_backend.egg-info/
+
