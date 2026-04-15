@@ -84,8 +84,13 @@ def call_api(prompt: str, options: dict[str, Any], context: dict[str, Any]) -> d
             "locale": vars_payload.get("locale", "zh-CN"),
         },
     )
+    try:
+        body = response.json()
+        output_str = json.dumps(body, ensure_ascii=False)
+    except (ValueError, KeyError):
+        output_str = response.text
     return {
-        "output": json.dumps(response.json(), ensure_ascii=False),
+        "output": output_str,
         "metadata": {
             "status_code": response.status_code,
         },

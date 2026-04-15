@@ -1,7 +1,6 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: multi-agent-tarot-postgres
     environment:
       POSTGRES_DB: multi_agent_tarot
       POSTGRES_USER: postgres
@@ -20,7 +19,6 @@ services:
     build:
       context: .
       dockerfile: Docker/backend.Dockerfile
-    container_name: multi-agent-tarot-backend
     depends_on:
       postgres:
         condition: service_healthy

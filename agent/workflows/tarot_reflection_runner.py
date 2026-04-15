@@ -23,6 +23,11 @@ from app.schemas.workflow.trace_event import TraceEventPayload
 
 _TRACE_READING_ID_KEY = "__trace_reading_id__"
 
+_SAFETY_FALLBACK_SUMMARY = "这次解读过程中安全校验未能稳定完成，因此我先返回一个更稳妥的保护性结果。"
+_SAFETY_FALLBACK_ACTION_ADVICE = "先把问题缩小到一个你最近最想确认的现实主题，再重新发起一次解读会更有帮助。"
+_SAFETY_FALLBACK_REFLECTION_QUESTION = "如果只能先厘清一件事，你最希望先看清的是哪一个现实选择？"
+
+
 class TarotWorkflowRunner:
     """Executes workflow steps while preserving trace and fallback contracts."""
 
@@ -135,28 +140,79 @@ class TarotWorkflowRunner:
             metadata={"attempt_no": 1},
         ) as observation:
             started_at = perf_counter()
-            output = self._safety_guard_agent.run(
-                SafetyReviewInput(
-                    summary=synthesis_output.summary,
-                    action_advice=synthesis_output.action_advice,
-                    reflection_question=synthesis_output.reflection_question,
-                    normalized_question=state.normalized_question or state.raw_question,
+            try:
+                output = self._safety_guard_agent.run(
+                    SafetyReviewInput(
+                        summary=synthesis_output.summary,
+                        action_advice=synthesis_output.action_advice,
+                        reflection_question=synthesis_output.reflection_question,
+                        normalized_question=state.normalized_question or state.raw_question,
+                    )
                 )
-            )
-            latency_ms = self._duration_ms(started_at)
-            observation.success(
-                output={"risk_level": output.risk_level.value, "action_taken": output.action_taken.value},
-                metadata={"latency_ms": latency_ms},
-            )
-            self.append_trace(
-                state,
-                step_name="safety_guard",
-                event_status=TraceEventStatus.SUCCEEDED,
-                attempt_no=1,
-                latency_ms=latency_ms,
-                payload={"risk_level": output.risk_level.value, "action_taken": output.action_taken.value},
-            )
-            return output
+                latency_ms = self._duration_ms(started_at)
+                observation.success(
+                    output={"risk_level": output.risk_level.value, "action_taken": output.action_taken.value},
+                    metadata={"latency_ms": latency_ms},
+                )
+                self.append_trace(
+                    state,
+                    step_name="safety_guard",
+                    event_status=TraceEventStatus.SUCCEEDED,
+                    attempt_no=1,
+                    latency_ms=latency_ms,
+                    payload={"risk_level": output.risk_level.value, "action_taken": output.action_taken.value},
+                )
+                return output
+            except ValidationError as exc:
+                latency_ms = self._duration_ms(started_at)
+                error_message = f"safety_guard input validation failed: {exc}"
+                observation.failure(
+                    error_code="SAFETY_GUARD_INPUT_VALIDATION_FAILED",
+                    message=error_message,
+                    metadata={"latency_ms": latency_ms},
+                )
+                self.append_trace(
+                    state,
+                    step_name="safety_guard",
+                    event_status=TraceEventStatus.FAILED,
+                    attempt_no=1,
+                    latency_ms=latency_ms,
+                    payload={"fallback": True, "reason": error_message},
+                    error_code="SAFETY_GUARD_INPUT_VALIDATION_FAILED",
+                )
+                return SafetyReviewOutput(
+                    risk_level=RiskLevel.MEDIUM,
+                    action_taken=SafetyAction.BLOCK_AND_FALLBACK,
+                    safe_summary=_SAFETY_FALLBACK_SUMMARY,
+                    safe_action_advice=_SAFETY_FALLBACK_ACTION_ADVICE,
+                    safe_reflection_question=_SAFETY_FALLBACK_REFLECTION_QUESTION,
+                    review_notes=error_message,
+                )
+            except Exception as exc:
+                latency_ms = self._duration_ms(started_at)
+                error_message = f"safety_guard execution failed: {exc}"
+                observation.failure(
+                    error_code="SAFETY_GUARD_RUN_FAILED",
+                    message=error_message,
+                    metadata={"latency_ms": latency_ms},
+                )
+                self.append_trace(
+                    state,
+                    step_name="safety_guard",
+                    event_status=TraceEventStatus.FAILED,
+                    attempt_no=1,
+                    latency_ms=latency_ms,
+                    payload={"fallback": True, "reason": error_message},
+                    error_code="SAFETY_GUARD_RUN_FAILED",
+                )
+                return SafetyReviewOutput(
+                    risk_level=RiskLevel.MEDIUM,
+                    action_taken=SafetyAction.BLOCK_AND_FALLBACK,
+                    safe_summary=_SAFETY_FALLBACK_SUMMARY,
+                    safe_action_advice=_SAFETY_FALLBACK_ACTION_ADVICE,
+                    safe_reflection_question=_SAFETY_FALLBACK_REFLECTION_QUESTION,
+                    review_notes=error_message,
+                )
 
     def finalize_fallback_state(self, state: TarotWorkflowState, reason: str) -> TarotWorkflowState:
         state.safety_output = SafetyReviewOutput(
