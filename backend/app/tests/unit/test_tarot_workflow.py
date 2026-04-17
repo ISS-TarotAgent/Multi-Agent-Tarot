@@ -1,14 +1,27 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
+
 from agent.workflows import TarotReflectionWorkflow
+from agent.schemas.safety import SafetyReviewInput
 from app.schemas.workflow.tarot_workflow_state import TarotWorkflowState
 from app.domain.enums import SafetyAction, SpreadType, TraceEventStatus, WorkflowStatus
 from langgraph.checkpoint.memory import InMemorySaver
 
 
+class BrokenClarifierAgent:
+    def run(self, payload):  # noqa: ANN001
+        raise RuntimeError("model gateway timeout")
+
+
 class BrokenDrawAgent:
     def run(self, payload):  # noqa: ANN001
         raise ValueError("draw output is invalid")
+
+
+class BrokenSafetyGuardAgent:
+    def run(self, payload: SafetyReviewInput):  # noqa: ARG002
+        raise RuntimeError("provider token leaked into exception")
 
 
 class RecordingPersistenceHandler:
@@ -17,6 +30,57 @@ class RecordingPersistenceHandler:
 
     def __call__(self, state: TarotWorkflowState) -> None:
         self.calls.append((state.status, len(state.trace_events)))
+
+
+class RecordingObservationHandle:
+    def __init__(self) -> None:
+        self.failures: list[dict[str, object]] = []
+
+    def success(self, *, output=None, metadata=None) -> None:  # noqa: ANN001, ANN002, D401
+        return None
+
+    def failure(self, *, error_code, message, metadata=None) -> None:  # noqa: ANN001, ANN002, D401
+        self.failures.append(
+            {
+                "error_code": error_code,
+                "message": message,
+                "metadata": metadata,
+            }
+        )
+
+
+class RecordingObserver:
+    def __init__(self) -> None:
+        self.step_handles: dict[str, list[RecordingObservationHandle]] = {}
+
+    @contextmanager
+    def observe_operation(
+        self,
+        *,
+        name: str,  # noqa: ARG002
+        session_id: str,  # noqa: ARG002
+        reading_id: str | None,  # noqa: ARG002
+        input_payload=None,  # noqa: ANN001, ARG002
+        metadata=None,  # noqa: ANN001, ARG002
+    ):
+        yield RecordingObservationHandle()
+
+    @contextmanager
+    def observe_step(
+        self,
+        *,
+        step_name: str,
+        as_type: str,  # noqa: ARG002
+        input_payload=None,  # noqa: ANN001, ARG002
+        metadata=None,  # noqa: ANN001, ARG002
+    ):
+        handle = RecordingObservationHandle()
+        self.step_handles.setdefault(step_name, []).append(handle)
+        yield handle
+
+    @staticmethod
+    def get_current_trace_id() -> str | None:
+        return None
 
 
 def test_workflow_returns_safe_fallback_when_draw_keeps_failing() -> None:
@@ -44,6 +108,37 @@ def test_workflow_returns_safe_fallback_when_draw_keeps_failing() -> None:
         event.step_name == "draw_interpreter" and event.error_code == "STEP_FALLBACK_TRIGGERED"
         for event in state.trace_events
     )
+
+
+def test_clarifier_fallback_records_exception_details_in_trace_and_observer() -> None:
+    observer = RecordingObserver()
+    workflow = TarotReflectionWorkflow(
+        clarifier_agent=BrokenClarifierAgent(),
+        observer=observer,
+    )
+
+    state = workflow.evaluate_question(
+        session_id="7b3273ef-260d-49eb-b1af-f1c1b862d420",
+        reading_id="2fcb387d-b34e-4c61-beb1-88d67f1d9744",
+        raw_question="最近在工作选择上很犹豫，我应该继续坚持当前方向吗？",
+        locale="zh-CN",
+        spread_type=SpreadType.THREE_CARD_REFLECTION,
+    )
+
+    assert state.status is WorkflowStatus.READY_FOR_DRAW
+    assert state.normalized_question == "最近在工作选择上很犹豫，我应该继续坚持当前方向吗？"
+
+    clarifier_event = state.trace_events[0]
+    assert clarifier_event.step_name == "clarifier"
+    assert clarifier_event.event_status is TraceEventStatus.FALLBACK
+    assert clarifier_event.error_code == "CLARIFIER_FALLBACK_TO_RAW"
+    assert clarifier_event.payload["exception_type"] == "RuntimeError"
+    assert clarifier_event.payload["exception_message"] == "model gateway timeout"
+
+    clarifier_failure = observer.step_handles["clarifier"][0].failures[0]
+    assert clarifier_failure["error_code"] == "CLARIFIER_FALLBACK_TO_RAW"
+    assert clarifier_failure["metadata"]["exception_type"] == "RuntimeError"
+    assert clarifier_failure["metadata"]["exception_message"] == "model gateway timeout"
 
 
 def test_evaluate_question_stops_on_clarifying_branch_and_only_records_clarifier_trace() -> None:
@@ -109,3 +204,25 @@ def test_run_invokes_persistence_handler_from_langgraph_persistence_node() -> No
 
     assert state.status is WorkflowStatus.COMPLETED
     assert persistence_handler.calls == [(WorkflowStatus.COMPLETED, len(state.trace_events))]
+
+
+def test_workflow_hides_internal_safety_guard_errors_from_review_notes() -> None:
+    workflow = TarotReflectionWorkflow(safety_guard_agent=BrokenSafetyGuardAgent())
+
+    state = workflow.run(
+        session_id="7b3273ef-260d-49eb-b1af-f1c1b862d420",
+        reading_id="2fcb387d-b34e-4c61-beb1-88d67f1d9744",
+        raw_question="最近在工作选择上很犹豫，我应该继续坚持当前方向吗？",
+        locale="zh-CN",
+        spread_type=SpreadType.THREE_CARD_REFLECTION,
+    )
+
+    assert state.status is WorkflowStatus.SAFE_FALLBACK_RETURNED
+    assert state.safety_output is not None
+    assert state.safety_output.action_taken is SafetyAction.BLOCK_AND_FALLBACK
+    assert state.safety_output.review_notes == "Safety guard failed; returned a protective fallback output."
+    assert "provider token leaked into exception" not in state.safety_output.review_notes
+
+    failed_events = [event for event in state.trace_events if event.step_name == "safety_guard"]
+    assert failed_events[-1].event_status is TraceEventStatus.FAILED
+    assert failed_events[-1].payload["reason"] == "safety_guard execution failed: provider token leaked into exception"

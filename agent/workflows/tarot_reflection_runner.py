@@ -26,6 +26,7 @@ _TRACE_READING_ID_KEY = "__trace_reading_id__"
 _SAFETY_FALLBACK_SUMMARY = "这次解读过程中安全校验未能稳定完成，因此我先返回一个更稳妥的保护性结果。"
 _SAFETY_FALLBACK_ACTION_ADVICE = "先把问题缩小到一个你最近最想确认的现实主题，再重新发起一次解读会更有帮助。"
 _SAFETY_FALLBACK_REFLECTION_QUESTION = "如果只能先厘清一件事，你最希望先看清的是哪一个现实选择？"
+_SAFETY_FALLBACK_REVIEW_NOTES = "Safety guard failed; returned a protective fallback output."
 
 
 class TarotWorkflowRunner:
@@ -56,8 +57,9 @@ class TarotWorkflowRunner:
             started_at = perf_counter()
             try:
                 output = self._clarifier_agent.run(ClarifierInput(raw_question=state.raw_question, locale=state.locale))
-            except Exception:
+            except Exception as exc:
                 latency_ms = self._duration_ms(started_at)
+                exception_details = self._exception_details(exc)
                 fallback_output = ClarifierOutput(
                     normalized_question=state.raw_question,
                     clarification_required=False,
@@ -67,7 +69,7 @@ class TarotWorkflowRunner:
                 observation.failure(
                     error_code="CLARIFIER_FALLBACK_TO_RAW",
                     message="Clarifier agent failed and fell back to the raw question.",
-                    metadata={"latency_ms": latency_ms},
+                    metadata={"latency_ms": latency_ms, **exception_details},
                 )
                 self.append_trace(
                     state,
@@ -76,7 +78,11 @@ class TarotWorkflowRunner:
                     attempt_no=1,
                     latency_ms=latency_ms,
                     error_code="CLARIFIER_FALLBACK_TO_RAW",
-                    payload={"clarification_required": False, "reason": "clarifier_failed"},
+                    payload={
+                        "clarification_required": False,
+                        "reason": "clarifier_failed",
+                        **exception_details,
+                    },
                 )
                 return fallback_output
 
@@ -186,7 +192,7 @@ class TarotWorkflowRunner:
                     safe_summary=_SAFETY_FALLBACK_SUMMARY,
                     safe_action_advice=_SAFETY_FALLBACK_ACTION_ADVICE,
                     safe_reflection_question=_SAFETY_FALLBACK_REFLECTION_QUESTION,
-                    review_notes=error_message,
+                    review_notes=_SAFETY_FALLBACK_REVIEW_NOTES,
                 )
             except Exception as exc:
                 latency_ms = self._duration_ms(started_at)
@@ -211,7 +217,7 @@ class TarotWorkflowRunner:
                     safe_summary=_SAFETY_FALLBACK_SUMMARY,
                     safe_action_advice=_SAFETY_FALLBACK_ACTION_ADVICE,
                     safe_reflection_question=_SAFETY_FALLBACK_REFLECTION_QUESTION,
-                    review_notes=error_message,
+                    review_notes=_SAFETY_FALLBACK_REVIEW_NOTES,
                 )
 
     def finalize_fallback_state(self, state: TarotWorkflowState, reason: str) -> TarotWorkflowState:
@@ -343,6 +349,13 @@ class TarotWorkflowRunner:
     @staticmethod
     def _duration_ms(started_at: float) -> int:
         return round((perf_counter() - started_at) * 1000)
+
+    @staticmethod
+    def _exception_details(exc: Exception) -> dict[str, str]:
+        return {
+            "exception_type": type(exc).__name__,
+            "exception_message": str(exc),
+        }
 
     @staticmethod
     def _summarize_output(output: DrawOutput | SynthesisOutput) -> dict[str, Any]:
