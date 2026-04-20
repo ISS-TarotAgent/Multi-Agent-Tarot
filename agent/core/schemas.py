@@ -7,10 +7,10 @@ owners who will supply final business logic.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, List, Optional
 
-from pydantic import BaseModel
-from dataclasses import dataclass,field
+from pydantic import BaseModel, Field
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
@@ -198,3 +198,172 @@ class OrchestratorState(BaseModel):
     # ---- synthesis & safety ----
     synthesis_output: SynthesisOutput | None = None
     safety_report: SafetyReport | None = None
+
+
+# ---------------------------------------------------------------------------
+# Card Draw & Interpretation Agent
+# ---------------------------------------------------------------------------
+
+CardOrientation = Literal["upright", "reversed"]
+
+class DrawInterpretRequest(BaseModel):
+
+    question: str = Field(..., min_length=1, max_length=1000)
+
+    spread_code: str = Field(default="three_card_reflection", min_length=1, max_length=100)
+
+    user_number: int = Field(default=17, ge=1, le=9999)
+
+    allow_reversed: bool = True
+
+    session_id: str = ""
+
+class DrawnCard(BaseModel):
+
+    position_index: int
+
+    position_label: str
+
+    position_meaning: str
+
+    card_id: int
+
+    card_code: str
+
+    card_name_cn: str
+
+    card_name_en: str
+
+    orientation: CardOrientation
+
+class CardInterpretation(BaseModel):
+
+    """Represents a single Tarot card draw and explanation."""
+
+    position_index: int
+
+    position_label: str
+
+    card_id: int
+
+    card_code: str
+
+    card_name_cn: str
+
+    card_name_en: str
+
+    orientation: CardOrientation
+
+    keywords: list[str]
+
+    base_meaning: str
+
+    position_interpretation: str
+
+    reflection_question: str
+
+    caution_note: str
+
+class DrawInterpretTrace(BaseModel):
+
+    seed: str
+
+    deck_type: str
+
+    prompt_name: str
+
+    prompt_version: str
+
+    model_name: str
+
+class DrawInterpretResult(BaseModel):
+
+    session_id: str
+
+    draw_id: str
+
+    spread_code: str
+
+    spread_name: str
+
+    cards: list[CardInterpretation]
+
+    trace: DrawInterpretTrace
+
+class SynthesisInput(BaseModel):
+
+    clarified_question: str = ""
+
+    topic: str = ""
+
+    time_horizon: str = ""
+
+    intent: str = ""
+
+    constraints: list[str] = []
+
+    card_interpretations: list[CardInterpretation] = []
+
+class SynthesisOutput(BaseModel):
+
+    summary: str = ""
+
+    action_points: list[str] = []
+
+    reflection_questions: list[str] = []
+
+    trace_card_refs: list[str] = []
+
+    uncertainty_notes: list[str] = []
+
+class SafetyReport(BaseModel):
+
+    risk_level: str = "low"
+
+    flagged_segments: list[str] = []
+
+    rewritten_text: str = ""
+
+    reviewer_notes: str = ""
+
+class OrchestratorState(BaseModel):
+
+    """State container passed between LangGraph nodes."""
+
+    # ---- session identity ----
+
+    session_id: str = ""
+
+    # ---- Phase 1 clarification outputs ----
+
+    raw_question: str = ""
+
+    clarification_result: Optional[ClarificationResult] = None
+
+    # ---- Phase 2 finalization inputs / outputs ----
+
+    clarification_answers: dict[str, str] = {}
+
+    finalize_result: Optional[ClarificationFinalizeResult] = None
+
+    # ---- draw & interpret input knobs ----
+
+    spread_code: str = "three_card_reflection"
+
+    user_number: int = 17
+
+    allow_reversed: bool = True
+
+    # ---- downstream draw & interpret ----
+
+    final_question: str = ""
+
+    draw_interpret_result: Optional[DrawInterpretResult] = None
+
+    card_interpretations: list[CardInterpretation] = []
+
+    # ---- synthesis & safety ----
+
+    synthesis_output: Optional[SynthesisOutput] = None
+
+    safety_report: Optional[SafetyReport] = None
