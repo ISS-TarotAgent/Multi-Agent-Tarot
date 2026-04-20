@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: multi_agent_tarot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: python:3.12-slim
+    working_dir: /workspace/backend
+    volumes:
+      - ..:/workspace
+    env_file:
+      - ../backend/.env
+    environment:
+      # Override localhost → postgres service name inside Docker
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/multi_agent_tarot
+      # Make both agent/ and backend/app importable
+      PYTHONPATH: /workspace:/workspace/backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      bash -c "
+        pip install -e /workspace/backend --quiet --no-cache-dir &&
+        python -m alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /workspace/backend --reload-dir /workspace/agent
+      "
+
+volumes:
+  postgres_data:

@@ -19,10 +19,9 @@
 ### 1.2 本地开发环境需求
 #### 基础环境需求
 * Git: 用于分支管理
-* Node.js 与 npm
-* Python: 统一3.12版本
-* Docker Desktop
-* MySQL
+* Node.js 与 npm（运行 Promptfoo eval）
+* Python: 统一 3.12 版本
+* Docker Desktop（本地启动 PostgreSQL + 后端服务）
 #### 推荐开发工具
 * VS Code
 * PyCharm
@@ -31,7 +30,7 @@
 #### 环境统一原则
 为减少组员间环境不一致问题,本项目建议遵循以下原则:
 * 前端版本依赖在package.json中固定
-* Python依赖在requirements.txt 或 pyproject.toml中统一管理
+* Python 依赖在 `backend/pyproject.toml` 中统一管理（`pip install -e ".[dev]"`）
 * 环境变量通过.env模板统一说明
 * 本地运行优先通过Docker Compose启动
 * 新增依赖时需要同步更新依赖文件和开发文档
@@ -361,10 +360,43 @@ tests/
 * 预期结构；
 * 风险等级预期；
 #### 4.9.3 测试工具选择
-建议使用Promptfoo进行测试
-### 4.10 CI 中的测试要求
+
+本项目使用以下测试工具：
+
+| 工具 | 范围 | 命令 |
+|------|------|------|
+| pytest | Agent 单元测试 | `python -m pytest agent/tests/ -q` |
+| pytest | Backend 单元 + 集成测试 | `cd backend && python -m pytest app/tests/ -q` |
+| Promptfoo | 端到端工作流 eval | `npx promptfoo@latest eval -c evals/promptfoo/promptfooconfig.yaml` |
+
+**Promptfoo eval 不需要启动 HTTP 服务**，provider 直接在进程内调用工作流。运行前确保 `backend/.env` 中已填入有效的 `OPENAI_API_KEY`（使用真实 LLM 时）。
+
+### 4.10 本地启动方式
+
+在 `Docker/` 目录下执行以下命令，可一键启动 PostgreSQL + FastAPI 后端：
+
+```bash
+cd Docker
+docker compose up        # 前台，日志直接输出
+docker compose up -d     # 后台，用 docker compose logs -f backend 追踪日志
+```
+
+首次启动时 backend 容器会自动执行：
+1. `pip install -e /workspace/backend`（约 1-2 分钟）
+2. `alembic upgrade head`（建表）
+3. `uvicorn app.main:app --reload`（启动 API）
+
+服务就绪后访问 `http://localhost:8000/docs` 查看接口文档。
+
+停止服务：
+```bash
+docker compose down          # 停止并删除容器（数据保留）
+docker compose down -v       # 同时清除数据库 volume
+```
+
+### 4.11 CI 中的测试要求
 为了保证团队协作质量，建议将关键测试接入 CI 流程。
-#### 4.10.1 建议接入的测试项
+#### 4.11.1 建议接入的测试项
 在 CI 中至少自动执行：
 * 单元测试；
 * schema 校验测试；

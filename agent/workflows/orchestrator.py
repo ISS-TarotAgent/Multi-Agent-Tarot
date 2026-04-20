@@ -30,10 +30,11 @@ from agent.nodes import (
     execute_draw_step,
     execute_intermediate_security_step,
     execute_pre_input_security_step,
+    execute_safety_guard_step,
 )
 from agent.schemas.clarifier import ClarifierInput, ClarifierOutput
 from agent.schemas.draw import DrawCard, DrawInput, DrawOutput
-from agent.schemas.safety import SafetyReviewInput, SafetyReviewOutput
+from agent.schemas.safety import SafetyReviewOutput
 from agent.schemas.synthesis import SynthesisInput, SynthesisOutput
 from backend.app.domain.enums import (
     CardOrientation,
@@ -59,10 +60,6 @@ class DrawAgent(Protocol):
 
 class SynthesisAgent(Protocol):
     def run(self, payload: SynthesisInput) -> SynthesisOutput: ...
-
-
-class SafetyGuardAgent(Protocol):
-    def run(self, payload: SafetyReviewInput) -> SafetyReviewOutput: ...
 
 
 class ObservationHandle(Protocol):
@@ -187,18 +184,6 @@ class _DefaultSynthesisAgent:
         )
 
 
-class _DefaultSafetyGuardAgent:
-    def run(self, payload: SafetyReviewInput) -> SafetyReviewOutput:
-        return SafetyReviewOutput(
-            risk_level=RiskLevel.LOW,
-            action_taken=SafetyAction.PASSTHROUGH,
-            review_notes="Passed default safety review.",
-            safe_summary=payload.summary,
-            safe_action_advice=payload.action_advice,
-            safe_reflection_question=payload.reflection_question,
-        )
-
-
 class TarotReflectionWorkflow:
     """High-level workflow entry point used by the backend services."""
 
@@ -208,14 +193,12 @@ class TarotReflectionWorkflow:
         clarifier_agent: ClarifierAgent | None = None,
         draw_agent: DrawAgent | None = None,
         synthesis_agent: SynthesisAgent | None = None,
-        safety_guard_agent: SafetyGuardAgent | None = None,
         observer: WorkflowObserver | None = None,
         checkpointer: Any | None = None,
     ) -> None:
         self._clarifier_agent = clarifier_agent or _DefaultClarifierAgent()
         self._draw_agent = draw_agent or _DefaultDrawAgent()
         self._synthesis_agent = synthesis_agent or _DefaultSynthesisAgent()
-        self._safety_guard_agent = safety_guard_agent or _DefaultSafetyGuardAgent()
         self._observer = observer or _NoOpWorkflowObserver()
         self._checkpointer = checkpointer
         self._runtime = _GraphRuntime(workflow=self)
@@ -518,74 +501,13 @@ class TarotReflectionWorkflow:
         return state
 
     def _run_safety_step(self, state: TarotWorkflowState) -> TarotWorkflowState:
-        synthesis_output = state.synthesis_output
-        if synthesis_output is None:
-            state.completed_at = datetime.now(UTC)
-            state.status = WorkflowStatus.SAFE_FALLBACK_RETURNED
-            state.safety_output = self._protective_fallback(
-                review_notes="Synthesis output was missing; returned a protective fallback output."
-            )
-            return state
-
-        payload = SafetyReviewInput(
-            summary=synthesis_output.summary,
-            action_advice=synthesis_output.action_advice,
-            reflection_question=synthesis_output.reflection_question,
-            locale=state.locale,
+        return execute_safety_guard_step(
+            state=state,
+            observer=self._observer,
+            trace_event_factory=self._trace_event,
+            trace_logger=self._log_trace_events,
+            protective_fallback_factory=self._protective_fallback,
         )
-        with self._observer.observe_step(
-            step_name="safety_guard",
-            as_type="chain",
-            input_payload={"locale": state.locale},
-            metadata={"session_id": state.session_id, "reading_id": state.reading_id},
-        ) as observation:
-            started = perf_counter()
-            try:
-                safety_output = self._safety_guard_agent.run(payload)
-                state.safety_output = safety_output
-                state.status = WorkflowStatus.COMPLETED
-                state.completed_at = datetime.now(UTC)
-                state.trace_events.append(
-                    self._trace_event(
-                        step_name="safety_guard",
-                        event_status=TraceEventStatus.SUCCEEDED,
-                        attempt_no=1,
-                        started=started,
-                        payload={
-                            "risk_level": safety_output.risk_level.value,
-                            "action_taken": safety_output.action_taken.value,
-                        },
-                    )
-                )
-                observation.success(
-                    output={
-                        "risk_level": safety_output.risk_level.value,
-                        "action_taken": safety_output.action_taken.value,
-                    }
-                )
-            except Exception as exc:  # pragma: no cover - covered by backend unit tests
-                state.trace_events.append(
-                    self._trace_event(
-                        step_name="safety_guard",
-                        event_status=TraceEventStatus.FAILED,
-                        attempt_no=1,
-                        started=started,
-                        error_code="SAFETY_GUARD_FAILED",
-                        payload={"reason": f"safety_guard execution failed: {exc}"},
-                    )
-                )
-                state.safety_output = self._protective_fallback(
-                    review_notes="Safety guard failed; returned a protective fallback output."
-                )
-                state.status = WorkflowStatus.SAFE_FALLBACK_RETURNED
-                state.completed_at = datetime.now(UTC)
-                observation.failure(
-                    error_code="SAFETY_GUARD_FAILED",
-                    message="Safety guard failed; returned fallback output.",
-                    metadata={"exception_type": type(exc).__name__},
-                )
-        self._log_trace_events(state=state, reading_id=state.reading_id, only_latest=True)
-        return state
 
     @staticmethod
     def _protective_fallback(*, review_notes: str) -> SafetyReviewOutput:

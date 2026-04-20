@@ -1,32 +1,45 @@
-"""Utilities to load versioned prompt templates from ../../prompts."""
+"""Prompt template loading from the prompts/ directory."""
 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict
 
 PROMPT_ROOT = Path(__file__).resolve().parents[2] / "prompts"
 
+_cache: dict[str, str] = {}
+
 
 def load_prompt(name: str) -> str:
-    """Return the raw prompt template text.
+    """Load a prompt template by name (relative to prompts/, without .md extension).
 
-    TODO:
-        - define naming convention (e.g., clarifier/system_v1)
-        - add caching and checksum validation
-        - add error classes for missing/invalid prompts
+    Examples::
+
+        load_prompt("clarifier_system_prompt")
+        load_prompt("security/safety_rewrite")
     """
+    if name in _cache:
+        return _cache[name]
 
     target = PROMPT_ROOT / f"{name}.md"
-    raise NotImplementedError(f"Prompt loader pending; expected file at {target}")
+    if not target.exists():
+        raise FileNotFoundError(
+            f"Prompt template not found: '{name}' (expected file at {target})"
+        )
+
+    text = target.read_text(encoding="utf-8")
+    _cache[name] = text
+    return text
 
 
-def list_prompts() -> Dict[str, Path]:
-    """Enumerate available prompt templates for tooling support.
+def list_prompts() -> dict[str, Path]:
+    """Return a mapping of prompt name → absolute path for all .md files under prompts/."""
+    return {
+        p.relative_to(PROMPT_ROOT).with_suffix("").as_posix(): p
+        for p in PROMPT_ROOT.rglob("*.md")
+        if p.name != "README.md"
+    }
 
-    TODO:
-        - integrate with Promptfoo test suite
-        - surface prompt versions for the frontend/debug UI
-    """
 
-    raise NotImplementedError("Prompt listing not implemented yet")
+def clear_cache() -> None:
+    """Flush the in-process prompt cache (useful in tests)."""
+    _cache.clear()
