@@ -24,9 +24,12 @@ def get_tarot_reading_service(
     settings: AppSettings = Depends(get_settings_dep),
     db_session: Session = Depends(get_db_session_dep),
 ) -> TarotReadingService:
+    from agent.workflows import build_llm_workflow
     observer = build_workflow_observer(settings)
+    workflow = build_llm_workflow(observer=observer) if settings.openai_api_key else None
     return TarotReadingService(
         repository=SqlAlchemyTarotReadingRepository(db_session),
+        workflow=workflow,
         observer=observer,
     )
 

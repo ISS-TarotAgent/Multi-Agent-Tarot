@@ -582,6 +582,23 @@ def build_tarot_workflow() -> StateGraph:
     return TarotReflectionWorkflow()._build_ready_state_graph()
 
 
+def build_llm_workflow(
+    *,
+    observer: WorkflowObserver | None = None,
+) -> TarotReflectionWorkflow:
+    """Build a TarotReflectionWorkflow wired with real OpenAI-backed agents."""
+    from agent.core.llm_agents import LLMClarifierAgent, LLMDrawAgent, LLMSynthesisAgent
+    from agent.core.model_gateway import build_gateway_from_settings
+
+    gateway = build_gateway_from_settings()
+    return TarotReflectionWorkflow(
+        clarifier_agent=LLMClarifierAgent(gateway),
+        draw_agent=LLMDrawAgent(gateway),
+        synthesis_agent=LLMSynthesisAgent(gateway),
+        observer=observer,
+    )
+
+
 def _requires_clarification(question: str) -> bool:
     compact = "".join(question.split())
     if len(compact) <= 8:
