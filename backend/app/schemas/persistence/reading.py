@@ -29,4 +29,7 @@ class ReadingCardRecord(PersistenceSchema):
     card_name: str
     orientation: CardOrientation
     interpretation: str
+    reflection_question: str | None = None
+    caution_note: str | None = None
+    keywords: list[str] = []
     created_at: datetime

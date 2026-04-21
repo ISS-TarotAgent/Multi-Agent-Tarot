@@ -159,6 +159,9 @@ class TarotReadingService:
                     card_name=card.card_name,
                     orientation=card.orientation,
                     interpretation=card.interpretation,
+                    reflection_question=card.reflection_question,
+                    caution_note=card.caution_note,
+                    keywords=card.keywords,
                 )
                 for card in aggregate.cards
             ],

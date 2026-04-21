@@ -32,7 +32,12 @@ from agent.nodes import (
     execute_pre_input_security_step,
     execute_safety_guard_step,
 )
-from agent.schemas.clarifier import ClarifierInput, ClarifierOutput
+from agent.schemas.clarifier import (
+    ClarifierFinalizeInput,
+    ClarifierFinalizeOutput,
+    ClarifierInput,
+    ClarifierOutput,
+)
 from agent.schemas.draw import DrawCard, DrawInput, DrawOutput
 from agent.schemas.safety import SafetyReviewOutput
 from agent.schemas.synthesis import SynthesisInput, SynthesisOutput
@@ -131,15 +136,23 @@ class _DefaultClarifierAgent:
     def run(self, payload: ClarifierInput) -> ClarifierOutput:
         normalized_question = payload.raw_question.strip()
         clarification_required = _requires_clarification(normalized_question)
-        clarifier_question = (
-            "你最想聚焦的是感情、事业、学业还是关系？"
-            if clarification_required
-            else None
-        )
         return ClarifierOutput(
             normalized_question=normalized_question,
             clarification_required=clarification_required,
-            clarifier_question=clarifier_question,
+            clarifier_question=(
+                "你最想聚焦的是感情、事业、学业还是关系？"
+                if clarification_required
+                else None
+            ),
+        )
+
+    def finalize(self, payload: ClarifierFinalizeInput) -> ClarifierFinalizeOutput:
+        return ClarifierFinalizeOutput(
+            reframed_question=payload.normalized_question,
+            topic="",
+            time_horizon="未指定",
+            intent="",
+            constraints=[],
         )
 
 

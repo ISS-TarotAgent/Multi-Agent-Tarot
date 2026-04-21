@@ -12,6 +12,9 @@ class SessionRecord(PersistenceSchema):
     locale: str
     spread_type: SpreadType
     normalized_question: str | None = None
+    intent_tag: str | None = None
+    clarification_prompts: list = []
+    clarification_answers: dict = {}
     created_at: datetime
     updated_at: datetime
     completed_at: datetime | None = None

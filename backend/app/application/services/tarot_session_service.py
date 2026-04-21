@@ -244,6 +244,9 @@ class TarotSessionService:
                     spread_type=aggregate.session.spread_type,
                     raw_question=original_question.content,
                     normalized_question=aggregate.session.normalized_question or original_question.content,
+                    intent_tag=aggregate.session.intent_tag,
+                    clarification_answers=aggregate.session.clarification_answers or {},
+                    clarification_prompts=aggregate.session.clarification_prompts or [],
                     created_at=created_at,
                 )
                 final_state = self._workflow.continue_from_ready_state(

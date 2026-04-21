@@ -65,14 +65,22 @@ export function CardSpread({ reading, isLoading, onContinue }: CardSpreadProps) 
               <small>{isRevealed ? card.orientation : "Tap into uncertainty"}</small>
               {isRevealed ? (
                 <>
-                  <div className="keyword-row">
-                    {card.keywords.map((keyword) => (
-                      <span key={keyword} className="keyword">
-                        {keyword}
-                      </span>
-                    ))}
-                  </div>
+                  {card.keywords.length > 0 && (
+                    <div className="keyword-row">
+                      {card.keywords.map((keyword) => (
+                        <span key={keyword} className="keyword">
+                          {keyword}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <p>{card.interpretation}</p>
+                  {card.cautionNote && (
+                    <p className="card-caution">{card.cautionNote}</p>
+                  )}
+                  {card.reflectionPrompt && (
+                    <p className="card-reflection">{card.reflectionPrompt}</p>
+                  )}
                 </>
               ) : (
                 <p>The meaning of this position stays hidden until you actively reveal it.</p>

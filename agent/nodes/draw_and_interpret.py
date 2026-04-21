@@ -80,8 +80,9 @@ def execute_draw_step(
     trace_logger: TraceLogger,
     protective_fallback_factory: ProtectiveFallbackFactory,
 ) -> TarotWorkflowState:
+    question = state.normalized_question or state.raw_question
     payload = DrawInput(
-        question=state.normalized_question or state.raw_question,
+        question=question,
         locale=state.locale,
         spread_type=state.spread_type,
     )

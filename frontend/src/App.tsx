@@ -5,7 +5,7 @@ import { HistoryPanel } from "./components/HistoryPanel";
 import { QuestionComposer } from "./components/QuestionComposer";
 import { ResultPanel } from "./components/ResultPanel";
 import { StageRail } from "./components/StageRail";
-import { completeReading, loadHistory, startSession } from "./services/mockApi";
+import { completeReading, loadHistory, startSession } from "./services/api";
 import type { FlowStage, ReadingRecord, SessionDraft } from "./types";
 
 function App() {
@@ -135,7 +135,7 @@ function App() {
         </div>
         <div className="topbar__meta">
           <span>TypeScript UI</span>
-          <span>Mock API</span>
+          <span>Live API</span>
           <span>Local History</span>
         </div>
       </header>

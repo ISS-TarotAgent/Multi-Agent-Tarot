@@ -21,6 +21,11 @@ class DrawCard(BaseModel):
     card_name: str
     orientation: CardOrientation
     interpretation: str
+    reflection_question: str | None = None
+    caution_note: str | None = None
+    keywords: list[str] = []
+    seed: str | None = None
+    meaning: str | None = None
 
 
 class DrawOutput(BaseModel):

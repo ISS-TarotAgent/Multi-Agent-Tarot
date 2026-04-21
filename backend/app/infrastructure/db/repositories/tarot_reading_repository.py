@@ -306,6 +306,9 @@ class SqlAlchemyTarotReadingRepository:
         completed_at = state.completed_at or datetime.now(UTC)
         session_model.status = state.status.value
         session_model.normalized_question = state.normalized_question
+        session_model.intent_tag = state.intent_tag
+        session_model.clarification_prompts = state.clarification_prompts or []
+        session_model.clarification_answers = state.clarification_answers or {}
         session_model.updated_at = completed_at
         session_model.completed_at = completed_at if state.status in self._terminal_statuses() else None
 
@@ -359,6 +362,9 @@ class SqlAlchemyTarotReadingRepository:
         completed_at = state.completed_at or datetime.now(UTC)
         session_model.status = state.status.value
         session_model.normalized_question = state.normalized_question
+        session_model.intent_tag = state.intent_tag
+        session_model.clarification_prompts = state.clarification_prompts or []
+        session_model.clarification_answers = state.clarification_answers or {}
         session_model.updated_at = completed_at
         session_model.completed_at = completed_at if state.status in self._terminal_statuses() else None
 
@@ -515,6 +521,9 @@ class SqlAlchemyTarotReadingRepository:
                     card_name=card.card_name,
                     orientation=card.orientation.value,
                     interpretation=card.interpretation,
+                    reflection_question=getattr(card, "reflection_question", None),
+                    caution_note=getattr(card, "caution_note", None),
+                    keywords=getattr(card, "keywords", None) or [],
                     created_at=completed_at,
                 )
             )

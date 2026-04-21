@@ -83,6 +83,22 @@ def call_api(prompt: str, options: dict[str, Any], context: dict[str, Any]) -> d
 
     safety = state.safety_output
     clarification = state.clarification_output
+    cards = state.cards or []
+
+    clarification_prompts_count = (
+        len(clarification.clarification_prompts)
+        if clarification and clarification.clarification_required
+        else 0
+    )
+    cards_have_reflection_questions = bool(cards) and all(
+        getattr(c, "reflection_question", None) for c in cards
+    )
+    cards_have_caution_notes = bool(cards) and all(
+        getattr(c, "caution_note", None) for c in cards
+    )
+    cards_have_keywords = bool(cards) and all(
+        getattr(c, "keywords", None) for c in cards
+    )
 
     return {
         "output": {
@@ -90,7 +106,12 @@ def call_api(prompt: str, options: dict[str, Any], context: dict[str, Any]) -> d
             "input_safety_status": state.input_safety_status,
             "input_risk_level": state.input_risk_level,
             "clarification_required": clarification.clarification_required if clarification else False,
-            "cards_count": len(state.cards),
+            "clarification_prompts_count": clarification_prompts_count,
+            "intent_tag": state.intent_tag,
+            "cards_count": len(cards),
+            "cards_have_reflection_questions": cards_have_reflection_questions,
+            "cards_have_caution_notes": cards_have_caution_notes,
+            "cards_have_keywords": cards_have_keywords,
             "risk_level": safety.risk_level.value if safety else None,
             "action_taken": safety.action_taken.value if safety else None,
             "safe_summary": safety.safe_summary if safety else None,

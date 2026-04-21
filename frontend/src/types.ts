@@ -33,6 +33,7 @@ export interface TarotCardInsight {
   keywords: string[];
   interpretation: string;
   reflectionPrompt: string;
+  cautionNote?: string;
   accent: string;
 }
 

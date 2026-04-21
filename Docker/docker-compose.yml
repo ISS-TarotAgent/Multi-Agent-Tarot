@@ -23,9 +23,7 @@ services:
     env_file:
       - ../backend/.env
     environment:
-      # Override localhost → postgres service name inside Docker
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/multi_agent_tarot
-      # Make both agent/ and backend/app importable
       PYTHONPATH: /workspace:/workspace/backend
     ports:
       - "8000:8000"
@@ -38,6 +36,22 @@ services:
         python -m alembic upgrade head &&
         uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /workspace/backend --reload-dir /workspace/agent
       "
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:
