@@ -41,6 +41,11 @@ class TarotWorkflowState(WorkflowSchema):
     input_preserved_intent: str | None = None
     input_sanitized: bool = False
 
+    # When True, the clarifier node will skip the CLARIFYING pause and proceed
+    # directly to finalize even if the LLM requests more context.
+    # Set by the API layer after MAX_CLARIFICATION_TURNS reached on the frontend.
+    skip_clarification: bool = False
+
     # Clarifier (two-phase)
     normalized_question: str | None = None
     clarification_output: ClarifierOutput | None = None

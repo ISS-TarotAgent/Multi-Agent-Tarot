@@ -56,6 +56,7 @@ class LLMClarifierAgent:
                     prompt,
                     temperature=0.2,
                     response_format={"type": "json_object"},
+                    generation_name="clarifier_init",
                 )
                 data = _parse_json(response.content)
 
@@ -71,6 +72,7 @@ class LLMClarifierAgent:
                 return ClarifierOutput(
                     normalized_question=data.get("normalized_question") or payload.raw_question,
                     clarification_required=len(clarification_prompts) > 0,
+                    clarifier_question=clarification_prompts[0].question if clarification_prompts else None,
                     intent_tag=intent_tag,
                     clarification_prompts=clarification_prompts,
                 )
@@ -95,6 +97,7 @@ class LLMClarifierAgent:
                     prompt,
                     temperature=0.3,
                     response_format={"type": "json_object"},
+                    generation_name="clarifier_finalize",
                 )
                 data = _parse_json(response.content)
                 return ClarifierFinalizeOutput(
@@ -139,6 +142,7 @@ class LLMDrawAgent:
                         system_prompt=self._system_prompt,
                         temperature=0.7,
                         response_format={"type": "json_object"},
+                        generation_name=f"draw_interpret_{pos.lower()}",
                     )
                     data = _parse_json(response.content)
                     cards.append(DrawCard(
@@ -186,6 +190,7 @@ class LLMSynthesisAgent:
                     system_prompt=self._system_prompt,
                     temperature=0.7,
                     response_format={"type": "json_object"},
+                    generation_name="synthesis",
                 )
                 data = _parse_json(response.content)
                 return SynthesisOutput(

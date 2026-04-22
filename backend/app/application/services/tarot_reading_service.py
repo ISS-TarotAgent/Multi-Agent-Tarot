@@ -67,6 +67,7 @@ class TarotReadingService:
                     spread_type=request.spread_type,
                     client_request_id=request.client_request_id,
                     metadata=request.metadata,
+                    skip_clarification=request.skip_clarification,
                     persistence_handler=self._repository.save_workflow_result,
                 )
             except SQLAlchemyError as exc:

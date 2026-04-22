@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from contextlib import contextmanager
-from typing import Iterator, Protocol
+from typing import Any, Iterator, Protocol
 
 from app.infrastructure.config.settings import AppSettings
 
@@ -26,68 +26,16 @@ class ObservationHandle(Protocol):
     ) -> None: ...
 
 
-class _NoOpObservationHandle:
-    def success(
-        self,
-        *,
-        output: dict[str, object] | None = None,
-        metadata: dict[str, object] | None = None,
-    ) -> None:
-        return None
+# ---------------------------------------------------------------------------
+# No-op implementation
+# ---------------------------------------------------------------------------
 
-    def failure(
-        self,
-        *,
-        error_code: str | None,
-        message: str,
-        metadata: dict[str, object] | None = None,
-    ) -> None:
-        return None
+class _NoOpHandle:
+    def success(self, *, output=None, metadata=None) -> None:
+        pass
 
-
-class _LangfuseObservationHandle:
-    def __init__(self, observation) -> None:  # noqa: ANN001
-        self._observation = observation
-
-    def success(
-        self,
-        *,
-        output: dict[str, object] | None = None,
-        metadata: dict[str, object] | None = None,
-    ) -> None:
-        self._update(output=output, metadata=metadata)
-
-    def failure(
-        self,
-        *,
-        error_code: str | None,
-        message: str,
-        metadata: dict[str, object] | None = None,
-    ) -> None:
-        output = {"message": message}
-        if error_code is not None:
-            output["error_code"] = error_code
-        self._update(output=output, metadata=metadata, level="ERROR", status_message=message)
-
-    def _update(
-        self,
-        *,
-        output: dict[str, object] | None = None,
-        metadata: dict[str, object] | None = None,
-        level: str | None = None,
-        status_message: str | None = None,
-    ) -> None:
-        kwargs: dict[str, object] = {}
-        if output is not None:
-            kwargs["output"] = output
-        if metadata is not None:
-            kwargs["metadata"] = metadata
-        if level is not None:
-            kwargs["level"] = level
-        if status_message is not None:
-            kwargs["status_message"] = status_message
-        if kwargs:
-            self._observation.update(**kwargs)
+    def failure(self, *, error_code=None, message="", metadata=None) -> None:
+        pass
 
 
 class NoOpWorkflowObserver:
@@ -100,8 +48,8 @@ class NoOpWorkflowObserver:
         reading_id: str | None,
         input_payload: dict[str, object] | None = None,
         metadata: dict[str, object] | None = None,
-    ) -> Iterator[_NoOpObservationHandle]:
-        yield _NoOpObservationHandle()
+    ) -> Iterator[_NoOpHandle]:
+        yield _NoOpHandle()
 
     @contextmanager
     def observe_step(
@@ -111,16 +59,54 @@ class NoOpWorkflowObserver:
         as_type: str,
         input_payload: dict[str, object] | None = None,
         metadata: dict[str, object] | None = None,
-    ) -> Iterator[_NoOpObservationHandle]:
-        yield _NoOpObservationHandle()
+    ) -> Iterator[_NoOpHandle]:
+        yield _NoOpHandle()
 
     @staticmethod
     def get_current_trace_id() -> str | None:
         return None
 
 
+# ---------------------------------------------------------------------------
+# Langfuse v2 low-level implementation
+# ---------------------------------------------------------------------------
+
+class _LangfuseHandle:
+    """Collects success/failure output; the caller ends the observation."""
+
+    def __init__(self) -> None:
+        self.end_kwargs: dict[str, Any] = {}
+
+    def success(
+        self,
+        *,
+        output: dict[str, object] | None = None,
+        metadata: dict[str, object] | None = None,
+    ) -> None:
+        if output is not None:
+            self.end_kwargs["output"] = output
+        if metadata is not None:
+            self.end_kwargs["metadata"] = metadata
+
+    def failure(
+        self,
+        *,
+        error_code: str | None = None,
+        message: str = "",
+        metadata: dict[str, object] | None = None,
+    ) -> None:
+        out: dict[str, object] = {"message": message}
+        if error_code is not None:
+            out["error_code"] = error_code
+        self.end_kwargs["output"] = out
+        self.end_kwargs["level"] = "ERROR"
+        self.end_kwargs["status_message"] = message
+        if metadata is not None:
+            self.end_kwargs["metadata"] = metadata
+
+
 class LangfuseWorkflowObserver:
-    def __init__(self, client) -> None:  # noqa: ANN001
+    def __init__(self, client: Any) -> None:
         self._client = client
 
     @contextmanager
@@ -132,19 +118,23 @@ class LangfuseWorkflowObserver:
         reading_id: str | None,
         input_payload: dict[str, object] | None = None,
         metadata: dict[str, object] | None = None,
-    ) -> Iterator[_LangfuseObservationHandle]:
-        merged_metadata = _merge_metadata(
-            metadata,
-            session_id=session_id,
-            reading_id=reading_id,
-        )
-        with self._client.start_as_current_observation(
+    ) -> Iterator[_LangfuseHandle]:
+        from agent.core.trace_context import reset_observation, set_observation  # noqa: PLC0415
+
+        trace = self._client.trace(
+            id=reading_id,
             name=name,
-            as_type="chain",
+            session_id=session_id,
             input=input_payload,
-            metadata=merged_metadata,
-        ) as observation:
-            yield _LangfuseObservationHandle(observation)
+            metadata=_merge_metadata(metadata, session_id=session_id, reading_id=reading_id),
+        )
+        token = set_observation(trace)
+        handle = _LangfuseHandle()
+        try:
+            yield handle
+        finally:
+            trace.update(**handle.end_kwargs)
+            reset_observation(token)
 
     @contextmanager
     def observe_step(
@@ -154,47 +144,48 @@ class LangfuseWorkflowObserver:
         as_type: str,
         input_payload: dict[str, object] | None = None,
         metadata: dict[str, object] | None = None,
-    ) -> Iterator[_LangfuseObservationHandle]:
-        with self._client.start_as_current_observation(
-            name=step_name,
-            as_type=as_type,
-            input=input_payload,
-            metadata=metadata,
-        ) as observation:
-            yield _LangfuseObservationHandle(observation)
+    ) -> Iterator[_LangfuseHandle]:
+        from agent.core.trace_context import get_observation, reset_observation, set_observation  # noqa: PLC0415
+
+        parent = get_observation()
+        if parent is None:
+            yield _NoOpHandle()  # type: ignore[misc]
+            return
+
+        span = parent.span(name=step_name, input=input_payload, metadata=metadata)
+        token = set_observation(span)
+        handle = _LangfuseHandle()
+        try:
+            yield handle
+        finally:
+            span.end(**handle.end_kwargs)
+            reset_observation(token)
 
     def get_current_trace_id(self) -> str | None:
-        return self._client.get_current_trace_id()
+        from agent.core.trace_context import get_observation  # noqa: PLC0415
+        obs = get_observation()
+        return getattr(obs, "id", None) if obs is not None else None
 
+
+# ---------------------------------------------------------------------------
+# Factory
+# ---------------------------------------------------------------------------
 
 def build_workflow_observer(settings: AppSettings) -> NoOpWorkflowObserver | LangfuseWorkflowObserver:
     if not settings.langfuse_enabled:
         return NoOpWorkflowObserver()
-    if not settings.langfuse_public_key or not settings.langfuse_secret_key:
-        logger.warning(
-            "langfuse_disabled_missing_credentials",
-            extra={
-                "environment": settings.app_env,
-            },
-        )
-        return NoOpWorkflowObserver()
 
     try:
-        from langfuse import Langfuse
+        from agent.core.langfuse_client import get_langfuse  # noqa: PLC0415
     except ImportError:
-        logger.warning(
-            "langfuse_disabled_missing_sdk",
-            extra={
-                "environment": settings.app_env,
-            },
-        )
+        logger.warning("langfuse_disabled_missing_sdk", extra={"environment": settings.app_env})
         return NoOpWorkflowObserver()
 
-    client = Langfuse(
-        public_key=settings.langfuse_public_key,
-        secret_key=settings.langfuse_secret_key,
-        host=settings.langfuse_base_url,
-    )
+    client = get_langfuse()
+    if client is None:
+        logger.warning("langfuse_disabled_missing_credentials", extra={"environment": settings.app_env})
+        return NoOpWorkflowObserver()
+
     return LangfuseWorkflowObserver(client=client)
 
 

@@ -228,6 +228,7 @@ class TarotReflectionWorkflow:
         spread_type: SpreadType,
         client_request_id: str | None = None,
         metadata: dict[str, Any] | None = None,
+        skip_clarification: bool = False,
         persistence_handler: Any | None = None,
     ) -> TarotWorkflowState:
         state = self.evaluate_question(
@@ -237,6 +238,7 @@ class TarotReflectionWorkflow:
             locale=locale,
             spread_type=spread_type,
             client_request_id=client_request_id,
+            skip_clarification=skip_clarification,
             metadata=metadata,
         )
         if state.status is WorkflowStatus.READY_FOR_DRAW:
@@ -255,6 +257,7 @@ class TarotReflectionWorkflow:
         spread_type: SpreadType,
         client_request_id: str | None = None,
         metadata: dict[str, Any] | None = None,
+        skip_clarification: bool = False,
         trace_reading_id: str | None = None,
         persistence_handler: Any | None = None,
     ) -> TarotWorkflowState:
@@ -267,6 +270,7 @@ class TarotReflectionWorkflow:
             raw_question=raw_question,
             client_request_id=client_request_id,
             metadata=metadata,
+            skip_clarification=skip_clarification,
             created_at=datetime.now(UTC),
         )
 

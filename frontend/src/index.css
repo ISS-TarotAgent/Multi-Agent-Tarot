@@ -449,6 +449,23 @@ button {
   line-height: 1.4;
 }
 
+.fallback-meta {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #9b5020;
+  background: rgba(255, 200, 120, 0.15);
+  border-left: 3px solid #e09030;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.fallback-hint {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
 .content-list,
 .trace-list {
   margin: 0;

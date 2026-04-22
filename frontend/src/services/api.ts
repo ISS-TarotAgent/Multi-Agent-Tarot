@@ -1,19 +1,32 @@
 /**
- * Real API service — calls POST /api/v1/readings (Phase-2 one-shot workflow).
- * startSession keeps local intent detection so the clarification UI still works.
- * completeReading merges clarification answers into the question and calls the backend.
+ * Real API service — calls POST /api/v1/readings (single-step workflow).
+ *
+ * Flow:
+ *   startSession(question)
+ *     → POST /api/v1/readings
+ *     → kind="clarifying"  : backend Clarifier LLM needs more context
+ *     → kind="complete"    : full reading result, no clarification needed
+ *     → kind="fallback"    : safety guard blocked the request
+ *
+ *   completeReading(draft, answer)
+ *     → POST /api/v1/readings with enriched question (original + clarification answer)
+ *     → same three outcomes
  */
 import type {
-  ClarificationPrompt,
+  FallbackInfo,
   IntentTag,
   ReadingRecord,
+  ReadingResult,
   SafetyReview,
   SessionDraft,
-  TarotCardInsight,
   TraceStep,
 } from "../types";
 
 const STORAGE_KEY = "multi-agent-tarot-history";
+
+// Maximum number of clarification rounds the frontend will allow.
+// If the backend keeps returning CLARIFYING beyond this limit, treat it as a fallback.
+const MAX_CLARIFICATION_TURNS = 3;
 
 // ---------------------------------------------------------------------------
 // Backend response types (mirrors backend/app/schemas/api/readings.py)
@@ -42,117 +55,44 @@ interface BackendReadingResult {
     action_advice: string | null;
     reflection_question: string | null;
   };
-  safety: { risk_level: "LOW" | "MEDIUM"; action_taken: string; review_notes: string | null };
+  // OLD: safety: { risk_level: "LOW" | "MEDIUM"; action_taken: string; review_notes: string | null };
+  // Updated: risk_level can also be HIGH (e.g. SAFE_FALLBACK_RETURNED cases)
+  safety: { risk_level: string; action_taken: string; review_notes: string | null };
   trace_summary: { event_count: number; warning_count: number; error_count: number };
   created_at: string;
   completed_at: string | null;
 }
 
 // ---------------------------------------------------------------------------
-// Clarification question sets (kept local — backend handles its own internally)
+// OLD: QUESTION_SET — hardcoded local clarification prompts, one set per intent tag.
+// Replaced by the single clarification question returned by the backend Clarifier LLM.
 // ---------------------------------------------------------------------------
-const QUESTION_SET: Record<IntentTag, ClarificationPrompt[]> = {
-  career: [
-    {
-      id: "time-horizon",
-      question: "Are you trying to solve a short-term choice or a long-term direction?",
-      helperText: "Naming the time horizon helps the system separate immediate action from long-range planning.",
-      placeholder: "Example: I care more about what I should do in the next three months."
-    },
-    {
-      id: "core-pressure",
-      question: "What are you most afraid of losing in this situation?",
-      helperText: "The hidden fear often explains more than the visible goal.",
-      placeholder: "Example: I am afraid of missing a better opportunity or proving I am not ready."
-    },
-    {
-      id: "decision-window",
-      question: "When does this decision actually need to move forward?",
-      helperText: "If there is no real deadline, some of the pressure may only be self-imposed.",
-      placeholder: "Example: I need to respond within two weeks."
-    }
-  ],
-  relationship: [
-    {
-      id: "relationship-role",
-      question: "Do you want to understand the other person more clearly, or understand your own boundary first?",
-      helperText: "Relationship questions often mix curiosity about the other person with neglect of your own needs.",
-      placeholder: "Example: I mostly want to know whether it still makes sense to stay emotionally invested."
-    },
-    {
-      id: "recent-trigger",
-      question: "What recent interaction stayed with you the most?",
-      helperText: "A concrete event usually reveals more than a broad summary.",
-      placeholder: "Example: A distant reply last week kept looping in my head."
-    },
-    {
-      id: "desired-outcome",
-      question: "Ideally, are you looking for clarity, repair, or distance?",
-      helperText: "Naming the desired outcome makes the later advice more honest and practical.",
-      placeholder: "Example: I want to know whether one serious conversation is still worth having."
-    }
-  ],
-  study: [
-    {
-      id: "study-goal",
-      question: "Are you more concerned about grades, applications, or the learning process itself?",
-      helperText: "Different goals shift what the most useful advice should prioritize.",
-      placeholder: "Example: My main concern is whether I am competitive enough for applications."
-    },
-    {
-      id: "stuck-point",
-      question: "Is the biggest blockage time management, comprehension difficulty, or execution?",
-      helperText: "Pinpointing the bottleneck prevents the action advice from becoming generic.",
-      placeholder: "Example: I make plans constantly, but the execution always collapses."
-    },
-    {
-      id: "support-system",
-      question: "What support resources do you already have available?",
-      helperText: "Courses, peers, mentors, or tools can all become leverage if named clearly.",
-      placeholder: "Example: I do have a study partner, but I am not using that support well."
-    }
-  ],
-  emotion: [
-    {
-      id: "emotion-name",
-      question: "If you had to name your recent emotional state, what would you call it?",
-      helperText: "The more accurately you name the feeling, the more grounded the reflection can become.",
-      placeholder: "Example: It feels like a constant tight anxiety, not an explosive breakdown."
-    },
-    {
-      id: "body-signal",
-      question: "In what situations or body signals do these feelings usually show up?",
-      helperText: "Context and body signals often reveal the trigger faster than abstract analysis.",
-      placeholder: "Example: I notice it most when I am alone at night and my chest feels tight."
-    },
-    {
-      id: "needed-support",
-      question: "What do you need most right now: rest, company, or a sense of control?",
-      helperText: "Need identification is usually more useful than telling yourself to simply calm down.",
-      placeholder: "Example: What I really need is a bit more control over my next steps."
-    }
-  ],
-  growth: [
-    {
-      id: "focus-area",
-      question: "Which area of life do you most want to move forward right now?",
-      helperText: "Focusing the topic makes the later card spread easier to interpret.",
-      placeholder: "Example: career, relationships, confidence, or personal rhythm."
-    },
-    {
-      id: "current-pattern",
-      question: "What pattern keeps repeating for you?",
-      helperText: "Repeated patterns are often more valuable than one isolated event.",
-      placeholder: "Example: I keep backing away right before I have to make a decision."
-    },
-    {
-      id: "small-win",
-      question: "If this reading helps, what specific change would you like to walk away with?",
-      helperText: "A concrete hoped-for outcome makes the result more practical and testable.",
-      placeholder: "Example: I want to leave with one small action I can actually do this week."
-    }
-  ]
-};
+// const QUESTION_SET: Record<IntentTag, ClarificationPrompt[]> = {
+//   career: [
+//     {
+//       id: "time-horizon",
+//       question: "Are you trying to solve a short-term choice or a long-term direction?",
+//       helperText: "Naming the time horizon helps the system separate immediate action from long-range planning.",
+//       placeholder: "Example: I care more about what I should do in the next three months."
+//     },
+//     {
+//       id: "core-pressure",
+//       question: "What are you most afraid of losing in this situation?",
+//       helperText: "The hidden fear often explains more than the visible goal.",
+//       placeholder: "Example: I am afraid of missing a better opportunity or proving I am not ready."
+//     },
+//     {
+//       id: "decision-window",
+//       question: "When does this decision actually need to move forward?",
+//       helperText: "If there is no real deadline, some of the pressure may only be self-imposed.",
+//       placeholder: "Example: I need to respond within two weeks."
+//     }
+//   ],
+//   relationship: [ ... ],
+//   study: [ ... ],
+//   emotion: [ ... ],
+//   growth: [ ... ],
+// };
 
 // ---------------------------------------------------------------------------
 // Local helpers
@@ -215,7 +155,7 @@ function cardSuit(cardCode: string): string | undefined {
   return suit.charAt(0).toUpperCase() + suit.slice(1);
 }
 
-function mapCard(c: BackendCard, intentTag: IntentTag): TarotCardInsight {
+function mapCard(c: BackendCard, intentTag: IntentTag) {
   return {
     id: c.card_code,
     name: c.card_name,
@@ -230,7 +170,7 @@ function mapCard(c: BackendCard, intentTag: IntentTag): TarotCardInsight {
       `Considering "${intentTag}", what does ${c.card_name} reveal about your next step?`,
     cautionNote: c.caution_note ?? undefined,
     accent: cardAccent(c.card_code),
-  };
+  } as const;
 }
 
 function mapSafety(s: BackendReadingResult["safety"]): SafetyReview {
@@ -256,28 +196,28 @@ function mapTrace(t: BackendReadingResult["trace_summary"]): TraceStep[] {
   ];
 }
 
+// OLD: mapToReadingRecord(res, draft: SessionDraft, answers: Record<string, string>)
+// Updated: draft replaced by individual primitives; answers replaced by single clarificationAnswer
 function mapToReadingRecord(
   res: BackendReadingResult,
-  draft: SessionDraft,
-  answers: Record<string, string>
+  originalQuestion: string,
+  intentTag: IntentTag,
+  clarificationAnswer: string,
 ): ReadingRecord {
   const synth = res.synthesis;
-  const cards = res.cards.map((c) => mapCard(c, draft.intentTag));
-
-  const actionSuggestions = synth.action_advice ? [synth.action_advice] : [];
-  const reflectionQuestions = synth.reflection_question ? [synth.reflection_question] : [];
-
+  const cards = res.cards.map((c) => mapCard(c, intentTag));
   return {
     sessionId: res.session_id,
-    title: buildTitle(draft.originalQuestion),
+    title: buildTitle(originalQuestion),
     question: res.question.raw_question,
-    reframedQuestion: res.question.normalized_question ?? draft.originalQuestion,
-    intentTag: draft.intentTag,
-    clarificationAnswers: answers,
+    reframedQuestion: res.question.normalized_question ?? originalQuestion,
+    intentTag,
+    // OLD: clarificationAnswers: answers,
+    clarificationAnswer,
     cards,
     synthesis: synth.summary ?? "",
-    actionSuggestions,
-    reflectionQuestions,
+    actionSuggestions: synth.action_advice ? [synth.action_advice] : [],
+    reflectionQuestions: synth.reflection_question ? [synth.reflection_question] : [],
     safety: mapSafety(res.safety),
     trace: mapTrace(res.trace_summary),
     createdAt: res.created_at,
@@ -285,45 +225,20 @@ function mapToReadingRecord(
 }
 
 // ---------------------------------------------------------------------------
-// Public API (same signatures as mockApi.ts)
+// Shared internal call — POST /api/v1/readings and parse the result
 // ---------------------------------------------------------------------------
-export async function loadHistory(): Promise<ReadingRecord[]> {
-  return readHistory().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-}
-
-export async function startSession(question: string): Promise<SessionDraft> {
-  const intentTag = detectIntentTag(question);
-  return {
-    sessionId: crypto.randomUUID(),
-    originalQuestion: question.trim(),
-    normalizedQuestion: question.trim().replace(/\s+/g, " "),
-    intentTag,
-    clarificationPrompts: QUESTION_SET[intentTag],
-    startedAt: new Date().toISOString(),
-  };
-}
-
-export async function completeReading(
-  draft: SessionDraft,
-  answers: Record<string, string>
-): Promise<ReadingRecord> {
-  // Enrich question with clarification answers before sending to backend
-  const answerContext = Object.entries(answers)
-    .filter(([, v]) => v.trim())
-    .map(([, v]) => v.trim())
-    .join("; ");
-
-  const enrichedQuestion = answerContext
-    ? `${draft.originalQuestion} — additional context: ${answerContext}`
-    : draft.originalQuestion;
-
+async function callReadingsApi(
+  question: string,
+  skipClarification = false,
+): Promise<BackendReadingResult> {
   const response = await fetch("/api/v1/readings", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      question: enrichedQuestion,
+      question,
       locale: "zh-CN",
       spread_type: "THREE_CARD_REFLECTION",
+      skip_clarification: skipClarification,
     }),
   });
 
@@ -332,11 +247,137 @@ export async function completeReading(
     throw new Error(`API error ${response.status}: ${text}`);
   }
 
-  const data = (await response.json()) as BackendReadingResult;
-  const record = mapToReadingRecord(data, draft, answers);
+  return (await response.json()) as BackendReadingResult;
+}
 
+// parseResult is synchronous for all cases except MAX_CLARIFICATION_TURNS,
+// which needs to fire an extra API call — handled in the async wrappers below.
+function parseResult(
+  data: BackendReadingResult,
+  originalQuestion: string,
+  intentTag: IntentTag,
+  clarificationAnswer: string,
+  currentTurn: number,
+): ReadingResult | "force_draw" {
+  if (data.status === "SAFE_FALLBACK_RETURNED") {
+    const info: FallbackInfo = {
+      message: data.synthesis.summary ?? "Your question triggered a safety review. Please try rephrasing.",
+      riskLevel: data.safety.risk_level,
+      actionTaken: data.safety.action_taken,
+    };
+    return { kind: "fallback", info };
+  }
+
+  if (data.status === "CLARIFYING") {
+    // OLD: when currentTurn >= MAX_CLARIFICATION_TURNS, returned a fallback error.
+    // NEW: return a sentinel so the caller re-sends with skip_clarification=true.
+    if (currentTurn >= MAX_CLARIFICATION_TURNS) {
+      return "force_draw";
+    }
+
+    const draft: SessionDraft = {
+      sessionId: data.session_id,
+      readingId: data.reading_id,
+      originalQuestion,
+      intentTag,
+      clarificationQuestionText:
+        data.clarification.question_text ?? "Could you share more context about your situation?",
+      clarificationTurn: currentTurn + 1,
+      startedAt: new Date().toISOString(),
+    };
+    return { kind: "clarifying", draft };
+  }
+
+  // COMPLETED (or any other terminal status)
+  const record = mapToReadingRecord(data, originalQuestion, intentTag, clarificationAnswer);
   const nextHistory = [record, ...readHistory()].slice(0, 12);
   writeHistory(nextHistory);
+  return { kind: "complete", record };
+}
 
-  return record;
+// Resolves the "force_draw" sentinel by re-sending with skip_clarification=true.
+async function forceDrawResult(
+  question: string,
+  originalQuestion: string,
+  intentTag: IntentTag,
+  clarificationAnswer: string,
+): Promise<ReadingResult> {
+  const data = await callReadingsApi(question, true);
+  const result = parseResult(data, originalQuestion, intentTag, clarificationAnswer, 0);
+  // skip_clarification guarantees backend won't return CLARIFYING again
+  return result === "force_draw" ? { kind: "fallback", info: {
+    message: "Unable to process the question after maximum attempts. Please try rephrasing.",
+    riskLevel: "LOW",
+    actionTaken: "FORCE_DRAW_FAILED",
+  }} : result;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+export async function loadHistory(): Promise<ReadingRecord[]> {
+  return readHistory().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+// OLD: startSession was purely local — no HTTP call, returned SessionDraft directly.
+// export async function startSession(question: string): Promise<SessionDraft> {
+//   const intentTag = detectIntentTag(question);
+//   return {
+//     sessionId: crypto.randomUUID(),
+//     originalQuestion: question.trim(),
+//     normalizedQuestion: question.trim().replace(/\s+/g, " "),
+//     intentTag,
+//     clarificationPrompts: QUESTION_SET[intentTag],
+//     startedAt: new Date().toISOString(),
+//   };
+// }
+
+// NEW: immediately calls POST /api/v1/readings; returns ReadingResult discriminated union
+export async function startSession(question: string): Promise<ReadingResult> {
+  const trimmed = question.trim();
+  const intentTag = detectIntentTag(trimmed);
+  const data = await callReadingsApi(trimmed);
+  const result = parseResult(data, trimmed, intentTag, "", 0);
+  // turn=0 on first call so force_draw cannot trigger here (would need turn >= 3)
+  return result === "force_draw"
+    ? forceDrawResult(trimmed, trimmed, intentTag, "")
+    : result;
+}
+
+// OLD: completeReading took (draft: SessionDraft, answers: Record<string, string>)
+// and always called the backend once with all answers concatenated.
+// export async function completeReading(
+//   draft: SessionDraft,
+//   answers: Record<string, string>
+// ): Promise<ReadingRecord> {
+//   const answerContext = Object.entries(answers)
+//     .filter(([, v]) => v.trim())
+//     .map(([, v]) => v.trim())
+//     .join("; ");
+//   const enrichedQuestion = answerContext
+//     ? `${draft.originalQuestion} — additional context: ${answerContext}`
+//     : draft.originalQuestion;
+//   const response = await fetch("/api/v1/readings", { ... });
+//   ...
+// }
+
+// NEW: takes a single clarification answer string; re-calls POST /api/v1/readings
+// with the enriched question (original + answer context).
+// Passes draft.clarificationTurn so parseResult can enforce MAX_CLARIFICATION_TURNS.
+export async function completeReading(
+  draft: SessionDraft,
+  answer: string,
+): Promise<ReadingResult> {
+  const trimmedAnswer = answer.trim();
+  const enrichedQuestion = trimmedAnswer
+    ? `${draft.originalQuestion} — additional context: ${trimmedAnswer}`
+    : draft.originalQuestion;
+
+  const data = await callReadingsApi(enrichedQuestion);
+  const result = parseResult(data, draft.originalQuestion, draft.intentTag, trimmedAnswer, draft.clarificationTurn);
+  if (result === "force_draw") {
+    // Max turns reached: re-send with skip_clarification=true so backend finalizes immediately
+    return forceDrawResult(enrichedQuestion, draft.originalQuestion, draft.intentTag, trimmedAnswer);
+  }
+  return result;
 }

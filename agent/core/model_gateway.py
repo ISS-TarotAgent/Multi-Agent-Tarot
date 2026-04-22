@@ -73,6 +73,7 @@ class OpenAIModelGateway(ModelGateway):
         system_prompt: str | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
+        generation_name: str | None = None,
         **kwargs: Any,
     ) -> ModelResponse:
         messages: list[dict[str, str]] = []
@@ -80,22 +81,73 @@ class OpenAIModelGateway(ModelGateway):
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": user_prompt})
 
+        effective_temp = temperature if temperature is not None else self._temperature
+        effective_max = max_tokens if max_tokens is not None else self._max_tokens
+
+        generation = self._start_generation(
+            name=generation_name or self._model,
+            messages=messages,
+            temperature=effective_temp,
+            max_tokens=effective_max,
+        )
+
         response = self._client.chat.completions.create(
             model=self._model,
             messages=messages,
-            temperature=temperature if temperature is not None else self._temperature,
-            max_tokens=max_tokens if max_tokens is not None else self._max_tokens,
+            temperature=effective_temp,
+            max_tokens=effective_max,
             **kwargs,
         )
 
         choice = response.choices[0]
         usage = response.usage
+        content = choice.message.content or ""
+
+        self._end_generation(generation, output=content, usage=usage)
+
         return ModelResponse(
-            content=choice.message.content or "",
+            content=content,
             model=response.model,
             prompt_tokens=usage.prompt_tokens if usage else 0,
             completion_tokens=usage.completion_tokens if usage else 0,
         )
+
+    def _start_generation(
+        self,
+        *,
+        name: str,
+        messages: list[dict[str, str]],
+        temperature: float,
+        max_tokens: int,
+    ) -> Any:
+        try:
+            from agent.core.trace_context import get_observation  # noqa: PLC0415
+            obs = get_observation()
+            if obs is None:
+                return None
+            return obs.generation(
+                name=name,
+                model=self._model,
+                input=messages,
+                model_parameters={"temperature": temperature, "max_tokens": max_tokens},
+            )
+        except Exception:  # noqa: BLE001
+            return None
+
+    @staticmethod
+    def _end_generation(generation: Any, *, output: str, usage: Any) -> None:
+        if generation is None:
+            return
+        try:
+            generation.end(
+                output=output,
+                usage={
+                    "input": usage.prompt_tokens if usage else 0,
+                    "output": usage.completion_tokens if usage else 0,
+                },
+            )
+        except Exception:  # noqa: BLE001
+            pass
 
 
 def build_gateway_from_settings() -> OpenAIModelGateway:

@@ -146,8 +146,9 @@ def execute_clarifier_step(
                 state.normalized_question = clarification.normalized_question
                 state.intent_tag = clarification.intent_tag
 
-                if clarification.clarification_required:
-                    # Session API: store prompts and pause for user answers
+                if clarification.clarification_required and not state.skip_clarification:
+                    # Session API: store prompts and pause for user answers.
+                    # Skipped when skip_clarification=True (frontend max-turns enforcement).
                     state.clarification_prompts = [
                         p.model_dump() for p in clarification.clarification_prompts
                     ]

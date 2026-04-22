@@ -15,6 +15,9 @@ class CreateReadingRequest(ApiSchema):
     spread_type: SpreadType = SpreadType.THREE_CARD_REFLECTION
     client_request_id: str | None = None
     metadata: dict[str, Any] | None = None
+    # When True, the clarifier will finalize immediately without asking for more context.
+    # Frontend sets this after MAX_CLARIFICATION_TURNS is reached.
+    skip_clarification: bool = False
 
     @field_validator("question")
     @classmethod
