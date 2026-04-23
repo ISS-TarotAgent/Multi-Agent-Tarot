@@ -43,10 +43,8 @@ def _run_command(
     )
     if completed.returncode != 0:
         raise RuntimeError(
-            f"command failed: {' '.join(command)}\n"
-            f"stdout:\n{completed.stdout}\n"
-            f"stderr:\n{completed.stderr}"
-    )
+            f"command failed: {' '.join(command)}\nstdout:\n{completed.stdout}\nstderr:\n{completed.stderr}"
+        )
     return completed
 
 

@@ -15,10 +15,12 @@ from agent.schemas.clarifier import (
 from backend.app.domain.enums import TraceEventStatus, WorkflowStatus
 from backend.app.schemas.workflow import TarotWorkflowState, TraceEventPayload
 
+
 # 定义了一个LLMClarifierAgent类，负责处理澄清阶段的逻辑，包括生成澄清问题和根据用户回答生成重构问题。该类使用ModelGateway与LLM进行交互，并加载相应的提示模板。
 class ClarifierAgent(Protocol):
     def run(self, payload: ClarifierInput) -> ClarifierOutput: ...
     def finalize(self, payload: ClarifierFinalizeInput) -> ClarifierFinalizeOutput: ...
+
 
 # 定义了几个协议类（Protocol），用于抽象化地描述观察者模式中的不同角色，包括ObservationHandle、WorkflowObserver、TraceEventFactory和TraceLogger。这些协议定义了在澄清阶段执行过程中可能涉及的观察和日志记录接口。
 class ObservationHandle(Protocol):
@@ -91,10 +93,7 @@ def execute_clarifier_step(
 
     # 判断当前是否是从澄清阶段恢复（resuming），即之前已经生成了澄清提示并等待用户回答的情况。
     # 这将影响后续的处理逻辑，决定是直接进入finalize阶段还是先执行run阶段生成澄清提示。
-    is_resuming = (
-        state.status is WorkflowStatus.CLARIFYING
-        and bool(state.clarification_answers)
-    )
+    is_resuming = state.status is WorkflowStatus.CLARIFYING and bool(state.clarification_answers)
 
     with observer.observe_step(
         step_name="clarifier",
@@ -149,9 +148,7 @@ def execute_clarifier_step(
                 if clarification.clarification_required and not state.skip_clarification:
                     # Session API: store prompts and pause for user answers.
                     # Skipped when skip_clarification=True (frontend max-turns enforcement).
-                    state.clarification_prompts = [
-                        p.model_dump() for p in clarification.clarification_prompts
-                    ]
+                    state.clarification_prompts = [p.model_dump() for p in clarification.clarification_prompts]
                     state.status = WorkflowStatus.CLARIFYING
                     state.trace_events.append(
                         trace_event_factory(
@@ -166,9 +163,7 @@ def execute_clarifier_step(
                             },
                         )
                     )
-                    observation.success(
-                        output={"status": state.status.value, "phase": "init"}
-                    )
+                    observation.success(output={"status": state.status.value, "phase": "init"})
                 else:
                     # One-shot API: chain Phase 2 immediately with empty answers
                     finalize_started = perf_counter()
@@ -192,9 +187,7 @@ def execute_clarifier_step(
                                 "phase": "init+finalize",
                                 "intent_tag": clarification.intent_tag,
                                 "reframed_question": finalize_out.reframed_question[:80],
-                                "finalize_latency_ms": round(
-                                    (perf_counter() - finalize_started) * 1000
-                                ),
+                                "finalize_latency_ms": round((perf_counter() - finalize_started) * 1000),
                             },
                         )
                     )

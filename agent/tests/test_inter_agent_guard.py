@@ -16,6 +16,7 @@ from agent.security.inter_agent_guard import (
 # validate_agent_output
 # ---------------------------------------------------------------------------
 
+
 class TestValidateAgentOutput:
     def test_clean_agent_output_is_safe(self):
         text = "过去位置的星星提示你正在慢慢看见新的希望，适合恢复长期视角。"
@@ -48,6 +49,7 @@ class TestValidateAgentOutput:
 # is_safe_to_pass helper
 # ---------------------------------------------------------------------------
 
+
 class TestIsSafeToPass:
     def test_returns_true_for_safe_decision(self):
         decision = validate_agent_output("draw", "这张牌代表过去的经历。")
@@ -61,6 +63,7 @@ class TestIsSafeToPass:
 # ---------------------------------------------------------------------------
 # inter_agent_guard (node-callable wrapper)
 # ---------------------------------------------------------------------------
+
 
 class TestInterAgentGuard:
     def test_clean_output_returns_safe_to_continue_true(self):

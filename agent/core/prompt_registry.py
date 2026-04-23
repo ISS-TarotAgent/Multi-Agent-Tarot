@@ -22,9 +22,7 @@ def load_prompt(name: str) -> str:
 
     target = PROMPT_ROOT / f"{name}.md"
     if not target.exists():
-        raise FileNotFoundError(
-            f"Prompt template not found: '{name}' (expected file at {target})"
-        )
+        raise FileNotFoundError(f"Prompt template not found: '{name}' (expected file at {target})")
 
     text = target.read_text(encoding="utf-8")
     _cache[name] = text

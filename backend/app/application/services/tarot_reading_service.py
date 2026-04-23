@@ -59,7 +59,7 @@ class TarotReadingService:
                     spread_type=request.spread_type,
                     created_at=self._now(),
                 )
-                state = self._workflow.run(
+                self._workflow.run(
                     session_id=session_id,
                     reading_id=reading_id,
                     raw_question=request.question,
@@ -76,7 +76,9 @@ class TarotReadingService:
                     message="Database operation failed.",
                     metadata={"reason": str(exc)},
                 )
-                raise AppError.dependency_unavailable("Database operation failed.", details={"reason": str(exc)}) from exc
+                raise AppError.dependency_unavailable(
+                    "Database operation failed.", details={"reason": str(exc)}
+                ) from exc
 
             aggregate = self._repository.get_reading(reading_id)
             if aggregate is None:
@@ -132,9 +134,7 @@ class TarotReadingService:
     def to_reading_response(aggregate: ReadingAggregate) -> ReadingResultResponse:
         trace_summary = ReadingTraceSummaryPayload(
             event_count=len(aggregate.trace_events),
-            warning_count=sum(
-                1 for event in aggregate.trace_events if event.event_status is TraceEventStatus.FALLBACK
-            ),
+            warning_count=sum(1 for event in aggregate.trace_events if event.event_status is TraceEventStatus.FALLBACK),
             error_count=sum(1 for event in aggregate.trace_events if event.event_status is TraceEventStatus.FAILED),
         )
         clarification_required = aggregate.clarification_message is not None
@@ -172,11 +172,11 @@ class TarotReadingService:
                 reflection_question=aggregate.reading.reflection_question,
             ),
             safety=ReadingSafetyPayload(
-                risk_level=aggregate.safety_review.risk_level if aggregate.safety_review else aggregate.reading.risk_level,
+                risk_level=aggregate.safety_review.risk_level
+                if aggregate.safety_review
+                else aggregate.reading.risk_level,
                 action_taken=(
-                    aggregate.safety_review.action_taken
-                    if aggregate.safety_review
-                    else SafetyAction.PASSTHROUGH
+                    aggregate.safety_review.action_taken if aggregate.safety_review else SafetyAction.PASSTHROUGH
                 ),
                 review_notes=aggregate.safety_review.review_notes if aggregate.safety_review else None,
             ),

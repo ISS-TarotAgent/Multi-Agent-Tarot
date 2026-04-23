@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.post("/sessions", response_model=dto.SessionResponse, summary="Start a tarot session")
-async def start_session(payload: dto.SessionRequest, workflow = Depends(deps.get_workflow)):
+async def start_session(payload: dto.SessionRequest, workflow=Depends(deps.get_workflow)):
     """Kick off clarification + draw workflow for a fresh session.
 
     TODO:
@@ -24,7 +24,7 @@ async def start_session(payload: dto.SessionRequest, workflow = Depends(deps.get
 
 
 @router.post("/sessions/{session_id}/clarify", response_model=dto.ClarificationResponse)
-async def clarify(session_id: str, payload: dto.ClarificationMessage, workflow = Depends(deps.get_workflow)):
+async def clarify(session_id: str, payload: dto.ClarificationMessage, workflow=Depends(deps.get_workflow)):
     """Allow iterative clarification rounds.
 
     TODO:
@@ -37,7 +37,7 @@ async def clarify(session_id: str, payload: dto.ClarificationMessage, workflow =
 
 
 @router.get("/sessions/{session_id}", response_model=dto.SessionDetail)
-async def get_session(session_id: str, db = Depends(deps.get_db)):
+async def get_session(session_id: str, db=Depends(deps.get_db)):
     """Fetch historical tarot session data for frontend display.
 
     TODO:

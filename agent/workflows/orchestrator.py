@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from time import perf_counter
-from typing import Any, Iterator, Protocol,TYPE_CHECKING
+from typing import Any, Iterator, Protocol, TYPE_CHECKING
 from uuid import uuid4
 
 if TYPE_CHECKING:
@@ -18,6 +18,7 @@ _StateGraph: Any
 try:
     from langgraph.graph import END, START
     from langgraph.graph import StateGraph as _StateGraph
+
     LANGGRAPH_AVAILABLE = True
 except ImportError:  # pragma: no cover
     END = "__end__"
@@ -31,6 +32,7 @@ from agent.nodes import (
     execute_intermediate_security_step,
     execute_pre_input_security_step,
     execute_safety_guard_step,
+    execute_synthesis_step,
 )
 from agent.schemas.clarifier import (
     ClarifierFinalizeInput,
@@ -65,6 +67,10 @@ class DrawAgent(Protocol):
 
 class SynthesisAgent(Protocol):
     def run(self, payload: SynthesisInput) -> SynthesisOutput: ...
+
+
+class SafetyAgent(Protocol):
+    def evaluate(self, payload: Any) -> Any: ...
 
 
 class ObservationHandle(Protocol):
@@ -139,11 +145,7 @@ class _DefaultClarifierAgent:
         return ClarifierOutput(
             normalized_question=normalized_question,
             clarification_required=clarification_required,
-            clarifier_question=(
-                "你最想聚焦的是感情、事业、学业还是关系？"
-                if clarification_required
-                else None
-            ),
+            clarifier_question=("你最想聚焦的是感情、事业、学业还是关系？" if clarification_required else None),
         )
 
     def finalize(self, payload: ClarifierFinalizeInput) -> ClarifierFinalizeOutput:
@@ -206,12 +208,14 @@ class TarotReflectionWorkflow:
         clarifier_agent: ClarifierAgent | None = None,
         draw_agent: DrawAgent | None = None,
         synthesis_agent: SynthesisAgent | None = None,
+        safety_agent: SafetyAgent | None = None,
         observer: WorkflowObserver | None = None,
         checkpointer: Any | None = None,
     ) -> None:
         self._clarifier_agent = clarifier_agent or _DefaultClarifierAgent()
         self._draw_agent = draw_agent or _DefaultDrawAgent()
         self._synthesis_agent = synthesis_agent or _DefaultSynthesisAgent()
+        self._safety_agent = safety_agent
         self._observer = observer or _NoOpWorkflowObserver()
         self._checkpointer = checkpointer
         self._runtime = _GraphRuntime(workflow=self)
@@ -489,33 +493,14 @@ class TarotReflectionWorkflow:
         )
 
     def _run_synthesis_step(self, state: TarotWorkflowState) -> TarotWorkflowState:
-        payload = SynthesisInput(
-            normalized_question=state.normalized_question or state.raw_question,
-            card_interpretations=[card.interpretation for card in state.cards],
-            locale=state.locale,
+        return execute_synthesis_step(
+            state=state,
+            synthesis_agent=self._synthesis_agent,
+            observer=self._observer,
+            trace_event_factory=self._trace_event,
+            trace_logger=self._log_trace_events,
+            protective_fallback_factory=self._protective_fallback,
         )
-        with self._observer.observe_step(
-            step_name="synthesis",
-            as_type="chain",
-            input_payload={"card_count": len(state.cards)},
-            metadata={"session_id": state.session_id, "reading_id": state.reading_id},
-        ) as observation:
-            started = perf_counter()
-            synthesis_output = self._synthesis_agent.run(payload)
-            state.synthesis_output = synthesis_output
-            state.status = WorkflowStatus.SYNTHESIS_COMPLETED
-            state.trace_events.append(
-                self._trace_event(
-                    step_name="synthesis",
-                    event_status=TraceEventStatus.SUCCEEDED,
-                    attempt_no=1,
-                    started=started,
-                    payload={"summary_length": len(synthesis_output.summary)},
-                )
-            )
-            observation.success(output={"summary_length": len(synthesis_output.summary)})
-        self._log_trace_events(state=state, reading_id=state.reading_id, only_latest=True)
-        return state
 
     def _run_safety_step(self, state: TarotWorkflowState) -> TarotWorkflowState:
         return execute_safety_guard_step(
@@ -524,6 +509,7 @@ class TarotReflectionWorkflow:
             trace_event_factory=self._trace_event,
             trace_logger=self._log_trace_events,
             protective_fallback_factory=self._protective_fallback,
+            safety_agent=self._safety_agent,
         )
 
     @staticmethod
@@ -604,7 +590,7 @@ def build_llm_workflow(
     observer: WorkflowObserver | None = None,
 ) -> TarotReflectionWorkflow:
     """Build a TarotReflectionWorkflow wired with real OpenAI-backed agents."""
-    from agent.core.llm_agents import LLMClarifierAgent, LLMDrawAgent, LLMSynthesisAgent
+    from agent.core.llm_agents import LLMClarifierAgent, LLMDrawAgent, LLMSafetyAgent, LLMSynthesisAgent
     from agent.core.model_gateway import build_gateway_from_settings
 
     gateway = build_gateway_from_settings()
@@ -612,6 +598,7 @@ def build_llm_workflow(
         clarifier_agent=LLMClarifierAgent(gateway),
         draw_agent=LLMDrawAgent(gateway),
         synthesis_agent=LLMSynthesisAgent(gateway),
+        safety_agent=LLMSafetyAgent(gateway),
         observer=observer,
     )
 

@@ -24,26 +24,34 @@ def test_postgresql_chain_runs_mvp_reading_via_alembic_and_persists_facts(
     engine = create_engine(postgres_database_url, future=True)
     try:
         with engine.connect() as connection:
-            reading_row = connection.execute(
-                text(
-                    """
+            reading_row = (
+                connection.execute(
+                    text(
+                        """
                     select status, normalized_question, risk_level, fallback_used
                     from readings
                     where id = :reading_id
                     """
-                ),
-                {"reading_id": payload["reading_id"]},
-            ).mappings().one()
-            session_row = connection.execute(
-                text(
-                    """
+                    ),
+                    {"reading_id": payload["reading_id"]},
+                )
+                .mappings()
+                .one()
+            )
+            session_row = (
+                connection.execute(
+                    text(
+                        """
                     select status, normalized_question
                     from sessions
                     where id = :session_id
                     """
-                ),
-                {"session_id": payload["session_id"]},
-            ).mappings().one()
+                    ),
+                    {"session_id": payload["session_id"]},
+                )
+                .mappings()
+                .one()
+            )
             trace_count = connection.execute(
                 text(
                     """
@@ -109,48 +117,64 @@ def test_postgresql_chain_runs_session_clarification_flow_and_persists_stage3_fa
     engine = create_engine(postgres_database_url, future=True)
     try:
         with engine.connect() as connection:
-            session_row = connection.execute(
-                text(
-                    """
+            session_row = (
+                connection.execute(
+                    text(
+                        """
                     select status, normalized_question
                     from sessions
                     where id = :session_id
                     """
-                ),
-                {"session_id": session_id},
-            ).mappings().one()
-            reading_row = connection.execute(
-                text(
-                    """
+                    ),
+                    {"session_id": session_id},
+                )
+                .mappings()
+                .one()
+            )
+            reading_row = (
+                connection.execute(
+                    text(
+                        """
                     select id::text as id, status, normalized_question
                     from readings
                     where session_id = :session_id
                     """
-                ),
-                {"session_id": session_id},
-            ).mappings().one()
-            message_rows = connection.execute(
-                text(
-                    """
+                    ),
+                    {"session_id": session_id},
+                )
+                .mappings()
+                .one()
+            )
+            message_rows = (
+                connection.execute(
+                    text(
+                        """
                     select message_type, sender_role, turn_index, content
                     from session_messages
                     where session_id = :session_id
                     order by turn_index, created_at
                     """
-                ),
-                {"session_id": session_id},
-            ).mappings().all()
-            trace_rows = connection.execute(
-                text(
-                    """
+                    ),
+                    {"session_id": session_id},
+                )
+                .mappings()
+                .all()
+            )
+            trace_rows = (
+                connection.execute(
+                    text(
+                        """
                     select step_name, event_status, reading_id::text as reading_id
                     from trace_events
                     where session_id = :session_id
                     order by created_at, step_name
                     """
-                ),
-                {"session_id": session_id},
-            ).mappings().all()
+                    ),
+                    {"session_id": session_id},
+                )
+                .mappings()
+                .all()
+            )
     finally:
         engine.dispose()
 
@@ -174,15 +198,9 @@ def test_postgresql_chain_runs_session_clarification_flow_and_persists_stage3_fa
     assert message_rows[1]["content"] == question_payload["clarifier_question"]
     assert message_rows[2]["content"] == "主要是工作去留和换岗时机，我想知道现在是不是该离开当前岗位。"
 
-    session_level_steps = [
-        (row["step_name"], row["event_status"])
-        for row in trace_rows
-        if row["reading_id"] is None
-    ]
+    session_level_steps = [(row["step_name"], row["event_status"]) for row in trace_rows if row["reading_id"] is None]
     reading_level_steps = [
-        (row["step_name"], row["event_status"])
-        for row in trace_rows
-        if row["reading_id"] == run_payload["reading_id"]
+        (row["step_name"], row["event_status"]) for row in trace_rows if row["reading_id"] == run_payload["reading_id"]
     ]
 
     assert session_level_steps == [
@@ -192,12 +210,14 @@ def test_postgresql_chain_runs_session_clarification_flow_and_persists_stage3_fa
         ("clarifier", "SUCCEEDED"),
         ("persistence", "SUCCEEDED"),
     ]
-    assert sorted(reading_level_steps) == sorted([
-        ("draw_interpreter", "STARTED"),
-        ("draw_interpreter", "SUCCEEDED"),
-        ("synthesis", "STARTED"),
-        ("synthesis", "SUCCEEDED"),
-        ("safety_guard", "STARTED"),
-        ("safety_guard", "SUCCEEDED"),
-        ("persistence", "SUCCEEDED"),
-    ])
+    assert sorted(reading_level_steps) == sorted(
+        [
+            ("draw_interpreter", "STARTED"),
+            ("draw_interpreter", "SUCCEEDED"),
+            ("synthesis", "STARTED"),
+            ("synthesis", "SUCCEEDED"),
+            ("safety_guard", "STARTED"),
+            ("safety_guard", "SUCCEEDED"),
+            ("persistence", "SUCCEEDED"),
+        ]
+    )

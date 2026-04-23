@@ -49,8 +49,7 @@ def validate_agent_output(agent_name: str, output_text: str) -> SafetyDecision:
 
     if not decision.allow_continue:
         logger.warning(
-            "[inter_agent_guard] Suspicious output from agent=%s "
-            "risk=%s action=%s risks=%s",
+            "[inter_agent_guard] Suspicious output from agent=%s risk=%s action=%s risks=%s",
             agent_name,
             decision.risk_level.value,
             decision.required_action.value,

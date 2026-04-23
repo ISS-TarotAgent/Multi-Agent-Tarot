@@ -25,6 +25,7 @@ from backend.app.schemas.workflow import TarotWorkflowState, TraceEventPayload
 # Test helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_state(
     summary: str = "",
     action_advice: str = "",
@@ -111,6 +112,7 @@ def _run(state: TarotWorkflowState) -> TarotWorkflowState:
 # PASSTHROUGH — safe content
 # ---------------------------------------------------------------------------
 
+
 class TestPassthrough:
     def test_safe_content_passes_through(self):
         state = _make_state(
@@ -163,6 +165,7 @@ class TestPassthrough:
 # ---------------------------------------------------------------------------
 # REWRITE — medium-risk professional domains
 # ---------------------------------------------------------------------------
+
 
 class TestRewrite:
     def test_investment_keyword_triggers_rewrite(self):
@@ -227,6 +230,7 @@ class TestRewrite:
 # BLOCK — high-risk self-harm / violence
 # ---------------------------------------------------------------------------
 
+
 class TestBlock:
     def test_self_harm_keyword_triggers_block(self):
         state = _make_state(
@@ -286,6 +290,7 @@ class TestBlock:
 # ---------------------------------------------------------------------------
 # Missing synthesis output (fallback)
 # ---------------------------------------------------------------------------
+
 
 class TestMissingSynthesis:
     def test_none_synthesis_returns_block(self):

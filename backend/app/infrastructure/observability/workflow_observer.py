@@ -30,6 +30,7 @@ class ObservationHandle(Protocol):
 # No-op implementation
 # ---------------------------------------------------------------------------
 
+
 class _NoOpHandle:
     def success(self, *, output=None, metadata=None) -> None:
         pass
@@ -70,6 +71,7 @@ class NoOpWorkflowObserver:
 # ---------------------------------------------------------------------------
 # Langfuse v2 low-level implementation
 # ---------------------------------------------------------------------------
+
 
 class _LangfuseHandle:
     """Collects success/failure output; the caller ends the observation."""
@@ -163,6 +165,7 @@ class LangfuseWorkflowObserver:
 
     def get_current_trace_id(self) -> str | None:
         from agent.core.trace_context import get_observation  # noqa: PLC0415
+
         obs = get_observation()
         return getattr(obs, "id", None) if obs is not None else None
 
@@ -170,6 +173,7 @@ class LangfuseWorkflowObserver:
 # ---------------------------------------------------------------------------
 # Factory
 # ---------------------------------------------------------------------------
+
 
 def build_workflow_observer(settings: AppSettings) -> NoOpWorkflowObserver | LangfuseWorkflowObserver:
     if not settings.langfuse_enabled:

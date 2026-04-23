@@ -122,6 +122,7 @@ class OpenAIModelGateway(ModelGateway):
     ) -> Any:
         try:
             from agent.core.trace_context import get_observation  # noqa: PLC0415
+
             obs = get_observation()
             if obs is None:
                 return None
@@ -154,6 +155,7 @@ def build_gateway_from_settings() -> OpenAIModelGateway:
     """Construct an OpenAIModelGateway using AppSettings when available."""
     try:
         from backend.app.infrastructure.config.settings import get_settings
+
         s = get_settings()
         return OpenAIModelGateway(
             api_key=s.openai_api_key,
