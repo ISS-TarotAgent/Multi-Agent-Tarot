@@ -128,8 +128,7 @@ def execute_intermediate_security_step(
         state.completed_at = datetime.now(UTC)
         state.safety_output = protective_fallback_factory(
             review_notes=(
-                "Intermediate content safety check blocked handoff from draw to synthesis: "
-                f"{fallback.fallback_type}"
+                f"Intermediate content safety check blocked handoff from draw to synthesis: {fallback.fallback_type}"
             )
         )
         observation.failure(

@@ -100,9 +100,7 @@ class SqlAlchemyTarotReadingRepository:
                 for message in sorted(session_model.messages, key=lambda item: (item.turn_index, item.created_at))
             ],
             reading=(
-                ReadingRecord.model_validate(session_model.reading)
-                if session_model.reading is not None
-                else None
+                ReadingRecord.model_validate(session_model.reading) if session_model.reading is not None else None
             ),
         )
 
@@ -175,9 +173,7 @@ class SqlAlchemyTarotReadingRepository:
         updated_at: datetime,
     ) -> SessionAggregate:
         session_model = self._db_session.scalar(
-            select(SessionModel)
-            .where(SessionModel.id == session_id)
-            .options(selectinload(SessionModel.messages))
+            select(SessionModel).where(SessionModel.id == session_id).options(selectinload(SessionModel.messages))
         )
         if session_model is None:
             raise ValueError("session record was not found.")
@@ -351,9 +347,7 @@ class SqlAlchemyTarotReadingRepository:
 
     def save_session_workflow_result(self, state: TarotWorkflowState) -> None:
         session_model = self._db_session.scalar(
-            select(SessionModel)
-            .where(SessionModel.id == state.session_id)
-            .options(selectinload(SessionModel.messages))
+            select(SessionModel).where(SessionModel.id == state.session_id).options(selectinload(SessionModel.messages))
         )
         reading_model = self._db_session.get(ReadingModel, state.reading_id)
         if session_model is None or reading_model is None:
@@ -399,9 +393,7 @@ class SqlAlchemyTarotReadingRepository:
     def get_reading(self, reading_id: str) -> ReadingAggregate | None:
         return self._build_reading_aggregate(
             self._db_session.scalar(
-                select(ReadingModel)
-                .where(ReadingModel.id == reading_id)
-                .options(*self._reading_aggregate_options())
+                select(ReadingModel).where(ReadingModel.id == reading_id).options(*self._reading_aggregate_options())
             )
         )
 

@@ -85,7 +85,7 @@ class TarotSessionService:
             metadata={"locale": aggregate.session.locale},
         ) as operation:
             try:
-                question_state = self._workflow.evaluate_question(
+                self._workflow.evaluate_question(
                     session_id=session_id,
                     reading_id=f"session-eval:{session_id}",
                     raw_question=request.raw_question,
@@ -95,9 +95,17 @@ class TarotSessionService:
                     persistence_handler=lambda state: self._repository.save_question_evaluation(
                         session_id=session_id,
                         raw_question=request.raw_question,
-                        normalized_question=self._require_clarification_output(state).normalized_question,
+                        normalized_question=(
+                            state.clarification_output.normalized_question
+                            if state.clarification_output is not None
+                            else None
+                        ),
                         status=state.status,
-                        clarifier_question=self._require_clarification_output(state).clarifier_question,
+                        clarifier_question=(
+                            state.clarification_output.clarifier_question
+                            if state.clarification_output is not None
+                            else None
+                        ),
                         trace_events=state.trace_events,
                         updated_at=self._now(),
                     ),
@@ -109,9 +117,10 @@ class TarotSessionService:
                     message="Database operation failed.",
                     metadata={"reason": str(exc)},
                 )
-                raise AppError.dependency_unavailable("Database operation failed.", details={"reason": str(exc)}) from exc
+                raise AppError.dependency_unavailable(
+                    "Database operation failed.", details={"reason": str(exc)}
+                ) from exc
 
-            clarifier_output = self._require_clarification_output(question_state)
             latest_clarifier_question = self._latest_message(updated.messages, SessionMessageType.CLARIFIER_QUESTION)
             response = SubmitQuestionResponse(
                 session_id=updated.session.id,
@@ -165,7 +174,7 @@ class TarotSessionService:
                 new_answer=request.answer_text,
             )
             try:
-                question_state = self._workflow.evaluate_question(
+                self._workflow.evaluate_question(
                     session_id=session_id,
                     reading_id=f"session-eval:{session_id}",
                     raw_question=clarifier_input,
@@ -175,9 +184,17 @@ class TarotSessionService:
                     persistence_handler=lambda state: self._repository.save_clarification_evaluation(
                         session_id=session_id,
                         answer_text=request.answer_text,
-                        normalized_question=self._require_clarification_output(state).normalized_question,
+                        normalized_question=(
+                            state.clarification_output.normalized_question
+                            if state.clarification_output is not None
+                            else None
+                        ),
                         status=state.status,
-                        next_clarifier_question=self._require_clarification_output(state).clarifier_question,
+                        next_clarifier_question=(
+                            state.clarification_output.clarifier_question
+                            if state.clarification_output is not None
+                            else None
+                        ),
                         trace_events=state.trace_events,
                         updated_at=self._now(),
                     ),
@@ -189,9 +206,10 @@ class TarotSessionService:
                     message="Database operation failed.",
                     metadata={"reason": str(exc)},
                 )
-                raise AppError.dependency_unavailable("Database operation failed.", details={"reason": str(exc)}) from exc
+                raise AppError.dependency_unavailable(
+                    "Database operation failed.", details={"reason": str(exc)}
+                ) from exc
 
-            clarifier_output = self._require_clarification_output(question_state)
             latest_clarifier_question = self._latest_message(updated.messages, SessionMessageType.CLARIFIER_QUESTION)
             response = SubmitClarificationResponse(
                 session_id=updated.session.id,
@@ -249,7 +267,7 @@ class TarotSessionService:
                     clarification_prompts=aggregate.session.clarification_prompts or [],
                     created_at=created_at,
                 )
-                final_state = self._workflow.continue_from_ready_state(
+                self._workflow.continue_from_ready_state(
                     state,
                     persistence_handler=self._repository.save_session_workflow_result,
                 )
@@ -259,7 +277,9 @@ class TarotSessionService:
                     message="Database operation failed.",
                     metadata={"reason": str(exc)},
                 )
-                raise AppError.dependency_unavailable("Database operation failed.", details={"reason": str(exc)}) from exc
+                raise AppError.dependency_unavailable(
+                    "Database operation failed.", details={"reason": str(exc)}
+                ) from exc
 
             reading_aggregate = self._repository.get_reading(reading_id)
             if reading_aggregate is None:

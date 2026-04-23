@@ -25,6 +25,7 @@ def get_tarot_reading_service(
     db_session: Session = Depends(get_db_session_dep),
 ) -> TarotReadingService:
     from agent.workflows import build_llm_workflow
+
     observer = build_workflow_observer(settings)
     workflow = build_llm_workflow(observer=observer) if settings.openai_api_key else None
     return TarotReadingService(
@@ -39,6 +40,7 @@ def get_tarot_session_service(
     db_session: Session = Depends(get_db_session_dep),
 ) -> TarotSessionService:
     from agent.workflows import build_llm_workflow  # noqa: PLC0415
+
     observer = build_workflow_observer(settings)
     workflow = build_llm_workflow(observer=observer) if settings.openai_api_key else None
     return TarotSessionService(

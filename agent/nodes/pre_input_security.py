@@ -80,6 +80,7 @@ def execute_pre_input_security_step(
         metadata={"session_id": state.session_id, "reading_id": reading_id},
     ) as observation:
         from agent.workflows.security_orchestrator import run_pre_input_security_pipeline  # noqa: PLC0415
+
         started = perf_counter()
         security_result = run_pre_input_security_pipeline(state.raw_question)
         decision = security_result["security_decision"]

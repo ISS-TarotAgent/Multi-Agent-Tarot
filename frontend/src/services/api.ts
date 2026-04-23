@@ -1,16 +1,19 @@
 /**
- * Real API service — calls POST /api/v1/readings (single-step workflow).
+ * API service — uses the session-oriented workflow endpoints.
  *
  * Flow:
  *   startSession(question)
- *     → POST /api/v1/readings
- *     → kind="clarifying"  : backend Clarifier LLM needs more context
- *     → kind="complete"    : full reading result, no clarification needed
- *     → kind="fallback"    : safety guard blocked the request
+ *     → POST /api/v1/sessions                      (create session)
+ *     → POST /api/v1/sessions/{id}/question        (evaluate question)
+ *     → kind="clarifying"  : Clarifier LLM needs more context
+ *     → kind="complete"    : READY_FOR_DRAW → POST /sessions/{id}/run
+ *     → kind="fallback"    : safety guard blocked at input stage
  *
  *   completeReading(draft, answer)
- *     → POST /api/v1/readings with enriched question (original + clarification answer)
- *     → same three outcomes
+ *     → POST /api/v1/sessions/{id}/clarifications  (submit clarification)
+ *     → kind="clarifying"  : another round needed
+ *     → kind="complete"    : READY_FOR_DRAW → POST /sessions/{id}/run
+ *     → kind="fallback"    : safety guard blocked
  */
 import type {
   FallbackInfo,
@@ -24,12 +27,11 @@ import type {
 
 const STORAGE_KEY = "multi-agent-tarot-history";
 
-// Maximum number of clarification rounds the frontend will allow.
-// If the backend keeps returning CLARIFYING beyond this limit, treat it as a fallback.
+// Maximum number of clarification rounds before forcing a draw.
 const MAX_CLARIFICATION_TURNS = 3;
 
 // ---------------------------------------------------------------------------
-// Backend response types (mirrors backend/app/schemas/api/readings.py)
+// Backend response types
 // ---------------------------------------------------------------------------
 interface BackendCard {
   position: "PAST" | "PRESENT" | "FUTURE";
@@ -55,44 +57,34 @@ interface BackendReadingResult {
     action_advice: string | null;
     reflection_question: string | null;
   };
-  // OLD: safety: { risk_level: "LOW" | "MEDIUM"; action_taken: string; review_notes: string | null };
-  // Updated: risk_level can also be HIGH (e.g. SAFE_FALLBACK_RETURNED cases)
   safety: { risk_level: string; action_taken: string; review_notes: string | null };
   trace_summary: { event_count: number; warning_count: number; error_count: number };
   created_at: string;
   completed_at: string | null;
 }
 
-// ---------------------------------------------------------------------------
-// OLD: QUESTION_SET — hardcoded local clarification prompts, one set per intent tag.
-// Replaced by the single clarification question returned by the backend Clarifier LLM.
-// ---------------------------------------------------------------------------
-// const QUESTION_SET: Record<IntentTag, ClarificationPrompt[]> = {
-//   career: [
-//     {
-//       id: "time-horizon",
-//       question: "Are you trying to solve a short-term choice or a long-term direction?",
-//       helperText: "Naming the time horizon helps the system separate immediate action from long-range planning.",
-//       placeholder: "Example: I care more about what I should do in the next three months."
-//     },
-//     {
-//       id: "core-pressure",
-//       question: "What are you most afraid of losing in this situation?",
-//       helperText: "The hidden fear often explains more than the visible goal.",
-//       placeholder: "Example: I am afraid of missing a better opportunity or proving I am not ready."
-//     },
-//     {
-//       id: "decision-window",
-//       question: "When does this decision actually need to move forward?",
-//       helperText: "If there is no real deadline, some of the pressure may only be self-imposed.",
-//       placeholder: "Example: I need to respond within two weeks."
-//     }
-//   ],
-//   relationship: [ ... ],
-//   study: [ ... ],
-//   emotion: [ ... ],
-//   growth: [ ... ],
-// };
+interface CreateSessionResponse {
+  session_id: string;
+  status: string;
+}
+
+interface SubmitQuestionResponse {
+  session_id: string;
+  status: string;
+  normalized_question: string | null;
+  clarification_required: boolean;
+  clarifier_question: string | null;
+  updated_at: string;
+}
+
+interface SubmitClarificationResponse {
+  session_id: string;
+  status: string;
+  normalized_question: string | null;
+  clarification_required: boolean;
+  next_clarifier_question: string | null;
+  updated_at: string;
+}
 
 // ---------------------------------------------------------------------------
 // Local helpers
@@ -196,8 +188,6 @@ function mapTrace(t: BackendReadingResult["trace_summary"]): TraceStep[] {
   ];
 }
 
-// OLD: mapToReadingRecord(res, draft: SessionDraft, answers: Record<string, string>)
-// Updated: draft replaced by individual primitives; answers replaced by single clarificationAnswer
 function mapToReadingRecord(
   res: BackendReadingResult,
   originalQuestion: string,
@@ -212,7 +202,6 @@ function mapToReadingRecord(
     question: res.question.raw_question,
     reframedQuestion: res.question.normalized_question ?? originalQuestion,
     intentTag,
-    // OLD: clarificationAnswers: answers,
     clarificationAnswer,
     cards,
     synthesis: synth.summary ?? "",
@@ -225,91 +214,91 @@ function mapToReadingRecord(
 }
 
 // ---------------------------------------------------------------------------
-// Shared internal call — POST /api/v1/readings and parse the result
+// Session API calls
 // ---------------------------------------------------------------------------
-async function callReadingsApi(
-  question: string,
-  skipClarification = false,
-): Promise<BackendReadingResult> {
-  const response = await fetch("/api/v1/readings", {
+async function apiPost<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      question,
-      locale: "zh-CN",
-      spread_type: "THREE_CARD_REFLECTION",
-      skip_clarification: skipClarification,
-    }),
+    body: JSON.stringify(body),
   });
-
   if (!response.ok) {
     const text = await response.text();
     throw new Error(`API error ${response.status}: ${text}`);
   }
-
-  return (await response.json()) as BackendReadingResult;
+  return (await response.json()) as T;
 }
 
-// parseResult is synchronous for all cases except MAX_CLARIFICATION_TURNS,
-// which needs to fire an extra API call — handled in the async wrappers below.
-function parseResult(
-  data: BackendReadingResult,
-  originalQuestion: string,
-  intentTag: IntentTag,
-  clarificationAnswer: string,
-  currentTurn: number,
-): ReadingResult | "force_draw" {
-  if (data.status === "SAFE_FALLBACK_RETURNED") {
-    const info: FallbackInfo = {
-      message: data.synthesis.summary ?? "Your question triggered a safety review. Please try rephrasing.",
-      riskLevel: data.safety.risk_level,
-      actionTaken: data.safety.action_taken,
-    };
-    return { kind: "fallback", info };
-  }
-
-  if (data.status === "CLARIFYING") {
-    // OLD: when currentTurn >= MAX_CLARIFICATION_TURNS, returned a fallback error.
-    // NEW: return a sentinel so the caller re-sends with skip_clarification=true.
-    if (currentTurn >= MAX_CLARIFICATION_TURNS) {
-      return "force_draw";
-    }
-
-    const draft: SessionDraft = {
-      sessionId: data.session_id,
-      readingId: data.reading_id,
-      originalQuestion,
-      intentTag,
-      clarificationQuestionText:
-        data.clarification.question_text ?? "Could you share more context about your situation?",
-      clarificationTurn: currentTurn + 1,
-      startedAt: new Date().toISOString(),
-    };
-    return { kind: "clarifying", draft };
-  }
-
-  // COMPLETED (or any other terminal status)
-  const record = mapToReadingRecord(data, originalQuestion, intentTag, clarificationAnswer);
-  const nextHistory = [record, ...readHistory()].slice(0, 12);
-  writeHistory(nextHistory);
-  return { kind: "complete", record };
+async function createSession(locale = "zh-CN"): Promise<CreateSessionResponse> {
+  return apiPost<CreateSessionResponse>("/api/v1/sessions", {
+    locale,
+    spread_type: "THREE_CARD_REFLECTION",
+  });
 }
 
-// Resolves the "force_draw" sentinel by re-sending with skip_clarification=true.
-async function forceDrawResult(
-  question: string,
+async function submitQuestion(
+  sessionId: string,
+  rawQuestion: string,
+): Promise<SubmitQuestionResponse> {
+  return apiPost<SubmitQuestionResponse>(`/api/v1/sessions/${sessionId}/question`, {
+    raw_question: rawQuestion,
+  });
+}
+
+async function submitClarification(
+  sessionId: string,
+  answerText: string,
+  turnIndex: number,
+): Promise<SubmitClarificationResponse> {
+  return apiPost<SubmitClarificationResponse>(`/api/v1/sessions/${sessionId}/clarifications`, {
+    answer_text: answerText,
+    turn_index: turnIndex,
+  });
+}
+
+async function runSession(sessionId: string): Promise<BackendReadingResult> {
+  return apiPost<BackendReadingResult>(`/api/v1/sessions/${sessionId}/run`, {});
+}
+
+// ---------------------------------------------------------------------------
+// Result routing helpers
+// ---------------------------------------------------------------------------
+function buildFallbackFromReadingResult(res: BackendReadingResult): ReadingResult {
+  return {
+    kind: "fallback",
+    info: {
+      message: res.synthesis.summary ?? "Your question triggered a safety review. Please try rephrasing.",
+      riskLevel: res.safety.risk_level,
+      actionTaken: res.safety.action_taken,
+    },
+  };
+}
+
+function buildGenericInputFallback(): ReadingResult {
+  return {
+    kind: "fallback",
+    info: {
+      message: "你的问题包含了一些无法处理的内容，请换一种方式重新描述你想问的主题。",
+      riskLevel: "HIGH",
+      actionTaken: "BLOCK_AND_FALLBACK",
+    },
+  };
+}
+
+async function resolveReadyState(
+  sessionId: string,
   originalQuestion: string,
   intentTag: IntentTag,
   clarificationAnswer: string,
 ): Promise<ReadingResult> {
-  const data = await callReadingsApi(question, true);
-  const result = parseResult(data, originalQuestion, intentTag, clarificationAnswer, 0);
-  // skip_clarification guarantees backend won't return CLARIFYING again
-  return result === "force_draw" ? { kind: "fallback", info: {
-    message: "Unable to process the question after maximum attempts. Please try rephrasing.",
-    riskLevel: "LOW",
-    actionTaken: "FORCE_DRAW_FAILED",
-  }} : result;
+  const res = await runSession(sessionId);
+  if (res.status === "SAFE_FALLBACK_RETURNED") {
+    return buildFallbackFromReadingResult(res);
+  }
+  const record = mapToReadingRecord(res, originalQuestion, intentTag, clarificationAnswer);
+  const nextHistory = [record, ...readHistory()].slice(0, 12);
+  writeHistory(nextHistory);
+  return { kind: "complete", record };
 }
 
 // ---------------------------------------------------------------------------
@@ -319,65 +308,64 @@ export async function loadHistory(): Promise<ReadingRecord[]> {
   return readHistory().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-// OLD: startSession was purely local — no HTTP call, returned SessionDraft directly.
-// export async function startSession(question: string): Promise<SessionDraft> {
-//   const intentTag = detectIntentTag(question);
-//   return {
-//     sessionId: crypto.randomUUID(),
-//     originalQuestion: question.trim(),
-//     normalizedQuestion: question.trim().replace(/\s+/g, " "),
-//     intentTag,
-//     clarificationPrompts: QUESTION_SET[intentTag],
-//     startedAt: new Date().toISOString(),
-//   };
-// }
-
-// NEW: immediately calls POST /api/v1/readings; returns ReadingResult discriminated union
 export async function startSession(question: string): Promise<ReadingResult> {
   const trimmed = question.trim();
   const intentTag = detectIntentTag(trimmed);
-  const data = await callReadingsApi(trimmed);
-  const result = parseResult(data, trimmed, intentTag, "", 0);
-  // turn=0 on first call so force_draw cannot trigger here (would need turn >= 3)
-  return result === "force_draw"
-    ? forceDrawResult(trimmed, trimmed, intentTag, "")
-    : result;
+
+  const session = await createSession();
+  const sessionId = session.session_id;
+
+  const evalResult = await submitQuestion(sessionId, trimmed);
+
+  if (evalResult.status === "SAFE_FALLBACK_RETURNED") {
+    return buildGenericInputFallback();
+  }
+
+  if (evalResult.status === "CLARIFYING") {
+    const draft: SessionDraft = {
+      sessionId,
+      readingId: "",
+      originalQuestion: trimmed,
+      intentTag,
+      clarificationQuestionText:
+        evalResult.clarifier_question ?? "Could you share more context about your situation?",
+      clarificationTurn: 1,
+      startedAt: new Date().toISOString(),
+    };
+    return { kind: "clarifying", draft };
+  }
+
+  // READY_FOR_DRAW
+  return resolveReadyState(sessionId, trimmed, intentTag, "");
 }
 
-// OLD: completeReading took (draft: SessionDraft, answers: Record<string, string>)
-// and always called the backend once with all answers concatenated.
-// export async function completeReading(
-//   draft: SessionDraft,
-//   answers: Record<string, string>
-// ): Promise<ReadingRecord> {
-//   const answerContext = Object.entries(answers)
-//     .filter(([, v]) => v.trim())
-//     .map(([, v]) => v.trim())
-//     .join("; ");
-//   const enrichedQuestion = answerContext
-//     ? `${draft.originalQuestion} — additional context: ${answerContext}`
-//     : draft.originalQuestion;
-//   const response = await fetch("/api/v1/readings", { ... });
-//   ...
-// }
-
-// NEW: takes a single clarification answer string; re-calls POST /api/v1/readings
-// with the enriched question (original + answer context).
-// Passes draft.clarificationTurn so parseResult can enforce MAX_CLARIFICATION_TURNS.
 export async function completeReading(
   draft: SessionDraft,
   answer: string,
 ): Promise<ReadingResult> {
   const trimmedAnswer = answer.trim();
-  const enrichedQuestion = trimmedAnswer
-    ? `${draft.originalQuestion} — additional context: ${trimmedAnswer}`
-    : draft.originalQuestion;
 
-  const data = await callReadingsApi(enrichedQuestion);
-  const result = parseResult(data, draft.originalQuestion, draft.intentTag, trimmedAnswer, draft.clarificationTurn);
-  if (result === "force_draw") {
-    // Max turns reached: re-send with skip_clarification=true so backend finalizes immediately
-    return forceDrawResult(enrichedQuestion, draft.originalQuestion, draft.intentTag, trimmedAnswer);
+  if (draft.clarificationTurn >= MAX_CLARIFICATION_TURNS) {
+    // Max clarification turns reached: force a run without further clarification.
+    return resolveReadyState(draft.sessionId, draft.originalQuestion, draft.intentTag, trimmedAnswer);
   }
-  return result;
+
+  const clarResult = await submitClarification(draft.sessionId, trimmedAnswer, draft.clarificationTurn);
+
+  if (clarResult.status === "SAFE_FALLBACK_RETURNED") {
+    return buildGenericInputFallback();
+  }
+
+  if (clarResult.status === "CLARIFYING") {
+    const updatedDraft: SessionDraft = {
+      ...draft,
+      clarificationQuestionText:
+        clarResult.next_clarifier_question ?? "Can you add more context?",
+      clarificationTurn: draft.clarificationTurn + 1,
+    };
+    return { kind: "clarifying", draft: updatedDraft };
+  }
+
+  // READY_FOR_DRAW
+  return resolveReadyState(draft.sessionId, draft.originalQuestion, draft.intentTag, trimmedAnswer);
 }

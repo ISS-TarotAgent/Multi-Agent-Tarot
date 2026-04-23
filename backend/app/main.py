@@ -11,6 +11,7 @@ from app.api.errors import register_exception_handlers
 from app.api.router import api_router
 from app.infrastructure.config.settings import AppSettings, get_settings
 from app.infrastructure.logging.setup import configure_logging
+
 logger = logging.getLogger("app.http")
 
 

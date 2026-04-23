@@ -23,3 +23,18 @@ class SafetyReviewOutput(BaseModel):
     safe_summary: str
     safe_action_advice: str
     safe_reflection_question: str
+
+
+class LLMSafetyCheckInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    synthesis_text: str
+    question: str
+    keyword_hits: list[str]
+
+
+class LLMSafetyCheckOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    risk_level: str  # "HIGH" | "MEDIUM" | "LOW"
+    reasoning: str

@@ -9,7 +9,7 @@ from agent.core.schemas import (
     SafetyDecision,
     TrustTaggedContent,
 )
-from agent.security.detectors import run_all_detectors,DetectionResult
+from agent.security.detectors import run_all_detectors, DetectionResult
 
 HIGH_RISK_TYPES = {
     "prompt_injection",
@@ -22,8 +22,9 @@ MEDIUM_RISK_TYPES = {
     "suspicious_patterns",
 }
 
+
 def _aggregate_detection_results(
-        detection_results: list[DetectionResult],
+    detection_results: list[DetectionResult],
 ) -> SafetyDecision:
     """
     Aggregates detection results into a single safety decision.
@@ -31,12 +32,12 @@ def _aggregate_detection_results(
     # 没有检测到任何风险，允许继续
     if not detection_results:
         return SafetyDecision(
-            risk_level = RiskLevel.LOW,
-            allow_continue = True,
+            risk_level=RiskLevel.LOW,
+            allow_continue=True,
             required_action=RequiredAction.CONTINUE,
             detected_risks=[],
             evidence=[],
-            notes_for_orchestrator="No risks detected."
+            notes_for_orchestrator="No risks detected.",
         )
 
     # 汇总检测到的风险类型和证据
@@ -54,9 +55,9 @@ def _aggregate_detection_results(
             required_action=RequiredAction.BLOCK,
             detected_risks=detected_risks,
             evidence=evidence,
-            notes_for_orchestrator="High risk content detected. Blocking input."
+            notes_for_orchestrator="High risk content detected. Blocking input.",
         )
-    
+
     if any(result.risk_type in MEDIUM_RISK_TYPES for result in detection_results):
         return SafetyDecision(
             risk_level=RiskLevel.MEDIUM,
@@ -64,17 +65,18 @@ def _aggregate_detection_results(
             required_action=RequiredAction.REWRITE,
             detected_risks=detected_risks,
             evidence=evidence,
-            notes_for_orchestrator="Medium risk content detected. Asking for clarification."
+            notes_for_orchestrator="Medium risk content detected. Asking for clarification.",
         )
-    
+
     return SafetyDecision(
         risk_level=RiskLevel.MEDIUM,
         allow_continue=False,
         required_action=RequiredAction.REWRITE,
         detected_risks=detected_risks,
         evidence=evidence,
-        notes_for_orchestrator="Unclassified suspicious input detected. Prefer sanitization."
+        notes_for_orchestrator="Unclassified suspicious input detected. Prefer sanitization.",
     )
+
 
 def inspect_user_input(tagged_input: TrustTaggedContent) -> SafetyDecision:
     """
@@ -87,6 +89,7 @@ def inspect_user_input(tagged_input: TrustTaggedContent) -> SafetyDecision:
     detection_results = run_all_detectors(tagged_input.content)
     safety_decision = _aggregate_detection_results(detection_results)
     return safety_decision
+
 
 # 提供节点,供编排器在接收到用户输入后调用
 def pre_input_guard_node(user_text: str) -> SafetyDecision:

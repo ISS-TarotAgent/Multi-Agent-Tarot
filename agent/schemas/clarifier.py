@@ -29,6 +29,7 @@ class ClarifierInput(BaseModel):
     raw_question: str
     locale: str
 
+
 # 澄清器的输出模型，包含规范化后的问题文本、是否需要澄清、澄清问题的内容、意图标签以及生成的澄清提示列表。
 class ClarifierOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -48,6 +49,7 @@ class ClarifierFinalizeInput(BaseModel):
     intent_tag: IntentTag
     locale: str
     clarification_answers: dict[str, str]
+
 
 # 澄清器第二阶段的输出模型，包含重构后的问题文本、主题、时间范围、意图和相关约束条件。这些信息将用于后续的牌阵解读和综合分析。
 class ClarifierFinalizeOutput(BaseModel):

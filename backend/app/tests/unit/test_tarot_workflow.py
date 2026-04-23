@@ -4,7 +4,6 @@ from contextlib import contextmanager
 
 from agent.workflows import TarotReflectionWorkflow
 from agent.schemas.draw import DrawCard, DrawOutput
-from agent.schemas.safety import SafetyReviewInput
 from app.schemas.workflow.tarot_workflow_state import TarotWorkflowState
 from app.domain.enums import (
     CardOrientation,
@@ -43,7 +42,7 @@ class SuspiciousDrawAgent:
 
 
 class BrokenSafetyGuardAgent:
-    def run(self, payload: SafetyReviewInput):  # noqa: ARG002
+    def evaluate(self, payload):  # noqa: ARG002
         raise RuntimeError("provider token leaked into exception")
 
 
@@ -245,9 +244,7 @@ def test_continue_from_ready_state_accepts_optional_langgraph_checkpointer() -> 
     assert final_state.status is WorkflowStatus.COMPLETED
     assert final_state.completed_at is not None
     checkpoints = list(
-        checkpointer.list(
-            {"configurable": {"thread_id": f"execution:{state.session_id}:{state.reading_id}"}}
-        )
+        checkpointer.list({"configurable": {"thread_id": f"execution:{state.session_id}:{state.reading_id}"}})
     )
     assert checkpoints
 
@@ -266,8 +263,7 @@ def test_intermediate_security_blocks_suspicious_draw_output_before_synthesis() 
     assert state.status is WorkflowStatus.SAFE_FALLBACK_RETURNED
     assert state.synthesis_output is None
     assert any(
-        event.step_name == "intermediate_security"
-        and event.error_code == "INTERMEDIATE_CONTENT_BLOCKED"
+        event.step_name == "intermediate_security" and event.error_code == "INTERMEDIATE_CONTENT_BLOCKED"
         for event in state.trace_events
     )
 
@@ -289,8 +285,10 @@ def test_run_invokes_persistence_handler_from_langgraph_persistence_node() -> No
     assert persistence_handler.calls == [(WorkflowStatus.COMPLETED, len(state.trace_events))]
 
 
-def test_workflow_hides_internal_safety_guard_errors_from_review_notes() -> None:
-    workflow = TarotReflectionWorkflow(safety_guard_agent=BrokenSafetyGuardAgent())
+def test_workflow_degrades_gracefully_when_safety_agent_fails() -> None:
+    # When the LLM safety agent raises, the workflow falls back to rule-based evaluation
+    # and completes normally rather than surfacing the internal error.
+    workflow = TarotReflectionWorkflow(safety_agent=BrokenSafetyGuardAgent())
 
     state = workflow.run(
         session_id="7b3273ef-260d-49eb-b1af-f1c1b862d420",
@@ -300,12 +298,8 @@ def test_workflow_hides_internal_safety_guard_errors_from_review_notes() -> None
         spread_type=SpreadType.THREE_CARD_REFLECTION,
     )
 
-    assert state.status is WorkflowStatus.SAFE_FALLBACK_RETURNED
+    assert state.status is WorkflowStatus.COMPLETED
     assert state.safety_output is not None
-    assert state.safety_output.action_taken is SafetyAction.BLOCK_AND_FALLBACK
-    assert state.safety_output.review_notes == "Safety guard failed; returned a protective fallback output."
-    assert "provider token leaked into exception" not in state.safety_output.review_notes
-
-    failed_events = [event for event in state.trace_events if event.step_name == "safety_guard"]
-    assert failed_events[-1].event_status is TraceEventStatus.FAILED
-    assert failed_events[-1].payload["reason"] == "safety_guard execution failed: provider token leaked into exception"
+    assert state.safety_output.action_taken is SafetyAction.PASSTHROUGH
+    assert "LLM评估不可用" in (state.safety_output.review_notes or "")
+    assert "provider token leaked into exception" not in (state.safety_output.review_notes or "")

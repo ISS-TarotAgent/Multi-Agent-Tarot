@@ -9,7 +9,8 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass,field
+from dataclasses import dataclass, field
+
 
 @dataclass(slots=True)
 class DetectionResult:
@@ -17,6 +18,7 @@ class DetectionResult:
     risk_type: str
     evidence: list[str] = field(default_factory=list)
     matched_patterns: list[str] = field(default_factory=list)
+
 
 PROMPT_INJECTION_PATTERNS = [
     r"ignore\s+(all\s+)?previous\s+instructions?",
@@ -59,67 +61,74 @@ SUSPICIOUS_PATTERNS = [
     r"execute\s+this",
 ]
 
-def _find_matches(text: str,patterns: list[str]) -> list[str]:
+
+def _find_matches(text: str, patterns: list[str]) -> list[str]:
     """
     Helper function to find all regex pattern matches in the given text.
     """
     if not text:
         return []
-    
+
     normalized = text.lower()
     matched = []
 
     for pattern in patterns:
-        if re.search(pattern,normalized,flags=re.IGNORECASE):
+        if re.search(pattern, normalized, flags=re.IGNORECASE):
             matched.append(pattern)
     return matched
 
-def detect_prompt_injection(text:str) -> DetectionResult:
-    matches = _find_matches(text,PROMPT_INJECTION_PATTERNS)
+
+def detect_prompt_injection(text: str) -> DetectionResult:
+    matches = _find_matches(text, PROMPT_INJECTION_PATTERNS)
     return DetectionResult(
         detected=bool(matches),
-        risk_type="prompt_injection", 
+        risk_type="prompt_injection",
         evidence=["Matched prompt injection pattern"] if matches else [],
-        matched_patterns=matches
+        matched_patterns=matches,
     )
 
-def detect_secret_exfiltration(text:str) -> DetectionResult:
-    matches = _find_matches(text,SECRET_EXFILTRATION_PATTERNS)
+
+def detect_secret_exfiltration(text: str) -> DetectionResult:
+    matches = _find_matches(text, SECRET_EXFILTRATION_PATTERNS)
     return DetectionResult(
         detected=bool(matches),
         risk_type="secret_exfiltration",
         evidence=["Matched secret exfiltration pattern"] if matches else [],
-        matched_patterns=matches
+        matched_patterns=matches,
     )
 
-def detect_role_escalation(text:str) -> DetectionResult:
-    matches = _find_matches(text,ROLE_ESCALATION_PATTERNS)
+
+def detect_role_escalation(text: str) -> DetectionResult:
+    matches = _find_matches(text, ROLE_ESCALATION_PATTERNS)
     return DetectionResult(
         detected=bool(matches),
         risk_type="role_escalation",
         evidence=["Matched role escalation pattern"] if matches else [],
-        matched_patterns=matches
+        matched_patterns=matches,
     )
 
-def detect_instruction_override(text:str) -> DetectionResult:
-    matches = _find_matches(text,INSTRUCTION_OVERRIDE_PATTERNS)
+
+def detect_instruction_override(text: str) -> DetectionResult:
+    matches = _find_matches(text, INSTRUCTION_OVERRIDE_PATTERNS)
     return DetectionResult(
         detected=bool(matches),
         risk_type="instruction_override",
         evidence=["Matched instruction override pattern"] if matches else [],
-        matched_patterns=matches
+        matched_patterns=matches,
     )
 
-def detect_suspicious_content(text:str) -> DetectionResult:
-    matches = _find_matches(text,SUSPICIOUS_PATTERNS)
+
+def detect_suspicious_content(text: str) -> DetectionResult:
+    matches = _find_matches(text, SUSPICIOUS_PATTERNS)
     return DetectionResult(
         detected=bool(matches),
         risk_type="suspicious_content",
         evidence=["Matched suspicious content pattern"] if matches else [],
-        matched_patterns=matches
+        matched_patterns=matches,
     )
 
-def run_all_detectors(text:str) -> list[DetectionResult]:
+
+def run_all_detectors(text: str) -> list[DetectionResult]:
     """
     Run all detectors on the given text and return a list of DetectionResults.
     """

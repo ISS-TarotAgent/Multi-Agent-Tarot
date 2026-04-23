@@ -205,8 +205,7 @@ async def test_clarifier_init_gateway_failure_retries_then_falls_back():
 async def test_clarifier_init_prompts_capped_at_three():
     """LLM returning more than 3 prompts: only the first 3 are kept."""
     many_prompts = [
-        {"id": f"q{i}", "question": f"question {i}", "helper_text": "h", "placeholder": "p"}
-        for i in range(1, 6)
+        {"id": f"q{i}", "question": f"question {i}", "helper_text": "h", "placeholder": "p"} for i in range(1, 6)
     ]
     response = json.dumps(
         {
@@ -301,9 +300,7 @@ async def test_clarifier_finalize_bad_json():
     """Malformed LLM response in Phase 2: falls back to the normalized question."""
     clarifier.set_gateway(_make_gateway(return_value="not valid json"))
     state = _make_state(
-        clarification_result=_make_clarification_result(
-            normalized_question="我面临选择时应如何决策？"
-        ),
+        clarification_result=_make_clarification_result(normalized_question="我面临选择时应如何决策？"),
         clarification_answers={"q1": "关于职业选择"},
     )
 
@@ -320,9 +317,7 @@ async def test_clarifier_finalize_gateway_failure_retries_then_falls_back():
     gw = _make_gateway(side_effect=ConnectionError("API unreachable"))
     clarifier.set_gateway(gw)
     state = _make_state(
-        clarification_result=_make_clarification_result(
-            normalized_question="我如何在个人成长中取得进步？"
-        ),
+        clarification_result=_make_clarification_result(normalized_question="我如何在个人成长中取得进步？"),
         clarification_answers={"q1": "我想提升领导力"},
     )
 
