@@ -1,6 +1,6 @@
 import { buildCardSpread } from "../data/tarotCatalog";
 import type {
-  ClarificationPrompt,
+  // OLD: ClarificationPrompt,  // removed — no longer exported from types.ts
   IntentTag,
   ReadingRecord,
   SessionDraft
@@ -8,7 +8,8 @@ import type {
 
 const STORAGE_KEY = "multi-agent-tarot-history";
 
-const QUESTION_SET: Record<IntentTag, ClarificationPrompt[]> = {
+// ClarificationPrompt type removed from types.ts; use inline shape here
+const QUESTION_SET: Record<IntentTag, { id: string; question: string; helperText: string; placeholder: string }[]> = {
   career: [
     {
       id: "time-horizon",
@@ -257,9 +258,11 @@ function buildSafetyNote(intentTag: IntentTag): ReadingRecord["safety"] {
   };
 }
 
+// OLD: buildTrace(draft, answers: Record<string, string>, reframedQuestion)
+// NEW: answers replaced by single answer string
 function buildTrace(
   draft: SessionDraft,
-  answers: Record<string, string>,
+  answer: string,
   reframedQuestion: string
 ) {
   return [
@@ -270,7 +273,7 @@ function buildTrace(
     },
     {
       label: "Clarification",
-      detail: `Detected intent: ${draft.intentTag}. Added context: ${summarizeAnswers(answers) || "none"}.`,
+      detail: `Detected intent: ${draft.intentTag}. Added context: ${answer.trim() || "none"}.`,
       status: "done" as const
     },
     {
@@ -319,27 +322,42 @@ export async function startSession(question: string): Promise<SessionDraft> {
   await sleep(700);
   const intentTag = detectIntentTag(question);
 
+  // OLD: returned normalizedQuestion and clarificationPrompts (hardcoded local set)
+  // return {
+  //   sessionId: crypto.randomUUID(),
+  //   originalQuestion: question.trim(),
+  //   normalizedQuestion: question.trim().replace(/\s+/g, " "),
+  //   intentTag,
+  //   clarificationPrompts: QUESTION_SET[intentTag],
+  //   startedAt: new Date().toISOString()
+  // };
+
+  // NEW: mock returns single clarificationQuestionText to match real API shape
   return {
     sessionId: crypto.randomUUID(),
+    readingId: crypto.randomUUID(),
     originalQuestion: question.trim(),
-    normalizedQuestion: question.trim().replace(/\s+/g, " "),
     intentTag,
-    clarificationPrompts: QUESTION_SET[intentTag],
+    clarificationQuestionText: QUESTION_SET[intentTag]?.[0]?.question ?? "Could you share more context?",
+    clarificationTurn: 1,
     startedAt: new Date().toISOString()
   };
 }
 
+// OLD: completeReading(draft, answers: Record<string, string>)
+// NEW: completeReading(draft, answer: string) — single clarification answer
 export async function completeReading(
   draft: SessionDraft,
-  answers: Record<string, string>
+  answer: string
 ): Promise<ReadingRecord> {
   await sleep(1200);
 
-  const reframedQuestion = buildReframedQuestion(
-    draft.originalQuestion,
-    draft.intentTag,
-    answers
-  );
+  // OLD: buildReframedQuestion used the full answers Record
+  // const reframedQuestion = buildReframedQuestion(draft.originalQuestion, draft.intentTag, answers);
+  const reframedQuestion = answer.trim()
+    ? `${draft.originalQuestion} — additional context: ${answer.trim()}`
+    : draft.originalQuestion;
+
   const cards = buildCardSpread(draft.intentTag, reframedQuestion);
 
   const record: ReadingRecord = {
@@ -348,13 +366,14 @@ export async function completeReading(
     question: draft.originalQuestion,
     reframedQuestion,
     intentTag: draft.intentTag,
-    clarificationAnswers: answers,
+    // OLD: clarificationAnswers: answers,
+    clarificationAnswer: answer.trim(),
     cards,
     synthesis: buildSynthesis(reframedQuestion, cards),
     actionSuggestions: buildActionSuggestions(cards),
     reflectionQuestions: buildReflectionQuestions(cards),
     safety: buildSafetyNote(draft.intentTag),
-    trace: buildTrace(draft, answers, reframedQuestion),
+    trace: buildTrace(draft, answer, reframedQuestion),
     createdAt: new Date().toISOString()
   };
 

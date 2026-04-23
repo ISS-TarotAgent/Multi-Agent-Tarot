@@ -1,18 +1,48 @@
-# ── Python ─────────────────────────────────────────────────
+# Python
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
+.Python
 *.egg-info/
 dist/
 build/
+*.egg
+.eggs/
+
+# Virtual environments
 .venv/
 venv/
+env/
 
-# ── Environment secrets ────────────────────────────────────
+# Environment / secrets
 .env
+.env.*
+!.env.example
 
-# ── IDE / OS ───────────────────────────────────────────────
-.vscode/
+# IDE
 .idea/
+.vscode/
 *.swp
-Thumbs.db
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Claude Code memory
+.claude/
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+
+# Alembic (generated, not tracked)
+# alembic/versions/ is tracked intentionally
+
+# Docker volumes / local data
+*.db

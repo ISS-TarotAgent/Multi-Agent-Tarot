@@ -1,39 +1,45 @@
-"""Utilities to load versioned prompt templates from ../../prompts."""
+"""Prompt template loading from the prompts/ directory."""
 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict
 
 PROMPT_ROOT = Path(__file__).resolve().parents[2] / "prompts"
 
+_cache: dict[str, str] = {}
+
 
 def load_prompt(name: str) -> str:
-    """Return the raw prompt template text for the given name.
+    """Load a prompt template by name (relative to prompts/, without .md extension).
 
-    Args:
-        name: Prompt file name without the ``.md`` extension
-              (e.g. ``"clarifier_init"``).
+    Examples::
 
-    Returns:
-        Full text content of the prompt template.
-
-    Raises:
-        FileNotFoundError: When no matching ``.md`` file exists under
-            ``prompts/``.
+        load_prompt("clarifier_system_prompt")
+        load_prompt("security/safety_rewrite")
     """
+    if name in _cache:
+        return _cache[name]
+
     target = PROMPT_ROOT / f"{name}.md"
     if not target.exists():
         raise FileNotFoundError(
-            f"Prompt template '{name}' not found. Expected file at: {target}"
+            f"Prompt template not found: '{name}' (expected file at {target})"
         )
-    return target.read_text(encoding="utf-8")
+
+    text = target.read_text(encoding="utf-8")
+    _cache[name] = text
+    return text
 
 
-def list_prompts() -> Dict[str, Path]:
-    """Enumerate available prompt templates.
+def list_prompts() -> dict[str, Path]:
+    """Return a mapping of prompt name → absolute path for all .md files under prompts/."""
+    return {
+        p.relative_to(PROMPT_ROOT).with_suffix("").as_posix(): p
+        for p in PROMPT_ROOT.rglob("*.md")
+        if p.name != "README.md"
+    }
 
-    Returns:
-        Mapping of prompt name (without ``.md``) to its absolute ``Path``.
-    """
-    return {p.stem: p for p in sorted(PROMPT_ROOT.glob("*.md"))}
+
+def clear_cache() -> None:
+    """Flush the in-process prompt cache (useful in tests)."""
+    _cache.clear()

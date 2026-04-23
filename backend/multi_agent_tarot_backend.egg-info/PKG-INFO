@@ -1,0 +1,173 @@
+Metadata-Version: 2.4
+Name: multi-agent-tarot-backend
+Version: 0.1.0
+Summary: FastAPI backend scaffold for Multi-Agent-Tarot
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: alembic<2.0,>=1.14
+Requires-Dist: fastapi<1.0,>=0.115
+Requires-Dist: langgraph<1.1,>=1.0.8
+Requires-Dist: langfuse<3.0,>=2.0
+Requires-Dist: openai<2.0,>=1.0
+Requires-Dist: pydantic-settings<3.0,>=2.8
+Requires-Dist: PyYAML<7.0,>=6.0
+Requires-Dist: psycopg[binary]<4.0,>=3.2
+Requires-Dist: sqlalchemy<3.0,>=2.0
+Requires-Dist: uvicorn[standard]<1.0,>=0.34
+Provides-Extra: dev
+Requires-Dist: httpx<1.0,>=0.28; extra == "dev"
+Requires-Dist: pytest<9.0,>=8.3; extra == "dev"
+
+# Backend
+
+这里存放 Multi-Agent-Tarot 的后端实现代码。
+
+详细实现说明见：`../docs/08-Backend-Implementation-Guide.md`
+
+## 1. 最短启动路径
+
+在仓库根目录执行：
+
+```bash
+docker compose up --build
+```
+
+这会启动：
+
+- PostgreSQL：`127.0.0.1:5432`
+- FastAPI backend：`127.0.0.1:8000`
+
+`backend` 容器会先执行 `alembic upgrade head`，再启动 `uvicorn`，所以本地演示时会自动应用数据库 schema。
+
+## 2. 不走 Docker 的本地开发路径
+
+在 `backend/` 目录执行：
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+Copy-Item .env.example .env
+```
+
+然后准备 PostgreSQL：
+
+```powershell
+docker run --rm -d --name multi-agent-tarot-postgres `
+  -e POSTGRES_DB=multi_agent_tarot `
+  -e POSTGRES_USER=postgres `
+  -e POSTGRES_PASSWORD=postgres `
+  -p 5432:5432 `
+  postgres:16-alpine
+```
+
+再执行 migration 并启动 API：
+
+```powershell
+alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+## 3. 你应该怎么测试
+
+建议按下面顺序测，而不是一上来直接跑全量。
+
+### 3.1 先测服务是否能起来
+
+仓库根目录：
+
+```powershell
+docker compose up --build
+```
+
+新开一个终端执行：
+
+```powershell
+Invoke-RestMethod -Method Get -Uri 'http://127.0.0.1:8000/api/v1/health'
+```
+
+预期：
+
+- `status=ok`
+- `service=multi-agent-tarot-backend`
+- `environment=docker`
+
+如果你要给 agent、SDK 或其他客户端做接口对接，启动后优先看 FastAPI 自动生成的 OpenAPI 文档：
+
+```text
+http://127.0.0.1:8000/docs
+http://127.0.0.1:8000/openapi.json
+```
+
+仓库里也会提交一份静态导出的 schema，便于离线阅读和代码生成：
+
+```text
+backend/openapi.json
+```
+
+建议用法：
+
+- 浏览器人工查看接口：`/docs`
+- 程序或 agent 消费 schema：`/openapi.json` 或仓库内 `backend/openapi.json`
+
+### 3.2 再测主链路
+
+```powershell
+$body = @{
+  question = '最近在工作选择上很犹豫，我应该继续坚持当前方向吗？'
+  locale = 'zh-CN'
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+  -Method Post `
+  -Uri 'http://127.0.0.1:8000/api/v1/readings' `
+  -ContentType 'application/json' `
+  -Body $body
+```
+
+预期：
+
+- `status=COMPLETED`
+- `cards` 数量为 3
+- `trace_summary.event_count` 大于等于 8
+
+### 3.3 再跑 pytest
+
+在 `backend/` 下执行：
+
+```bash
+python -m pytest app/tests -q
+```
+
+如果想分开定位：
+
+```bash
+python -m pytest app/tests/unit -q
+python -m pytest app/tests/integration -q
+python -m pytest app/tests/integration/test_postgres_chain.py -q
+```
+
+### 3.4 最后跑 Promptfoo
+
+在仓库根目录执行：
+
+```bash
+npx promptfoo@latest eval -c evals/promptfoo/promptfooconfig.yaml
+```
+
+Promptfoo provider 会自动尝试发现 `backend/.venv`。如果 Windows 下解释器错位，可显式指定：
+
+```powershell
+$env:PROMPTFOO_PYTHON = ".\\backend\\.venv\\Scripts\\python.exe"
+npx promptfoo@latest eval -c evals/promptfoo/promptfooconfig.yaml
+```
+
+## 4. 可观测性
+
+- 默认会向 stdout 输出结构化 JSON 日志。
+- 如果要启用 Langfuse，请在 `.env` 中设置 `LANGFUSE_ENABLED=true` 并补齐对应凭证。
+
+## 5. 排障
+
+更详细的启动、端口、Promptfoo 解释器和 Langfuse 排障说明见 `docs/07-Backend-Delivery-Runbook.md`。
