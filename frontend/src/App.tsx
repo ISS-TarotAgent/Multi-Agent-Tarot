@@ -5,8 +5,9 @@ import { HistoryPanel } from "./components/HistoryPanel";
 import { QuestionComposer } from "./components/QuestionComposer";
 import { ResultPanel } from "./components/ResultPanel";
 import { StageRail } from "./components/StageRail";
-import { completeReading, loadHistory, startSession } from "./services/mockApi";
-import type { FlowStage, ReadingRecord, SessionDraft } from "./types";
+import { completeReading, loadHistory, startSession } from "./services/api";
+// NEW: FallbackInfo for the safety fallback stage
+import type { FallbackInfo, FlowStage, ReadingRecord, SessionDraft } from "./types";
 
 function App() {
   const [stage, setStage] = useState<FlowStage>("intake");
@@ -17,6 +18,8 @@ function App() {
   const [isQuestionSubmitting, setIsQuestionSubmitting] = useState(false);
   const [isClarificationSubmitting, setIsClarificationSubmitting] = useState(false);
   const [isReadingLoading, setIsReadingLoading] = useState(false);
+  // NEW: holds safety fallback payload when backend returns SAFE_FALLBACK_RETURNED
+  const [fallback, setFallback] = useState<FallbackInfo | null>(null);
 
   useEffect(() => {
     void refreshHistory();
@@ -27,20 +30,70 @@ function App() {
     setHistory(records);
   }
 
+  // OLD: handleQuestionSubmit called startSession() which was purely local (no HTTP).
+  // It returned a SessionDraft with hardcoded clarificationPrompts and always went to "clarify".
+  // async function handleQuestionSubmit(question: string) {
+  //   setIsQuestionSubmitting(true);
+  //   try {
+  //     const nextDraft = await startSession(question);
+  //     setDraft(nextDraft);
+  //     setReading(null);
+  //     startTransition(() => setStage("clarify"));
+  //   } finally {
+  //     setIsQuestionSubmitting(false);
+  //   }
+  // }
+
+  // NEW: startSession() now calls POST /api/v1/readings immediately.
+  // Three outcomes: clarifying (show clarification page), complete (skip to draw),
+  // fallback (show safety fallback page).
   async function handleQuestionSubmit(question: string) {
     setIsQuestionSubmitting(true);
-
     try {
-      const nextDraft = await startSession(question);
-      setDraft(nextDraft);
-      setReading(null);
-      startTransition(() => setStage("clarify"));
+      const result = await startSession(question);
+      setFallback(null);
+
+      if (result.kind === "clarifying") {
+        setDraft(result.draft);
+        setReading(null);
+        startTransition(() => setStage("clarify"));
+      } else if (result.kind === "complete") {
+        setDraft(null);
+        setReading(result.record);
+        await refreshHistory();
+        setIsReadingLoading(false);
+        startTransition(() => setStage("draw"));
+      } else {
+        // kind === "fallback"
+        setFallback(result.info);
+        startTransition(() => setStage("fallback"));
+      }
     } finally {
       setIsQuestionSubmitting(false);
     }
   }
 
-  async function handleClarificationSubmit(answers: Record<string, string>) {
+  // OLD: handleClarificationSubmit received answers: Record<string, string>
+  // from the multi-question local clarification form.
+  // async function handleClarificationSubmit(answers: Record<string, string>) {
+  //   if (!draft) return;
+  //   setIsClarificationSubmitting(true);
+  //   setIsReadingLoading(true);
+  //   startTransition(() => setStage("draw"));
+  //   try {
+  //     const nextReading = await completeReading(draft, answers);
+  //     setReading(nextReading);
+  //     await refreshHistory();
+  //   } finally {
+  //     setIsClarificationSubmitting(false);
+  //     setIsReadingLoading(false);
+  //   }
+  // }
+
+  // NEW: receives a single answer string from the backend-driven clarification question.
+  // completeReading() also returns a ReadingResult — handles rare case where backend
+  // still wants another round of clarification.
+  async function handleClarificationSubmit(answer: string) {
     if (!draft) return;
 
     setIsClarificationSubmitting(true);
@@ -48,9 +101,21 @@ function App() {
     startTransition(() => setStage("draw"));
 
     try {
-      const nextReading = await completeReading(draft, answers);
-      setReading(nextReading);
-      await refreshHistory();
+      const result = await completeReading(draft, answer);
+      setFallback(null);
+
+      if (result.kind === "complete") {
+        setReading(result.record);
+        await refreshHistory();
+      } else if (result.kind === "clarifying") {
+        // Backend still needs clarification (rare) — update draft, go back to clarify
+        setDraft(result.draft);
+        startTransition(() => setStage("clarify"));
+      } else {
+        // kind === "fallback"
+        setFallback(result.info);
+        startTransition(() => setStage("fallback"));
+      }
     } finally {
       setIsClarificationSubmitting(false);
       setIsReadingLoading(false);
@@ -60,6 +125,7 @@ function App() {
   function handleRestart() {
     setDraft(null);
     setReading(null);
+    setFallback(null);
     startTransition(() => setStage("intake"));
   }
 
@@ -115,6 +181,32 @@ function App() {
       );
     }
 
+    // NEW: fallback stage — shown when backend returns SAFE_FALLBACK_RETURNED
+    if (stage === "fallback" && fallback) {
+      return (
+        <section className="panel">
+          <div className="panel-copy">
+            <p className="eyebrow">Safety Review</p>
+            <h1>This question couldn't be processed</h1>
+            <p>{fallback.message}</p>
+            <p className="fallback-meta">
+              Risk level: <strong>{fallback.riskLevel}</strong>
+              {" · "}
+              Action: <strong>{fallback.actionTaken}</strong>
+            </p>
+            <p className="fallback-hint">
+              If you'd like to continue, try rephrasing your question with a different focus.
+            </p>
+          </div>
+          <div className="action-row">
+            <button className="primary-button" onClick={handleRestart}>
+              Ask a Different Question
+            </button>
+          </div>
+        </section>
+      );
+    }
+
     return (
       <QuestionComposer
         onSubmit={handleQuestionSubmit}
@@ -135,7 +227,7 @@ function App() {
         </div>
         <div className="topbar__meta">
           <span>TypeScript UI</span>
-          <span>Mock API</span>
+          <span>Live API</span>
           <span>Local History</span>
         </div>
       </header>

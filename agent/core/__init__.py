@@ -1,9 +1,22 @@
 """Shared building blocks for the Multi-Agent Tarot system."""
 
-from . import schemas, model_gateway, prompt_registry  # noqa: F401
+from . import model_gateway, prompt_registry, schemas  # noqa: F401
+from .llm_agents import LLMClarifierAgent, LLMDrawAgent, LLMSynthesisAgent
+from .model_gateway import ModelGateway, ModelResponse, OpenAIModelGateway, build_gateway_from_settings
+from .prompt_registry import clear_cache, list_prompts, load_prompt
 
 __all__ = [
     "schemas",
     "model_gateway",
     "prompt_registry",
+    "ModelGateway",
+    "ModelResponse",
+    "OpenAIModelGateway",
+    "build_gateway_from_settings",
+    "load_prompt",
+    "list_prompts",
+    "clear_cache",
+    "LLMClarifierAgent",
+    "LLMDrawAgent",
+    "LLMSynthesisAgent",
 ]

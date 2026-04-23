@@ -422,12 +422,48 @@ button {
 
 .mini-card {
   display: grid;
-  gap: 2px;
-  min-width: 110px;
+  gap: 4px;
+  min-width: 140px;
   padding: 12px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(31, 29, 43, 0.08);
+}
+
+.card-reflection {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #5b5072;
+  line-height: 1.4;
+}
+
+.card-caution {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  color: #9b5020;
+  background: rgba(255, 200, 120, 0.2);
+  border-left: 3px solid #e09030;
+  padding: 5px 8px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+
+.fallback-meta {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #9b5020;
+  background: rgba(255, 200, 120, 0.15);
+  border-left: 3px solid #e09030;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.fallback-hint {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
 }
 
 .content-list,

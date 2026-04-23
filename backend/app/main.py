@@ -1,31 +1,81 @@
-"""FastAPI entrypoint (Python 3.12 target)."""
-
 from __future__ import annotations
 
-from fastapi import FastAPI
+import logging
+from time import perf_counter
+from uuid import uuid4
 
-from app.api.v1 import health, tarot
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Multi-Agent Tarot Backend", version="0.1.0")
-
-
-# Router registration happens here so uvicorn imports stay thin.
-app.include_router(health.router, prefix="/api/v1", tags=["health"])
-app.include_router(tarot.router, prefix="/api/v1", tags=["tarot"])
-
-
-@app.on_event("startup")
-async def on_startup() -> None:
-    """TODO: Initialize DB pools, LangGraph workflow, logging, etc."""
-
-    # - load configuration via app.core.config.Settings
-    # - instantiate ModelGateway + workflow builder
-    # - warm up observability hooks (Langfuse, JSON logs)
-    raise NotImplementedError("startup hook pending implementation")
+from app.api.errors import register_exception_handlers
+from app.api.router import api_router
+from app.infrastructure.config.settings import AppSettings, get_settings
+from app.infrastructure.logging.setup import configure_logging
+logger = logging.getLogger("app.http")
 
 
-@app.on_event("shutdown")
-async def on_shutdown() -> None:
-    """TODO: gracefully close resources (DB, gateways, background tasks)."""
+def create_app(settings: AppSettings | None = None) -> FastAPI:
+    resolved_settings = settings or get_settings()
+    configure_logging(resolved_settings.log_level)
 
-    raise NotImplementedError("shutdown hook pending implementation")
+    app = FastAPI(
+        title=resolved_settings.app_name,
+        version=resolved_settings.app_version,
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    app.state.settings = resolved_settings
+    register_exception_handlers(app)
+    app.include_router(api_router, prefix=resolved_settings.api_v1_prefix)
+
+    @app.middleware("http")
+    async def request_logging_middleware(request: Request, call_next):
+        request_id = request.headers.get("X-Request-ID", f"req_{uuid4().hex[:12]}")
+        request.state.request_id = request_id
+        started_at = perf_counter()
+
+        logger.info(
+            "request_started",
+            extra={
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+            },
+        )
+
+        try:
+            response = await call_next(request)
+        except Exception:
+            logger.exception(
+                "request_failed",
+                extra={
+                    "request_id": request_id,
+                    "method": request.method,
+                    "path": request.url.path,
+                },
+            )
+            raise
+
+        duration_ms = round((perf_counter() - started_at) * 1000, 2)
+        response.headers["X-Request-ID"] = request_id
+        logger.info(
+            "request_completed",
+            extra={
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "status_code": response.status_code,
+                "duration_ms": duration_ms,
+            },
+        )
+        return response
+
+    return app
+
+
+app = create_app()

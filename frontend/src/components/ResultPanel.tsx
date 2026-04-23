@@ -33,6 +33,19 @@ export function ResultPanel({
                 <span>{card.role}</span>
                 <strong>{card.name}</strong>
                 <small>{card.orientation}</small>
+                {card.keywords.length > 0 && (
+                  <div className="keyword-row">
+                    {card.keywords.map((kw) => (
+                      <span key={kw} className="keyword">{kw}</span>
+                    ))}
+                  </div>
+                )}
+                {card.reflectionPrompt && (
+                  <p className="card-reflection">{card.reflectionPrompt}</p>
+                )}
+                {card.cautionNote && (
+                  <p className="card-caution">{card.cautionNote}</p>
+                )}
               </article>
             ))}
           </div>

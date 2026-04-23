@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multi-agent-tarot-backend"
+version = "0.1.0"
+description = "FastAPI backend scaffold for Multi-Agent-Tarot"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.14,<2.0",
+    "fastapi>=0.115,<1.0",
+    "langgraph>=1.0.8,<1.1",
+    "langfuse>=2.0,<3.0",
+    "openai>=1.0,<2.0",
+    "pydantic-settings>=2.8,<3.0",
+    "PyYAML>=6.0,<7.0",
+    "psycopg[binary]>=3.2,<4.0",
+    "sqlalchemy>=2.0,<3.0",
+    "uvicorn[standard]>=0.34,<1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx>=0.28,<1.0",
+    "pytest>=8.3,<9.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+pythonpath = [".", ".."]
+testpaths = ["app/tests"]
+addopts = "-q"
