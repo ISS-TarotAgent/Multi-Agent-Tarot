@@ -32,6 +32,7 @@ from agent.nodes import (
     execute_intermediate_security_step,
     execute_pre_input_security_step,
     execute_safety_guard_step,
+    execute_synthesis_step,
 )
 from agent.schemas.clarifier import (
     ClarifierFinalizeInput,
@@ -492,33 +493,14 @@ class TarotReflectionWorkflow:
         )
 
     def _run_synthesis_step(self, state: TarotWorkflowState) -> TarotWorkflowState:
-        payload = SynthesisInput(
-            normalized_question=state.normalized_question or state.raw_question,
-            card_interpretations=[card.interpretation for card in state.cards],
-            locale=state.locale,
+        return execute_synthesis_step(
+            state=state,
+            synthesis_agent=self._synthesis_agent,
+            observer=self._observer,
+            trace_event_factory=self._trace_event,
+            trace_logger=self._log_trace_events,
+            protective_fallback_factory=self._protective_fallback,
         )
-        with self._observer.observe_step(
-            step_name="synthesis",
-            as_type="chain",
-            input_payload={"card_count": len(state.cards)},
-            metadata={"session_id": state.session_id, "reading_id": state.reading_id},
-        ) as observation:
-            started = perf_counter()
-            synthesis_output = self._synthesis_agent.run(payload)
-            state.synthesis_output = synthesis_output
-            state.status = WorkflowStatus.SYNTHESIS_COMPLETED
-            state.trace_events.append(
-                self._trace_event(
-                    step_name="synthesis",
-                    event_status=TraceEventStatus.SUCCEEDED,
-                    attempt_no=1,
-                    started=started,
-                    payload={"summary_length": len(synthesis_output.summary)},
-                )
-            )
-            observation.success(output={"summary_length": len(synthesis_output.summary)})
-        self._log_trace_events(state=state, reading_id=state.reading_id, only_latest=True)
-        return state
 
     def _run_safety_step(self, state: TarotWorkflowState) -> TarotWorkflowState:
         return execute_safety_guard_step(

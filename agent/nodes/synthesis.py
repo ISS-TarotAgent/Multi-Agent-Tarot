@@ -1,169 +1,149 @@
-"""Synthesis Agent node: combine card interpretations into structured reflection."""
+"""Synthesis node for combining card interpretations into structured reflection."""
 
 from __future__ import annotations
 
-import asyncio
-import json
-import logging
-import re
+from datetime import UTC, datetime
+from time import perf_counter
+from typing import Any, Protocol
 
-from pydantic import ValidationError
-
-from agent.core import model_gateway as gateways
-from agent.schemas import synthesis as synthesis_schemas
-from agent.core.prompt_registry import load_prompt
-
-logger = logging.getLogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Gateway injection
-# ---------------------------------------------------------------------------
-
-_gateway: gateways.ModelGateway | None = None
+from agent.schemas.safety import SafetyReviewOutput
+from agent.schemas.synthesis import SynthesisInput, SynthesisOutput
+from backend.app.domain.enums import TraceEventStatus, WorkflowStatus
+from backend.app.schemas.workflow import TarotWorkflowState
 
 
-def set_gateway(gateway: gateways.ModelGateway) -> None:
-    """Used by the orchestrator/bootstrap code to supply a concrete gateway."""
-    global _gateway
-    _gateway = gateway
+class SynthesisAgent(Protocol):
+    def run(self, payload: SynthesisInput) -> SynthesisOutput: ...
 
 
-def _get_gateway() -> gateways.ModelGateway:
-    if _gateway is None:
-        raise RuntimeError(
-            "ModelGateway has not been set. Call synthesis.set_gateway() before invoking nodes."
+class ObservationHandle(Protocol):
+    def success(
+        self,
+        *,
+        output: dict[str, object] | None = None,
+        metadata: dict[str, object] | None = None,
+    ) -> None: ...
+
+    def failure(
+        self,
+        *,
+        error_code: str | None,
+        message: str,
+        metadata: dict[str, object] | None = None,
+    ) -> None: ...
+
+
+class WorkflowObserver(Protocol):
+    def observe_step(
+        self,
+        *,
+        step_name: str,
+        as_type: str,
+        input_payload: dict[str, object] | None = None,
+        metadata: dict[str, object] | None = None,
+    ): ...
+
+
+class TraceEventFactory(Protocol):
+    def __call__(
+        self,
+        *,
+        step_name: str,
+        event_status: TraceEventStatus,
+        attempt_no: int,
+        payload: dict[str, Any],
+        started: float | None,
+        error_code: str | None = None,
+    ) -> Any: ...
+
+
+class TraceLogger(Protocol):
+    def __call__(
+        self,
+        *,
+        state: TarotWorkflowState,
+        reading_id: str | None,
+        only_latest: bool = False,
+    ) -> None: ...
+
+
+class ProtectiveFallbackFactory(Protocol):
+    def __call__(self, *, review_notes: str) -> SafetyReviewOutput: ...
+
+
+def execute_synthesis_step(
+    *,
+    state: TarotWorkflowState,
+    synthesis_agent: SynthesisAgent,
+    observer: WorkflowObserver,
+    trace_event_factory: TraceEventFactory,
+    trace_logger: TraceLogger,
+    protective_fallback_factory: ProtectiveFallbackFactory,
+) -> TarotWorkflowState:
+    payload = SynthesisInput(
+        normalized_question=state.normalized_question or state.raw_question,
+        card_interpretations=[card.interpretation for card in state.cards],
+        locale=state.locale,
+    )
+    with observer.observe_step(
+        step_name="synthesis",
+        as_type="chain",
+        input_payload={"card_count": len(state.cards)},
+        metadata={"session_id": state.session_id, "reading_id": state.reading_id},
+    ) as observation:
+        for attempt_no in (1, 2):
+            started = perf_counter()
+            try:
+                synthesis_output = synthesis_agent.run(payload)
+                state.synthesis_output = synthesis_output
+                state.status = WorkflowStatus.SYNTHESIS_COMPLETED
+                state.trace_events.append(
+                    trace_event_factory(
+                        step_name="synthesis",
+                        event_status=TraceEventStatus.SUCCEEDED,
+                        attempt_no=attempt_no,
+                        started=started,
+                        payload={"summary_length": len(synthesis_output.summary)},
+                    )
+                )
+                observation.success(output={"summary_length": len(synthesis_output.summary)})
+                trace_logger(state=state, reading_id=state.reading_id, only_latest=True)
+                return state
+            except Exception as exc:
+                state.trace_events.append(
+                    trace_event_factory(
+                        step_name="synthesis",
+                        event_status=TraceEventStatus.FAILED,
+                        attempt_no=attempt_no,
+                        started=started,
+                        error_code="SYNTHESIS_FAILED",
+                        payload={
+                            "reason": f"synthesis execution failed: {exc}",
+                            "exception_type": type(exc).__name__,
+                        },
+                    )
+                )
+                observation.failure(
+                    error_code="SYNTHESIS_FAILED",
+                    message="Synthesis attempt failed.",
+                    metadata={"attempt_no": attempt_no, "exception_type": type(exc).__name__},
+                )
+                trace_logger(state=state, reading_id=state.reading_id, only_latest=True)
+
+    state.trace_events.append(
+        trace_event_factory(
+            step_name="synthesis",
+            event_status=TraceEventStatus.FALLBACK,
+            attempt_no=3,
+            started=None,
+            error_code="STEP_FALLBACK_TRIGGERED",
+            payload={"reason": "synthesis exhausted retries"},
         )
-    return _gateway
-
-
-# ---------------------------------------------------------------------------
-# Retry helper
-# ---------------------------------------------------------------------------
-
-_MAX_ATTEMPTS = 3
-_RETRY_DELAY_SECONDS = 1.0
-
-
-async def _run_with_retry(prompt: str) -> str:
-    """Call the gateway with up to _MAX_ATTEMPTS attempts, raising on final failure."""
-    gateway = _get_gateway()
-    last_exc: Exception | None = None
-    for attempt in range(1, _MAX_ATTEMPTS + 1):
-        try:
-            return gateway.run(prompt)
-        except Exception as exc:  # noqa: BLE001
-            last_exc = exc
-            logger.warning("Gateway call failed (attempt %d/%d): %s", attempt, _MAX_ATTEMPTS, exc)
-            if attempt < _MAX_ATTEMPTS:
-                await asyncio.sleep(_RETRY_DELAY_SECONDS)
-    raise last_exc  # type: ignore[misc]
-
-
-# ---------------------------------------------------------------------------
-# JSON extraction helper
-# ---------------------------------------------------------------------------
-
-def _extract_json(raw: str) -> str:
-    """Strip markdown fences and whitespace around a JSON payload."""
-    stripped = re.sub(r"^```(?:json)?\s*", "", raw.strip(), flags=re.IGNORECASE)
-    stripped = re.sub(r"\s*```$", "", stripped)
-    return stripped.strip()
-
-
-# ---------------------------------------------------------------------------
-# Fallback output
-# ---------------------------------------------------------------------------
-
-def _create_fallback_output() -> synthesis_schemas.SynthesisOutput:
-    """Return a safe fallback when synthesis fails."""
-    return synthesis_schemas.SynthesisOutput(
-        summary="Please take time to reflect on the three cards and how they speak to your question.",
-        action_advice="Consider what resonates most with you and how you might apply these insights.",
-        reflection_question="What patterns or themes do these three cards reveal to you?"
     )
-
-
-# ---------------------------------------------------------------------------
-# Synthesis node
-# ---------------------------------------------------------------------------
-
-async def synthesis_node(synthesis_input: synthesis_schemas.SynthesisInput) -> synthesis_schemas.SynthesisOutput:
-    """Combine card interpretations into a structured reflection.
-    
-    Takes the normalized question, card interpretations (as strings), and locale,
-    and produces a cohesive summary, action advice, and reflection question.
-    """
-    
-    logger.info(
-        "[synthesis] Processing with %d cards, locale=%r",
-        len(synthesis_input.card_interpretations), synthesis_input.locale
+    state.completed_at = datetime.now(UTC)
+    state.status = WorkflowStatus.SAFE_FALLBACK_RETURNED
+    state.safety_output = protective_fallback_factory(
+        review_notes="Synthesis failed repeatedly; returned a protective fallback output."
     )
-    
-    try:
-        # ---- Load prompt template ----
-        system_prompt = load_prompt("synthesis_system_prompt")
-        
-        # ---- Construct user message ----
-        user_message = _build_user_message(synthesis_input)
-        full_prompt = f"{system_prompt}\n\n{user_message}"
-        
-        logger.debug("[synthesis] Full prompt length=%d", len(full_prompt))
-        
-        # ---- Call ModelGateway ----
-        raw_response = await _run_with_retry(full_prompt)
-        logger.debug(
-            "[synthesis] Raw response (first 300 chars): %s",
-            raw_response[:300]
-        )
-        
-        # ---- Parse response ----
-        output = _parse_synthesis_response(raw_response)
-        
-        logger.info("[synthesis] Successfully synthesized output.")
-        return output
-        
-    except (json.JSONDecodeError, ValidationError, ValueError) as e:
-        logger.error("[synthesis] Failed to parse/validate response: %s", e)
-        return _create_fallback_output()
-    except Exception as e:  # noqa: BLE001
-        logger.error("[synthesis] Unexpected error: %s", e, exc_info=True)
-        return _create_fallback_output()
-
-
-def _build_user_message(synthesis_input: synthesis_schemas.SynthesisInput) -> str:
-    """Construct the user message from SynthesisInput."""
-    
-    lines = []
-    lines.append("# User's Question")
-    lines.append(f"\n{synthesis_input.normalized_question}")
-    
-    lines.append("\n\n# Card Interpretations")
-    lines.append("\n")
-    
-    for i, interpretation in enumerate(synthesis_input.card_interpretations, 1):
-        lines.append(f"## Card {i}\n")
-        lines.append(f"{interpretation}\n")
-    
-    lines.append(f"\n# Requested Language\n")
-    lines.append(f"Respond in: {synthesis_input.locale}")
-    
-    return "\n".join(lines)
-
-
-def _parse_synthesis_response(raw_response: str) -> synthesis_schemas.SynthesisOutput:
-    """Parse the LLM's JSON response into a SynthesisOutput."""
-    
-    # Strip markdown fences if present
-    json_str = _extract_json(raw_response)
-    
-    # Parse JSON
-    data = json.loads(json_str)
-    
-    # Validate and construct output
-    output = synthesis_schemas.SynthesisOutput(
-        summary=data.get("summary", ""),
-        action_advice=data.get("action_advice", ""),
-        reflection_question=data.get("reflection_question", "")
-    )
-    
-    return output
+    trace_logger(state=state, reading_id=state.reading_id, only_latest=True)
+    return state
