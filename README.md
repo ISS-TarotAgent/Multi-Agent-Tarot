@@ -60,10 +60,10 @@
 - ✅ **Clarification**：对用户模糊问题进行澄清（LLM 驱动，支持多轮）
 - ✅ **Card Draw & Interpretation**：执行抽牌并生成牌义解释（含 keywords / caution_note / reflection_question）
 - ✅ **Synthesis**：基于多张牌生成综合洞察与行动建议
-- ✅ **Safety Review**：对输出进行安全审查与风险修正（规则引擎，三级风险）
+- ✅ **Safety Review**：对输出进行安全审查与风险修正（LLM 语义评估，规则引擎兜底，三级风险）
 - ✅ **Trace Logging**：结构化 JSON 日志 + Langfuse 全链路追踪
 - ✅ **Frontend Interaction**：通过 Web UI 展示完整使用流程
-- ✅ **Agent Cybersecurity**：输入注入检测、agent 间内容审查、输出安全审查
+- ✅ **Agent Cybersecurity**：LLM 驱动的三层安全检测（输入注入、Agent 间内容审查、输出安全审查），各层均有规则引擎兜底
 
 ## 5.系统角色划分
 
@@ -228,3 +228,14 @@ project-root/
 ### 7.8 .github/workflows/
 
 **存放 GitHub Actions 的 CI/CD 工作流配置**
+
+CI 包含四个 job：
+
+| Job | 内容 |
+|-----|------|
+| `lint` | ruff 代码风格检查 |
+| `test-agent` | Agent 单元测试（无需数据库、无需 API key） |
+| `test-backend-unit` | Backend 单元测试（SQLite 内存库） |
+| `test-backend-integration` | Backend 集成测试，由 service container 提供 PostgreSQL |
+
+集成测试通过 `DATABASE_URL` 环境变量连接数据库；本地运行时若未设置该变量，相关测试会自动 skip。
