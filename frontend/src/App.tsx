@@ -47,10 +47,10 @@ function App() {
   // NEW: startSession() now calls POST /api/v1/readings immediately.
   // Three outcomes: clarifying (show clarification page), complete (skip to draw),
   // fallback (show safety fallback page).
-  async function handleQuestionSubmit(question: string) {
+  async function handleQuestionSubmit(question: string, skipClarification: boolean) {
     setIsQuestionSubmitting(true);
     try {
-      const result = await startSession(question);
+      const result = await startSession(question, skipClarification);
       setFallback(null);
 
       if (result.kind === "clarifying") {
@@ -98,7 +98,6 @@ function App() {
 
     setIsClarificationSubmitting(true);
     setIsReadingLoading(true);
-    startTransition(() => setStage("draw"));
 
     try {
       const result = await completeReading(draft, answer);
@@ -107,8 +106,9 @@ function App() {
       if (result.kind === "complete") {
         setReading(result.record);
         await refreshHistory();
+        setIsReadingLoading(false);
+        startTransition(() => setStage("draw"));
       } else if (result.kind === "clarifying") {
-        // Backend still needs clarification (rare) — update draft, go back to clarify
         setDraft(result.draft);
         startTransition(() => setStage("clarify"));
       } else {
@@ -222,12 +222,12 @@ function App() {
 
       <header className="topbar">
         <div>
-          <p className="eyebrow">AI Tarot Multi-Agent System</p>
-          <h1 className="topbar__title">Frontend Module</h1>
+          <p className="eyebrow">AI Tarot · Multi-Agent System</p>
+          <h1 className="topbar__title">Tarot Reading</h1>
         </div>
         <div className="topbar__meta">
-          <span>TypeScript UI</span>
-          <span>Live API</span>
+          <span>Three-Card Spread</span>
+          <span>Live Backend</span>
           <span>Local History</span>
         </div>
       </header>

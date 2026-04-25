@@ -62,6 +62,36 @@ class WorkflowObserver(Protocol):
     ): ...
 
 
+class PreInputSecurityAgent(Protocol):
+    def check(self, payload: Any) -> Any: ...
+
+
+def _run_llm_security(agent: Any, raw_question: str, locale: str) -> dict:
+    """Call LLM security agent and normalise to the pipeline dict format."""
+    from agent.schemas.safety import LLMInputSecurityCheckInput  # noqa: PLC0415
+
+    result = agent.check(LLMInputSecurityCheckInput(content=raw_question, locale=locale or "zh-CN"))
+    detected_risks = [result.risk_type] if result.risk_type and result.risk_type != "safe" else []
+    sanitized_payload = None
+    if result.action == "rewrite" and result.sanitized_content:
+        sanitized_payload = {
+            "sanitized_user_query": result.sanitized_content,
+            "removed_segments": [],
+            "preserved_intent": None,
+        }
+    return {
+        "status": result.action,
+        "security_decision": {
+            "risk_level": result.risk_level,
+            "required_action": result.action.upper(),
+            "detected_risks": detected_risks,
+        },
+        "sanitized_payload": sanitized_payload,
+        "final_response": None,
+        "fallback_type": None,
+    }
+
+
 def execute_pre_input_security_step(
     *,
     state: TarotWorkflowState,
@@ -70,6 +100,7 @@ def execute_pre_input_security_step(
     trace_logger: TraceLogger,
     protective_fallback_factory,
     trace_reading_id: str | None = None,
+    pre_input_security_agent: Any | None = None,
 ) -> TarotWorkflowState:
     reading_id = trace_reading_id or state.reading_id
 
@@ -79,10 +110,21 @@ def execute_pre_input_security_step(
         input_payload={"raw_question": state.raw_question},
         metadata={"session_id": state.session_id, "reading_id": reading_id},
     ) as observation:
-        from agent.workflows.security_orchestrator import run_pre_input_security_pipeline  # noqa: PLC0415
-
         started = perf_counter()
-        security_result = run_pre_input_security_pipeline(state.raw_question)
+
+        if pre_input_security_agent is not None:
+            try:
+                security_result = _run_llm_security(
+                    pre_input_security_agent, state.raw_question, state.locale or "zh-CN"
+                )
+            except Exception:
+                from agent.workflows.security_orchestrator import run_pre_input_security_pipeline  # noqa: PLC0415
+
+                security_result = run_pre_input_security_pipeline(state.raw_question)
+        else:
+            from agent.workflows.security_orchestrator import run_pre_input_security_pipeline  # noqa: PLC0415
+
+            security_result = run_pre_input_security_pipeline(state.raw_question)
         decision = security_result["security_decision"]
         state.input_safety_status = security_result["status"]
         state.input_required_action = decision["required_action"]

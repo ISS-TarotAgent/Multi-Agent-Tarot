@@ -38,3 +38,20 @@ class LLMSafetyCheckOutput(BaseModel):
 
     risk_level: str  # "HIGH" | "MEDIUM" | "LOW"
     reasoning: str
+
+
+class LLMInputSecurityCheckInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    content: str
+    locale: str = "zh-CN"
+
+
+class LLMInputSecurityCheckOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    action: str  # "continue" | "rewrite" | "block"
+    risk_type: str  # "safe" | threat category string
+    risk_level: str  # "LOW" | "MEDIUM" | "HIGH"
+    sanitized_content: str | None
+    reasoning: str

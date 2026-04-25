@@ -366,6 +366,7 @@ export async function completeReading(
     question: draft.originalQuestion,
     reframedQuestion,
     intentTag: draft.intentTag,
+    clarificationQuestion: null,
     // OLD: clarificationAnswers: answers,
     clarificationAnswer: answer.trim(),
     cards,

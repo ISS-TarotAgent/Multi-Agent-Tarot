@@ -19,7 +19,6 @@ app/application/services/tarot_reading_service.py
 app/application/services/tarot_session_service.py
 app/core/__init__.py
 app/core/config.py
-app/core/gateways.py
 app/core/logging.py
 app/db/__init__.py
 app/db/base.py
@@ -52,7 +51,6 @@ app/infrastructure/logging/workflow_events.py
 app/infrastructure/observability/__init__.py
 app/infrastructure/observability/workflow_observer.py
 app/models/__init__.py
-app/models/dto.py
 app/schemas/__init__.py
 app/schemas/api/__init__.py
 app/schemas/api/common.py
@@ -71,8 +69,6 @@ app/schemas/workflow/common.py
 app/schemas/workflow/tarot_workflow_state.py
 app/schemas/workflow/trace_event.py
 app/services/__init__.py
-app/services/orchestrator.py
-app/services/storage.py
 app/tests/__init__.py
 app/tests/conftest.py
 app/tests/test_api_stub.py

@@ -209,6 +209,8 @@ class TarotReflectionWorkflow:
         draw_agent: DrawAgent | None = None,
         synthesis_agent: SynthesisAgent | None = None,
         safety_agent: SafetyAgent | None = None,
+        pre_input_security_agent: Any | None = None,
+        intermediate_security_agent: Any | None = None,
         observer: WorkflowObserver | None = None,
         checkpointer: Any | None = None,
     ) -> None:
@@ -216,6 +218,8 @@ class TarotReflectionWorkflow:
         self._draw_agent = draw_agent or _DefaultDrawAgent()
         self._synthesis_agent = synthesis_agent or _DefaultSynthesisAgent()
         self._safety_agent = safety_agent
+        self._pre_input_security_agent = pre_input_security_agent
+        self._intermediate_security_agent = intermediate_security_agent
         self._observer = observer or _NoOpWorkflowObserver()
         self._checkpointer = checkpointer
         self._runtime = _GraphRuntime(workflow=self)
@@ -289,6 +293,39 @@ class TarotReflectionWorkflow:
                 }
             )
             state = TarotWorkflowState.model_validate(result["state"])
+        if persistence_handler is not None:
+            persistence_handler(state)
+        return state
+
+    def resume_clarification(
+        self,
+        *,
+        session_id: str,
+        reading_id: str,
+        raw_question: str,
+        normalized_question: str | None,
+        intent_tag: str | None,
+        locale: str,
+        spread_type: SpreadType,
+        clarification_answers: dict[str, str],
+        created_at: datetime,
+        trace_reading_id: str | None = None,
+        persistence_handler: Any | None = None,
+    ) -> TarotWorkflowState:
+        """Finalize from an existing CLARIFYING session using accumulated answers."""
+        state = TarotWorkflowState(
+            session_id=session_id,
+            reading_id=reading_id,
+            status=WorkflowStatus.CLARIFYING,
+            locale=locale,
+            spread_type=spread_type,
+            raw_question=raw_question,
+            normalized_question=normalized_question,
+            intent_tag=intent_tag or "growth",
+            clarification_answers=clarification_answers,
+            created_at=created_at,
+        )
+        state = self._run_clarifier_only(state, trace_reading_id=trace_reading_id)
         if persistence_handler is not None:
             persistence_handler(state)
         return state
@@ -388,6 +425,7 @@ class TarotReflectionWorkflow:
             trace_logger=self._log_trace_events,
             protective_fallback_factory=self._protective_fallback,
             trace_reading_id=trace_reading_id,
+            pre_input_security_agent=self._pre_input_security_agent,
         )
         if state.status is WorkflowStatus.SAFE_FALLBACK_RETURNED:
             return state
@@ -418,6 +456,7 @@ class TarotReflectionWorkflow:
             trace_logger=self._log_trace_events,
             protective_fallback_factory=self._protective_fallback,
             trace_reading_id=trace_reading_id,
+            pre_input_security_agent=self._pre_input_security_agent,
         )
         return {
             "state": state.model_dump(mode="json"),
@@ -446,7 +485,7 @@ class TarotReflectionWorkflow:
     def _graph_intermediate_security_node(self, graph_state: dict[str, Any]) -> dict[str, Any]:
         state = TarotWorkflowState.model_validate(graph_state["state"])
         state = self._run_intermediate_security_step(state)
-        return {"state": state.model_dump(mode="json")}
+        return {"state": state.model_dump(mode="json")}  # type: ignore[return-value]
 
     def _graph_safety_node(self, graph_state: dict[str, Any]) -> dict[str, Any]:
         state = TarotWorkflowState.model_validate(graph_state["state"])
@@ -490,6 +529,7 @@ class TarotReflectionWorkflow:
             trace_event_factory=self._trace_event,
             trace_logger=self._log_trace_events,
             protective_fallback_factory=self._protective_fallback,
+            intermediate_security_agent=self._intermediate_security_agent,
         )
 
     def _run_synthesis_step(self, state: TarotWorkflowState) -> TarotWorkflowState:
@@ -590,8 +630,15 @@ def build_llm_workflow(
     observer: WorkflowObserver | None = None,
 ) -> TarotReflectionWorkflow:
     """Build a TarotReflectionWorkflow wired with real OpenAI-backed agents."""
-    from agent.core.llm_agents import LLMClarifierAgent, LLMDrawAgent, LLMSafetyAgent, LLMSynthesisAgent
-    from agent.core.model_gateway import build_gateway_from_settings
+    from agent.core.llm_agents import (  # noqa: PLC0415
+        LLMClarifierAgent,
+        LLMDrawAgent,
+        LLMIntermediateSecurityAgent,
+        LLMPreInputSecurityAgent,
+        LLMSafetyAgent,
+        LLMSynthesisAgent,
+    )
+    from agent.core.model_gateway import build_gateway_from_settings  # noqa: PLC0415
 
     gateway = build_gateway_from_settings()
     return TarotReflectionWorkflow(
@@ -599,6 +646,8 @@ def build_llm_workflow(
         draw_agent=LLMDrawAgent(gateway),
         synthesis_agent=LLMSynthesisAgent(gateway),
         safety_agent=LLMSafetyAgent(gateway),
+        pre_input_security_agent=LLMPreInputSecurityAgent(gateway),
+        intermediate_security_agent=LLMIntermediateSecurityAgent(gateway),
         observer=observer,
     )
 

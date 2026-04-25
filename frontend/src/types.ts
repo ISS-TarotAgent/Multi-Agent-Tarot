@@ -49,7 +49,7 @@ export interface TarotCardInsight {
 }
 
 export interface SafetyReview {
-  level: "low" | "medium";
+  level: "low" | "medium" | "high";
   note: string;
   boundary: string;
 }
@@ -79,8 +79,7 @@ export interface ReadingRecord {
   question: string;
   reframedQuestion: string;
   intentTag: IntentTag;
-  // OLD: clarificationAnswers: Record<string, string>;
-  // Backend single-step mode produces one clarification question → one answer
+  clarificationQuestion: string | null;
   clarificationAnswer: string;
   cards: TarotCardInsight[];
   synthesis: string;

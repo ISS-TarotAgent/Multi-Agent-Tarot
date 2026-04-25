@@ -253,6 +253,44 @@ button {
   flex-wrap: wrap;
 }
 
+.mode-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mode-chip {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  text-align: left;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.mode-chip strong {
+  font-size: 0.9rem;
+  color: #29263b;
+}
+
+.mode-chip span {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.mode-chip--active {
+  border-color: var(--primary);
+  background: rgba(27, 111, 106, 0.08);
+}
+
+.mode-chip--active strong {
+  color: var(--primary);
+}
+
 .pill-button,
 .primary-button,
 .secondary-button {
@@ -501,6 +539,141 @@ button {
   color: #a96114;
 }
 
+.safety-badge--high {
+  background: rgba(184, 75, 95, 0.14);
+  color: #942040;
+}
+
+/* Question metadata header in ResultPanel */
+.question-meta {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.question-meta__row {
+  display: grid;
+  gap: 4px;
+}
+
+.question-meta__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.question-meta__text {
+  margin: 0;
+  color: #3b354c;
+  line-height: 1.5;
+}
+
+.question-meta__text--reframed {
+  font-style: italic;
+  color: var(--primary);
+}
+
+/* Clarification context block in ResultPanel */
+.clarification-context {
+  background: rgba(27, 111, 106, 0.05);
+  border-color: rgba(27, 111, 106, 0.18);
+}
+
+.clarification-context__row {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.clarification-context__row:last-child {
+  margin-bottom: 0;
+}
+
+.clarification-context__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+}
+
+/* Result page card grid */
+.result-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.result-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(31, 29, 43, 0.08);
+  align-content: start;
+}
+
+.result-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-card__role {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+}
+
+.result-card__arcana {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.result-card__name {
+  font-family: "Palatino Linotype", "Book Antiqua", serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+
+.result-card__orientation {
+  text-transform: capitalize;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.result-card__interpretation {
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #3b354c;
+}
+
+/* CardSpread meta row (role + arcana on one line) */
+.tarot-card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.tarot-card__arcana {
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+
+.tarot-card__hidden-hint {
+  opacity: 0.55;
+  font-size: 0.85rem;
+}
+
 .history-toolbar {
   margin-top: 28px;
 }
@@ -557,6 +730,7 @@ button {
 
   .spread-grid,
   .result-grid,
+  .result-card-grid,
   .clarification-form {
     grid-template-columns: 1fr;
   }
