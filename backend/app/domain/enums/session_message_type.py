@@ -1,0 +1,10 @@
+from __future__ import annotations
+
+from enum import StrEnum
+
+
+class SessionMessageType(StrEnum):
+    ORIGINAL_QUESTION = "ORIGINAL_QUESTION"
+    CLARIFIER_QUESTION = "CLARIFIER_QUESTION"
+    CLARIFICATION_ANSWER = "CLARIFICATION_ANSWER"
+    FINAL_RESULT_SUMMARY = "FINAL_RESULT_SUMMARY"

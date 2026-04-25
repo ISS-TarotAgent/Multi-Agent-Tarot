@@ -1,0 +1,1405 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "multi-agent-tarot-backend",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Backend health check",
+        "operationId": "get_health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/readings": {
+      "post": {
+        "tags": [
+          "readings"
+        ],
+        "summary": "Create a tarot reading",
+        "operationId": "create_reading_api_v1_readings_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReadingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingResultResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/readings/{reading_id}": {
+      "get": {
+        "tags": [
+          "readings"
+        ],
+        "summary": "Get a tarot reading",
+        "operationId": "get_reading_api_v1_readings__reading_id__get",
+        "parameters": [
+          {
+            "name": "reading_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Reading Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingResultResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions": {
+      "post": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Create a tarot session",
+        "operationId": "create_session_api_v1_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/question": {
+      "post": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Submit the original question for a session",
+        "operationId": "submit_question_api_v1_sessions__session_id__question_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitQuestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitQuestionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/clarifications": {
+      "post": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Submit a clarification answer for a session",
+        "operationId": "submit_clarification_api_v1_sessions__session_id__clarifications_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitClarificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitClarificationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/run": {
+      "post": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Run a ready session through the tarot workflow",
+        "operationId": "run_session_api_v1_sessions__session_id__run_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingResultResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}": {
+      "get": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Get the current session snapshot",
+        "operationId": "get_session_api_v1_sessions__session_id__get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionSnapshotResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/result": {
+      "get": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Get the final result of a completed session",
+        "operationId": "get_session_result_api_v1_sessions__session_id__result_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingResultResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/history": {
+      "get": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Get the ordered session message history",
+        "operationId": "get_session_history_api_v1_sessions__session_id__history_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionHistoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/readings/{reading_id}/trace": {
+      "get": {
+        "tags": [
+          "traces"
+        ],
+        "summary": "Get reading trace",
+        "operationId": "get_reading_trace_api_v1_readings__reading_id__trace_get",
+        "parameters": [
+          {
+            "name": "reading_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Reading Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingTraceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CardOrientation": {
+        "type": "string",
+        "enum": [
+          "UPRIGHT",
+          "REVERSED"
+        ],
+        "title": "CardOrientation"
+      },
+      "CardPosition": {
+        "type": "string",
+        "enum": [
+          "PAST",
+          "PRESENT",
+          "FUTURE"
+        ],
+        "title": "CardPosition"
+      },
+      "CreateReadingRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale",
+            "default": "zh-CN"
+          },
+          "spread_type": {
+            "$ref": "#/components/schemas/SpreadType",
+            "default": "THREE_CARD_REFLECTION"
+          },
+          "client_request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Request Id"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "CreateReadingRequest"
+      },
+      "CreateSessionRequest": {
+        "properties": {
+          "locale": {
+            "type": "string",
+            "title": "Locale",
+            "default": "zh-CN"
+          },
+          "spread_type": {
+            "$ref": "#/components/schemas/SpreadType",
+            "default": "THREE_CARD_REFLECTION"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "CreateSessionRequest"
+      },
+      "CreateSessionResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale"
+          },
+          "spread_type": {
+            "$ref": "#/components/schemas/SpreadType"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "session_id",
+          "status",
+          "locale",
+          "spread_type",
+          "created_at"
+        ],
+        "title": "CreateSessionResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "environment": {
+            "type": "string",
+            "title": "Environment"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "service",
+          "version",
+          "environment",
+          "timestamp"
+        ],
+        "title": "HealthResponse"
+      },
+      "ReadingCardPayload": {
+        "properties": {
+          "position": {
+            "$ref": "#/components/schemas/CardPosition"
+          },
+          "card_code": {
+            "type": "string",
+            "title": "Card Code"
+          },
+          "card_name": {
+            "type": "string",
+            "title": "Card Name"
+          },
+          "orientation": {
+            "$ref": "#/components/schemas/CardOrientation"
+          },
+          "interpretation": {
+            "type": "string",
+            "title": "Interpretation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "position",
+          "card_code",
+          "card_name",
+          "orientation",
+          "interpretation"
+        ],
+        "title": "ReadingCardPayload"
+      },
+      "ReadingClarificationPayload": {
+        "properties": {
+          "required": {
+            "type": "boolean",
+            "title": "Required"
+          },
+          "question_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Text"
+          },
+          "answer_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "required"
+        ],
+        "title": "ReadingClarificationPayload"
+      },
+      "ReadingQuestionPayload": {
+        "properties": {
+          "raw_question": {
+            "type": "string",
+            "title": "Raw Question"
+          },
+          "normalized_question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Question"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "raw_question"
+        ],
+        "title": "ReadingQuestionPayload"
+      },
+      "ReadingResultResponse": {
+        "properties": {
+          "reading_id": {
+            "type": "string",
+            "title": "Reading Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale"
+          },
+          "spread_type": {
+            "$ref": "#/components/schemas/SpreadType"
+          },
+          "question": {
+            "$ref": "#/components/schemas/ReadingQuestionPayload"
+          },
+          "clarification": {
+            "$ref": "#/components/schemas/ReadingClarificationPayload"
+          },
+          "cards": {
+            "items": {
+              "$ref": "#/components/schemas/ReadingCardPayload"
+            },
+            "type": "array",
+            "title": "Cards"
+          },
+          "synthesis": {
+            "$ref": "#/components/schemas/ReadingSynthesisPayload"
+          },
+          "safety": {
+            "$ref": "#/components/schemas/ReadingSafetyPayload"
+          },
+          "trace_summary": {
+            "$ref": "#/components/schemas/ReadingTraceSummaryPayload"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reading_id",
+          "session_id",
+          "status",
+          "locale",
+          "spread_type",
+          "question",
+          "clarification",
+          "cards",
+          "synthesis",
+          "safety",
+          "trace_summary",
+          "created_at"
+        ],
+        "title": "ReadingResultResponse"
+      },
+      "ReadingSafetyPayload": {
+        "properties": {
+          "risk_level": {
+            "$ref": "#/components/schemas/RiskLevel"
+          },
+          "action_taken": {
+            "$ref": "#/components/schemas/SafetyAction"
+          },
+          "review_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "risk_level",
+          "action_taken"
+        ],
+        "title": "ReadingSafetyPayload"
+      },
+      "ReadingSynthesisPayload": {
+        "properties": {
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "action_advice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action Advice"
+          },
+          "reflection_question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reflection Question"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ReadingSynthesisPayload"
+      },
+      "ReadingTraceEventPayload": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "step_name": {
+            "type": "string",
+            "title": "Step Name"
+          },
+          "event_status": {
+            "$ref": "#/components/schemas/TraceEventStatus"
+          },
+          "attempt_no": {
+            "type": "integer",
+            "title": "Attempt No"
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Ms"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "payload_summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload Summary"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "event_id",
+          "step_name",
+          "event_status",
+          "attempt_no",
+          "payload_summary",
+          "created_at"
+        ],
+        "title": "ReadingTraceEventPayload"
+      },
+      "ReadingTraceResponse": {
+        "properties": {
+          "reading_id": {
+            "type": "string",
+            "title": "Reading Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ReadingTraceEventPayload"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reading_id",
+          "session_id",
+          "status",
+          "events"
+        ],
+        "title": "ReadingTraceResponse"
+      },
+      "ReadingTraceSummaryPayload": {
+        "properties": {
+          "event_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Event Count"
+          },
+          "warning_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Warning Count"
+          },
+          "error_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Error Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "event_count",
+          "warning_count",
+          "error_count"
+        ],
+        "title": "ReadingTraceSummaryPayload"
+      },
+      "RiskLevel": {
+        "type": "string",
+        "enum": [
+          "LOW",
+          "MEDIUM",
+          "HIGH"
+        ],
+        "title": "RiskLevel"
+      },
+      "RunSessionRequest": {
+        "properties": {},
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RunSessionRequest"
+      },
+      "SafetyAction": {
+        "type": "string",
+        "enum": [
+          "PASSTHROUGH",
+          "REWRITE",
+          "BLOCK_AND_FALLBACK"
+        ],
+        "title": "SafetyAction"
+      },
+      "SenderRole": {
+        "type": "string",
+        "enum": [
+          "USER",
+          "AGENT",
+          "SYSTEM"
+        ],
+        "title": "SenderRole"
+      },
+      "SessionHistoryItemResponse": {
+        "properties": {
+          "message_id": {
+            "type": "string",
+            "title": "Message Id"
+          },
+          "message_type": {
+            "$ref": "#/components/schemas/SessionMessageType"
+          },
+          "sender_role": {
+            "$ref": "#/components/schemas/SenderRole"
+          },
+          "turn_index": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Turn Index"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "message_id",
+          "message_type",
+          "sender_role",
+          "turn_index",
+          "content",
+          "created_at"
+        ],
+        "title": "SessionHistoryItemResponse"
+      },
+      "SessionHistoryResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SessionHistoryItemResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "session_id",
+          "items"
+        ],
+        "title": "SessionHistoryResponse"
+      },
+      "SessionMessageType": {
+        "type": "string",
+        "enum": [
+          "ORIGINAL_QUESTION",
+          "CLARIFIER_QUESTION",
+          "CLARIFICATION_ANSWER",
+          "FINAL_RESULT_SUMMARY"
+        ],
+        "title": "SessionMessageType"
+      },
+      "SessionSnapshotResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale"
+          },
+          "spread_type": {
+            "$ref": "#/components/schemas/SpreadType"
+          },
+          "normalized_question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Question"
+          },
+          "current_reading_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Reading Id"
+          },
+          "clarification_turn_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Clarification Turn Count"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "session_id",
+          "status",
+          "locale",
+          "spread_type",
+          "clarification_turn_count",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "SessionSnapshotResponse"
+      },
+      "SpreadType": {
+        "type": "string",
+        "enum": [
+          "THREE_CARD_REFLECTION"
+        ],
+        "title": "SpreadType"
+      },
+      "SubmitClarificationRequest": {
+        "properties": {
+          "answer_text": {
+            "type": "string",
+            "title": "Answer Text"
+          },
+          "turn_index": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Turn Index"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "answer_text",
+          "turn_index"
+        ],
+        "title": "SubmitClarificationRequest"
+      },
+      "SubmitClarificationResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "normalized_question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Question"
+          },
+          "clarification_required": {
+            "type": "boolean",
+            "title": "Clarification Required"
+          },
+          "next_clarifier_question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Clarifier Question"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "session_id",
+          "status",
+          "clarification_required",
+          "updated_at"
+        ],
+        "title": "SubmitClarificationResponse"
+      },
+      "SubmitQuestionRequest": {
+        "properties": {
+          "raw_question": {
+            "type": "string",
+            "title": "Raw Question"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "raw_question"
+        ],
+        "title": "SubmitQuestionRequest"
+      },
+      "SubmitQuestionResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "normalized_question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized Question"
+          },
+          "clarification_required": {
+            "type": "boolean",
+            "title": "Clarification Required"
+          },
+          "clarifier_question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clarifier Question"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "session_id",
+          "status",
+          "clarification_required",
+          "updated_at"
+        ],
+        "title": "SubmitQuestionResponse"
+      },
+      "TraceEventStatus": {
+        "type": "string",
+        "enum": [
+          "STARTED",
+          "SUCCEEDED",
+          "FAILED",
+          "FALLBACK"
+        ],
+        "title": "TraceEventStatus"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WorkflowStatus": {
+        "type": "string",
+        "enum": [
+          "CREATED",
+          "QUESTION_RECEIVED",
+          "CLARIFYING",
+          "READY_FOR_DRAW",
+          "DRAW_COMPLETED",
+          "SYNTHESIS_COMPLETED",
+          "SAFETY_REVIEWED",
+          "COMPLETED",
+          "SAFE_FALLBACK_RETURNED",
+          "FAILED"
+        ],
+        "title": "WorkflowStatus"
+      }
+    }
+  }
+}

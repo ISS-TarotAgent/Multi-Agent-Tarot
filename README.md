@@ -1,5 +1,3 @@
-# README
-
 # AI Tarot Multi-Agent System
 
 ## 1.项目简介
@@ -14,10 +12,12 @@
 
 - **Multi-Agent System 设计**
 - **Agent Cybersecurity**
-- **MLOps / LLMOps**
+- **MLOps / LLMOps（Langfuse 可观测性已集成）**
 - **前端交互式 UI**
 - **可观测性与 Traceability**
 - **安全输出与风险控制**
+
+> 快速启动与开发说明请参阅 [Developer-Guide.md](./Developer-Guide.md)。
 
 ## 2.项目目标
 
@@ -55,14 +55,15 @@
 
 ## 4.系统核心能力
 
-**本系统应包含以下核心能力:**
+**本系统核心能力（✅ 已实现）:**
 
-- **Clarification**：对用户模糊问题进行澄清  
-- **Card Draw & Interpretation**：执行抽牌并生成牌义解释  
-- **Synthesis**：基于多张牌生成综合洞察与行动建议  
-- **Safety Review**：对输出进行安全审查与风险修正  
-- **Trace Logging**：记录关键处理步骤以供调试与演示  
-- **Frontend Interaction**：通过 Web UI 展示完整使用流程
+- ✅ **Clarification**：对用户模糊问题进行澄清（LLM 驱动，支持多轮）
+- ✅ **Card Draw & Interpretation**：执行抽牌并生成牌义解释（含 keywords / caution_note / reflection_question）
+- ✅ **Synthesis**：基于多张牌生成综合洞察与行动建议
+- ✅ **Safety Review**：对输出进行安全审查与风险修正（LLM 语义评估，规则引擎兜底，三级风险）
+- ✅ **Trace Logging**：结构化 JSON 日志 + Langfuse 全链路追踪
+- ✅ **Frontend Interaction**：通过 Web UI 展示完整使用流程
+- ✅ **Agent Cybersecurity**：LLM 驱动的三层安全检测（输入注入、Agent 间内容审查、输出安全审查），各层均有规则引擎兜底
 
 ## 5.系统角色划分
 
@@ -112,7 +113,7 @@
 
 ### 数据存储
 
-* **MySQL: 存储用户对话,澄清结果.抽牌结果等**
+* **PostgreSQL: 存储用户对话、澄清结果、抽牌结果等**
 
 ### 测试
 
@@ -122,7 +123,7 @@
 
 ### 可观测性
 
-* **Langfuse: 记录和观察LLM的调用过程**
+* **Langfuse v2: 记录和观察LLM的调用过程（Trace → Span → Generation 三层追踪，本地 Docker 容器，访问 http://localhost:3000）**
 
 * **结构化JSON Logs: 统一系统日志格式和Agent输出**
 
@@ -132,37 +133,33 @@
 
 * **Github Actions: 用来跑CI/CD**
 
-## 7.仓库结构 [待定]
+## 7.仓库结构
 
-```textile
+```
 project-root/
 ├── README.md
-├── frontend/ 
-├── backend/ 
-├── agent/
-├── prompts/
-├── evals/
-├── docs/
-├── docker/
-├── .github/workflows/
-└── docker-compose.yml
+├── Developer-Guide.md      # 开发者指南（快速启动、架构说明、各模块开发规范）
+├── frontend/               # React + TypeScript UI
+├── backend/                # FastAPI + SQLAlchemy + Alembic
+├── agent/                  # LangGraph 工作流 + LLM Agents
+├── prompts/                # Prompt 模板文件（独立于代码管理）
+├── evals/                  # Promptfoo eval 套件
+├── docs/                   # 设计文档
+├── Docker/
+│   └── docker-compose.yml  # 全栈编排（postgres + backend + frontend + langfuse）
+└── .github/workflows/      # GitHub Actions CI
 ```
 
 ### 7.1 Frontend/
 
-**存放前端Web UI代码**
+**存放前端Web UI代码（React + TypeScript + Vite）**
 
-**大致页面包括 [待定]:**
+**已实现页面：**
 
 * **用户输入问题页面**
-
-* **抽牌展示页面**
-
-* **澄清问题页面**
-
-* **结果展示页面**
-
-* **历史记录页面**
+* **澄清问题交互页面**
+* **抽牌与解读展示页面（含 caution_note / reflection_question / keywords）**
+* **综合结果展示页面**
 
 ### 7.2 Backend/
 
@@ -226,6 +223,19 @@ project-root/
 
 **存放与容器化相关的配置文件**
 
+`docker-compose.yml` 编排了以下服务：`postgres`（业务数据库）、`backend`（FastAPI）、`frontend`（React）、`langfuse-db`（Langfuse 专用 PostgreSQL）、`langfuse-server`（LLM 可观测性面板）。
+
 ### 7.8 .github/workflows/
 
 **存放 GitHub Actions 的 CI/CD 工作流配置**
+
+CI 包含四个 job：
+
+| Job | 内容 |
+|-----|------|
+| `lint` | ruff 代码风格检查 |
+| `test-agent` | Agent 单元测试（无需数据库、无需 API key） |
+| `test-backend-unit` | Backend 单元测试（SQLite 内存库） |
+| `test-backend-integration` | Backend 集成测试，由 service container 提供 PostgreSQL |
+
+集成测试通过 `DATABASE_URL` 环境变量连接数据库；本地运行时若未设置该变量，相关测试会自动 skip。

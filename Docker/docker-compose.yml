@@ -1,0 +1,101 @@
+services:
+  langfuse-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: langfuse
+      POSTGRES_DB: langfuse
+    volumes:
+      - langfuse_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  langfuse-server:
+    image: langfuse/langfuse:2
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-db:5432/langfuse
+      NEXTAUTH_SECRET: tarot-dev-secret-changeme
+      SALT: tarot-dev-salt-changeme
+      NEXTAUTH_URL: http://localhost:3000
+      # Auto-create org / project / keys on first boot
+      LANGFUSE_INIT_ORG_ID: tarot-org
+      LANGFUSE_INIT_ORG_NAME: Tarot
+      LANGFUSE_INIT_PROJECT_ID: tarot-project
+      LANGFUSE_INIT_PROJECT_NAME: MultiAgentTarot
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: pk-lf-tarot-dev
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: sk-lf-tarot-dev
+      LANGFUSE_INIT_USER_EMAIL: admin@tarot.local
+      LANGFUSE_INIT_USER_PASSWORD: admin123
+      LANGFUSE_INIT_USER_NAME: Admin
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: multi_agent_tarot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: python:3.12-slim
+    working_dir: /workspace/backend
+    volumes:
+      - ..:/workspace
+    env_file:
+      - ../backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/multi_agent_tarot
+      PYTHONPATH: /workspace:/workspace/backend
+      LANGFUSE_ENABLED: "true"
+      LANGFUSE_PUBLIC_KEY: pk-lf-tarot-dev
+      LANGFUSE_SECRET_KEY: sk-lf-tarot-dev
+      LANGFUSE_HOST: http://langfuse-server:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      langfuse-server:
+        condition: service_started
+    command: >
+      bash -c "
+        pip install -e /workspace/backend --quiet --no-cache-dir &&
+        python -m alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /workspace/backend --reload-dir /workspace/agent
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  langfuse_pg_data:

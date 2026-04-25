@@ -1,0 +1,24 @@
+# This file mirrors backend/pyproject.toml for tools that expect a flat requirements file.
+# pyproject.toml is authoritative — keep these two in sync when updating dependencies.
+
+# ── Core Framework ──────────────────────────────────────────
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.34,<1.0
+pydantic-settings>=2.8,<3.0
+
+# ── LLM / Multi-Agent ──────────────────────────────────────
+openai>=1.0,<2.0
+langgraph>=1.0.8,<1.1
+langfuse>=2.0,<3.0
+
+# ── Database ───────────────────────────────────────────────
+sqlalchemy>=2.0,<3.0
+psycopg[binary]>=3.2,<4.0
+alembic>=1.14,<2.0
+
+# ── Utilities ──────────────────────────────────────────────
+PyYAML>=6.0,<7.0
+
+# ── Dev / Testing ──────────────────────────────────────────
+httpx>=0.28,<1.0
+pytest>=8.3,<9.0
