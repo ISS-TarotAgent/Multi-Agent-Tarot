@@ -43,7 +43,7 @@ export function HistoryPanel({
         <p className="eyebrow">History</p>
         <h1>Reading History</h1>
         <p>
-          This page simulates the Storage layer and lets you revisit previous readings for demo or review.
+          Your past readings are stored locally in this browser. Up to 12 sessions are kept.
         </p>
       </div>
 

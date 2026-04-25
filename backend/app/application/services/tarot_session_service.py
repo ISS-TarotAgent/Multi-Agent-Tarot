@@ -91,6 +91,7 @@ class TarotSessionService:
                     raw_question=request.raw_question,
                     locale=aggregate.session.locale,
                     spread_type=aggregate.session.spread_type,
+                    skip_clarification=request.skip_clarification,
                     trace_reading_id=None,
                     persistence_handler=lambda state: self._repository.save_question_evaluation(
                         session_id=session_id,
@@ -162,6 +163,13 @@ class TarotSessionService:
                 },
             )
 
+        existing_answers = [
+            msg.content for msg in aggregate.messages if msg.message_type is SessionMessageType.CLARIFICATION_ANSWER
+        ]
+        all_answers = [*existing_answers, request.answer_text]
+        clarification_answers = {f"turn_{i + 1}": ans for i, ans in enumerate(all_answers)}
+        original_question = self._required_message(aggregate.messages, SessionMessageType.ORIGINAL_QUESTION).content
+
         with self._observer.observe_operation(
             name="tarot.session.submit_clarification",
             session_id=session_id,
@@ -169,32 +177,24 @@ class TarotSessionService:
             input_payload={"answer_text": request.answer_text, "turn_index": request.turn_index},
             metadata={"locale": aggregate.session.locale},
         ) as operation:
-            clarifier_input = self._compose_follow_up_question(
-                aggregate=aggregate,
-                new_answer=request.answer_text,
-            )
             try:
-                self._workflow.evaluate_question(
+                self._workflow.resume_clarification(
                     session_id=session_id,
                     reading_id=f"session-eval:{session_id}",
-                    raw_question=clarifier_input,
+                    raw_question=original_question,
+                    normalized_question=aggregate.session.normalized_question,
+                    intent_tag=aggregate.session.intent_tag,
                     locale=aggregate.session.locale,
                     spread_type=aggregate.session.spread_type,
+                    clarification_answers=clarification_answers,
+                    created_at=self._now(),
                     trace_reading_id=None,
                     persistence_handler=lambda state: self._repository.save_clarification_evaluation(
                         session_id=session_id,
                         answer_text=request.answer_text,
-                        normalized_question=(
-                            state.clarification_output.normalized_question
-                            if state.clarification_output is not None
-                            else None
-                        ),
+                        normalized_question=state.normalized_question,
                         status=state.status,
-                        next_clarifier_question=(
-                            state.clarification_output.clarifier_question
-                            if state.clarification_output is not None
-                            else None
-                        ),
+                        next_clarifier_question=None,
                         trace_events=state.trace_events,
                         updated_at=self._now(),
                     ),

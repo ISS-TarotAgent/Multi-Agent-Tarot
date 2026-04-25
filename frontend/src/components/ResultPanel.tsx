@@ -6,17 +6,28 @@ interface ResultPanelProps {
   onViewHistory: () => void;
 }
 
-export function ResultPanel({
-  reading,
-  onRestart,
-  onViewHistory
-}: ResultPanelProps) {
+export function ResultPanel({ reading, onRestart, onViewHistory }: ResultPanelProps) {
+  const hasClarification = !!(reading.clarificationQuestion || reading.clarificationAnswer);
+
   return (
     <section className="panel result-panel">
       <div className="panel-copy">
         <p className="eyebrow">Final Reading</p>
         <h1>{reading.title}</h1>
-        <p>{reading.reframedQuestion}</p>
+        <div className="question-meta">
+          <div className="question-meta__row">
+            <span className="question-meta__label">Your question</span>
+            <p className="question-meta__text">{reading.question}</p>
+          </div>
+          {reading.reframedQuestion !== reading.question && (
+            <div className="question-meta__row">
+              <span className="question-meta__label">Reframed as</span>
+              <p className="question-meta__text question-meta__text--reframed">
+                {reading.reframedQuestion}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="result-grid">
@@ -25,14 +36,37 @@ export function ResultPanel({
           <p>{reading.synthesis}</p>
         </section>
 
-        <section className="result-block">
-          <h2>Card Evidence</h2>
-          <div className="mini-card-list">
+        {hasClarification && (
+          <section className="result-block result-block--wide clarification-context">
+            <h2>Clarification Context</h2>
+            {reading.clarificationQuestion && (
+              <div className="clarification-context__row">
+                <span className="clarification-context__label">Asked</span>
+                <p>{reading.clarificationQuestion}</p>
+              </div>
+            )}
+            {reading.clarificationAnswer && (
+              <div className="clarification-context__row">
+                <span className="clarification-context__label">You answered</span>
+                <p>{reading.clarificationAnswer}</p>
+              </div>
+            )}
+          </section>
+        )}
+
+        <section className="result-block result-block--wide">
+          <h2>Card Readings</h2>
+          <div className="result-card-grid">
             {reading.cards.map((card) => (
-              <article key={`${card.id}-${card.role}`} className="mini-card">
-                <span>{card.role}</span>
-                <strong>{card.name}</strong>
-                <small>{card.orientation}</small>
+              <article key={`${card.id}-${card.role}`} className="result-card">
+                <div className="result-card__header">
+                  <span className="result-card__role">{card.role}</span>
+                  <span className="result-card__arcana">
+                    {card.arcana}{card.suit ? ` · ${card.suit}` : ""}
+                  </span>
+                </div>
+                <strong className="result-card__name">{card.name}</strong>
+                <small className="result-card__orientation">{card.orientation}</small>
                 {card.keywords.length > 0 && (
                   <div className="keyword-row">
                     {card.keywords.map((kw) => (
@@ -40,11 +74,12 @@ export function ResultPanel({
                     ))}
                   </div>
                 )}
-                {card.reflectionPrompt && (
-                  <p className="card-reflection">{card.reflectionPrompt}</p>
-                )}
+                <p className="result-card__interpretation">{card.interpretation}</p>
                 {card.cautionNote && (
                   <p className="card-caution">{card.cautionNote}</p>
+                )}
+                {card.reflectionPrompt && (
+                  <p className="card-reflection">{card.reflectionPrompt}</p>
                 )}
               </article>
             ))}
@@ -95,7 +130,7 @@ export function ResultPanel({
 
       <div className="action-row">
         <button className="secondary-button" onClick={onViewHistory}>
-          Open History Page
+          Reading History
         </button>
         <button className="primary-button" onClick={onRestart}>
           Start New Reading

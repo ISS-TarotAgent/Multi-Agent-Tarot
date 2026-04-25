@@ -2,22 +2,21 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 
 interface QuestionComposerProps {
-  onSubmit: (question: string) => Promise<void>;
+  onSubmit: (question: string, skipClarification: boolean) => Promise<void>;
   isSubmitting: boolean;
 }
 
 const SAMPLE_QUESTIONS = [
-  "I am stuck between two job opportunities and cannot tell what I should prioritize.",
-  "I am unsure whether to keep investing in this relationship and want to understand my real need.",
-  "My semester rhythm has fallen apart and I want to know how to rebuild momentum."
+  "I am stuck between two job offers and cannot tell what to prioritize.",
+  "我不确定是否该继续这段关系，想更清楚地了解自己真正的需求。",
+  "My semester rhythm has fallen apart and I want to know how to rebuild momentum.",
+  "我最近情绪很低落，感觉内耗严重，想知道怎么找回状态。",
 ];
 
-export function QuestionComposer({
-  onSubmit,
-  isSubmitting
-}: QuestionComposerProps) {
+export function QuestionComposer({ onSubmit, isSubmitting }: QuestionComposerProps) {
   const [question, setQuestion] = useState("");
   const [error, setError] = useState("");
+  const [skipClarification, setSkipClarification] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,7 +28,7 @@ export function QuestionComposer({
     }
 
     setError("");
-    await onSubmit(nextQuestion);
+    await onSubmit(nextQuestion, skipClarification);
   }
 
   return (
@@ -38,7 +37,8 @@ export function QuestionComposer({
         <p className="eyebrow">Question Intake</p>
         <h1>Name the uncertainty before interpreting it</h1>
         <p>
-          This frontend does not treat Tarot as a prediction engine. It uses Tarot as a structured reflection interface. Start with the question you want to work on.
+          This system uses Tarot as a structured reflection interface, not a prediction engine.
+          Start with the question or situation you want to work on.
         </p>
       </div>
 
@@ -69,8 +69,31 @@ export function QuestionComposer({
           ))}
         </div>
 
+        <div className="mode-row">
+          <button
+            type="button"
+            className={`mode-chip ${!skipClarification ? "mode-chip--active" : ""}`}
+            onClick={() => setSkipClarification(false)}
+          >
+            <strong>AI 引导澄清</strong>
+            <span>让 AI 提问，帮你聚焦问题核心</span>
+          </button>
+          <button
+            type="button"
+            className={`mode-chip ${skipClarification ? "mode-chip--active" : ""}`}
+            onClick={() => setSkipClarification(true)}
+          >
+            <strong>直接抽牌</strong>
+            <span>跳过澄清，直接进入牌阵解读</span>
+          </button>
+        </div>
+
         <button className="primary-button" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Preparing clarification..." : "Start Clarification"}
+          {isSubmitting
+            ? "Evaluating your question…"
+            : skipClarification
+            ? "Draw Cards Now"
+            : "Begin Reading"}
         </button>
       </form>
     </section>

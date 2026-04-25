@@ -26,7 +26,7 @@ export function CardSpread({ reading, isLoading, onContinue }: CardSpreadProps) 
           <p className="eyebrow">Card Draw</p>
           <h1>Drawing the spread</h1>
           <p>
-            The Draw & Interpret Agent mock is running. The interface will reveal the current, challenge, and action positions next.
+            The Draw & Interpret Agent is selecting and interpreting your three cards. The current, challenge, and action positions will be ready to reveal shortly.
           </p>
         </div>
         <div className="spread-grid">
@@ -60,9 +60,16 @@ export function CardSpread({ reading, isLoading, onContinue }: CardSpreadProps) 
               className={`tarot-card ${isRevealed ? "is-revealed" : ""}`}
               style={isRevealed ? { backgroundImage: card.accent } : undefined}
             >
-              <span className="tarot-card__role">{card.role}</span>
-              <strong>{isRevealed ? card.name : "Arcana"}</strong>
-              <small>{isRevealed ? card.orientation : "Tap into uncertainty"}</small>
+              <div className="tarot-card__meta">
+                <span className="tarot-card__role">{card.role}</span>
+                {isRevealed && (
+                  <span className="tarot-card__arcana">
+                    {card.arcana}{card.suit ? ` · ${card.suit}` : ""}
+                  </span>
+                )}
+              </div>
+              <strong>{isRevealed ? card.name : "?"}</strong>
+              <small>{isRevealed ? card.orientation : "Tap to reveal"}</small>
               {isRevealed ? (
                 <>
                   {card.keywords.length > 0 && (
@@ -83,7 +90,7 @@ export function CardSpread({ reading, isLoading, onContinue }: CardSpreadProps) 
                   )}
                 </>
               ) : (
-                <p>The meaning of this position stays hidden until you actively reveal it.</p>
+                <p className="tarot-card__hidden-hint">Reveal to see this card's meaning.</p>
               )}
             </article>
           );

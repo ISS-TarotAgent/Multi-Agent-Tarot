@@ -166,8 +166,10 @@ function mapCard(c: BackendCard, intentTag: IntentTag) {
 }
 
 function mapSafety(s: BackendReadingResult["safety"]): SafetyReview {
+  const r = s.risk_level.toUpperCase();
+  const level = r === "HIGH" ? "high" : r === "MEDIUM" ? "medium" : "low";
   return {
-    level: s.risk_level === "MEDIUM" ? "medium" : "low",
+    level,
     note: s.review_notes ?? "This result is designed for reflection, not absolute prediction.",
     boundary:
       "If the issue involves persistent distress or a high-stakes professional decision, seek real-world support first.",
@@ -202,7 +204,8 @@ function mapToReadingRecord(
     question: res.question.raw_question,
     reframedQuestion: res.question.normalized_question ?? originalQuestion,
     intentTag,
-    clarificationAnswer,
+    clarificationQuestion: res.clarification.question_text ?? null,
+    clarificationAnswer: res.clarification.answer_text ?? clarificationAnswer,
     cards,
     synthesis: synth.summary ?? "",
     actionSuggestions: synth.action_advice ? [synth.action_advice] : [],
@@ -239,9 +242,11 @@ async function createSession(locale = "zh-CN"): Promise<CreateSessionResponse> {
 async function submitQuestion(
   sessionId: string,
   rawQuestion: string,
+  skipClarification = false,
 ): Promise<SubmitQuestionResponse> {
   return apiPost<SubmitQuestionResponse>(`/api/v1/sessions/${sessionId}/question`, {
     raw_question: rawQuestion,
+    skip_clarification: skipClarification,
   });
 }
 
@@ -308,14 +313,17 @@ export async function loadHistory(): Promise<ReadingRecord[]> {
   return readHistory().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-export async function startSession(question: string): Promise<ReadingResult> {
+export async function startSession(
+  question: string,
+  skipClarification = false,
+): Promise<ReadingResult> {
   const trimmed = question.trim();
   const intentTag = detectIntentTag(trimmed);
 
   const session = await createSession();
   const sessionId = session.session_id;
 
-  const evalResult = await submitQuestion(sessionId, trimmed);
+  const evalResult = await submitQuestion(sessionId, trimmed, skipClarification);
 
   if (evalResult.status === "SAFE_FALLBACK_RETURNED") {
     return buildGenericInputFallback();
@@ -345,11 +353,6 @@ export async function completeReading(
 ): Promise<ReadingResult> {
   const trimmedAnswer = answer.trim();
 
-  if (draft.clarificationTurn >= MAX_CLARIFICATION_TURNS) {
-    // Max clarification turns reached: force a run without further clarification.
-    return resolveReadyState(draft.sessionId, draft.originalQuestion, draft.intentTag, trimmedAnswer);
-  }
-
   const clarResult = await submitClarification(draft.sessionId, trimmedAnswer, draft.clarificationTurn);
 
   if (clarResult.status === "SAFE_FALLBACK_RETURNED") {
@@ -357,6 +360,10 @@ export async function completeReading(
   }
 
   if (clarResult.status === "CLARIFYING") {
+    // If we've hit the max turns, stop asking and force a draw regardless.
+    if (draft.clarificationTurn >= MAX_CLARIFICATION_TURNS) {
+      return resolveReadyState(draft.sessionId, draft.originalQuestion, draft.intentTag, trimmedAnswer);
+    }
     const updatedDraft: SessionDraft = {
       ...draft,
       clarificationQuestionText:

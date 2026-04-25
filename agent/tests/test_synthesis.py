@@ -114,6 +114,7 @@ def _make_fallback() -> SafetyReviewOutput:
 # Success path
 # ---------------------------------------------------------------------------
 
+
 def test_execute_synthesis_step_success():
     state = _make_state()
     observer, handle = _make_observer()
@@ -162,6 +163,7 @@ def test_execute_synthesis_step_builds_correct_payload():
 # Retry path
 # ---------------------------------------------------------------------------
 
+
 def test_execute_synthesis_step_succeeds_on_second_attempt():
     state = _make_state()
     observer, handle = _make_observer()
@@ -185,6 +187,7 @@ def test_execute_synthesis_step_succeeds_on_second_attempt():
 # ---------------------------------------------------------------------------
 # Fallback path
 # ---------------------------------------------------------------------------
+
 
 def test_execute_synthesis_step_fallback_after_all_attempts_fail():
     state = _make_state()
@@ -238,6 +241,7 @@ def test_execute_synthesis_step_trace_events_recorded_on_failure():
 # ---------------------------------------------------------------------------
 # normalized_question fallback to raw_question
 # ---------------------------------------------------------------------------
+
 
 def test_execute_synthesis_step_falls_back_to_raw_question():
     state = _make_state(normalized_question=None)

@@ -1,362 +1,342 @@
-"""Unit tests for Clarifier Agent nodes (Phase 1 & Phase 2).
+"""Unit tests for execute_clarifier_step in agent/nodes/clarifier.py.
 
-All tests mock ModelGateway.run() -- no real LLM calls are made.
+All tests use mock ClarifierAgent implementations — no real LLM calls are made.
 """
 
 from __future__ import annotations
 
-import json
+from contextlib import contextmanager
+from datetime import UTC, datetime
 from typing import Any
-from unittest.mock import MagicMock, patch
 
 import pytest
 
-from agent.core import schemas
-from agent.core.model_gateway import ModelGateway
-from agent.nodes import clarifier
-
-# ---------------------------------------------------------------------------
-# Test data
-# ---------------------------------------------------------------------------
-
-_VALID_INIT_RESPONSE = json.dumps(
-    {
-        "intent_tag": "career",
-        "normalized_question": "我在职场中遇到了困难，应该如何应对？",
-        "clarification_prompts": [
-            {
-                "id": "q1",
-                "question": "你目前在职场上面临的主要挑战是什么？",
-                "helper_text": "了解当前处境有助于塔罗牌更准确地指引职业方向。",
-                "placeholder": "例如：是否要接受一个新的工作机会",
-            },
-            {
-                "id": "q2",
-                "question": "你希望这次塔罗解读聚焦于哪个时间范围？",
-                "helper_text": "时间范围帮助塔罗牌定位能量走向。",
-                "placeholder": "例如：未来三个月内",
-            },
-        ],
-    },
-    ensure_ascii=False,
+from agent.nodes.clarifier import execute_clarifier_step
+from agent.schemas.clarifier import (
+    ClarificationPrompt,
+    ClarifierFinalizeInput,
+    ClarifierFinalizeOutput,
+    ClarifierInput,
+    ClarifierOutput,
 )
-
-_VALID_FINALIZE_RESPONSE = json.dumps(
-    {
-        "reframed_question": "在职业发展的十字路口，我如何找到与内心价值对齐的方向？",
-        "topic": "职业发展与决策",
-        "time_horizon": "未来三个月",
-        "intent": "寻求职业发展方向的内在洞察",
-        "constraints": ["关注实际行动步骤"],
-    },
-    ensure_ascii=False,
+from agent.schemas.safety import SafetyReviewOutput
+from backend.app.domain.enums import (
+    RiskLevel,
+    SafetyAction,
+    SpreadType,
+    TraceEventStatus,
+    WorkflowStatus,
 )
+from backend.app.schemas.workflow import TarotWorkflowState, TraceEventPayload
 
 # ---------------------------------------------------------------------------
-# Helpers
+# Shared test helpers
 # ---------------------------------------------------------------------------
-
-
-def _make_gateway(return_value: str | None = None, side_effect: Any = None) -> ModelGateway:
-    gw = MagicMock(spec=ModelGateway)
-    if side_effect is not None:
-        gw.run.side_effect = side_effect
-    else:
-        gw.run.return_value = return_value
-    return gw
 
 
 def _make_state(
-    session_id: str = "test-session",
+    status: WorkflowStatus = WorkflowStatus.QUESTION_RECEIVED,
     raw_question: str = "我最近工作不顺，该怎么办？",
-    clarification_result: schemas.ClarificationResult | None = None,
+    normalized_question: str | None = None,
+    intent_tag: str | None = None,
     clarification_answers: dict[str, str] | None = None,
-) -> schemas.OrchestratorState:
-    return schemas.OrchestratorState(
-        session_id=session_id,
-        raw_question=raw_question,
-        clarification_result=clarification_result,
-        clarification_answers=clarification_answers or {},
-    )
-
-
-def _make_clarification_result(
-    intent_tag: schemas.IntentTag = "career",
-    original_question: str = "我最近工作不顺，该怎么办？",
-    normalized_question: str = "我在职场中遇到了困难，应该如何应对？",
-) -> schemas.ClarificationResult:
-    return schemas.ClarificationResult(
+    skip_clarification: bool = False,
+) -> TarotWorkflowState:
+    return TarotWorkflowState(
         session_id="test-session",
-        original_question=original_question,
+        reading_id="test-reading",
+        status=status,
+        locale="zh-CN",
+        spread_type=SpreadType.THREE_CARD_REFLECTION,
+        raw_question=raw_question,
         normalized_question=normalized_question,
         intent_tag=intent_tag,
-        clarification_prompts=[
-            schemas.ClarificationPrompt(
-                id="q1",
-                question="主要挑战是什么？",
-                helper_text="帮助文字",
-                placeholder="示例",
-            )
-        ],
+        clarification_answers=clarification_answers or {},
+        skip_clarification=skip_clarification,
+        created_at=datetime.now(UTC),
+    )
+
+
+def _noop_trace_event(
+    *,
+    step_name: str,
+    event_status: TraceEventStatus,
+    attempt_no: int,
+    payload: dict[str, Any],
+    started: float | None,
+    error_code: str | None = None,
+) -> TraceEventPayload:
+    return TraceEventPayload(
+        event_id="test-event-id",
+        step_name=step_name,
+        event_status=event_status,
+        attempt_no=attempt_no,
+        payload=payload,
+        created_at=datetime.now(UTC),
+    )
+
+
+def _noop_trace_logger(*, state: TarotWorkflowState, reading_id: str | None, only_latest: bool = False) -> None:
+    pass
+
+
+def _noop_fallback(*, review_notes: str) -> SafetyReviewOutput:
+    return SafetyReviewOutput(
+        risk_level=RiskLevel.HIGH,
+        action_taken=SafetyAction.BLOCK_AND_FALLBACK,
+        review_notes=review_notes,
+        safe_summary="",
+        safe_action_advice="",
+        safe_reflection_question="",
+    )
+
+
+class _NoOpObserver:
+    @contextmanager
+    def observe_step(self, *, step_name, as_type, input_payload=None, metadata=None):
+        yield _NoOpHandle()
+
+
+class _NoOpHandle:
+    def success(self, *, output=None, metadata=None) -> None:
+        pass
+
+    def failure(self, *, error_code=None, message="", metadata=None) -> None:
+        pass
+
+
+_OBSERVER = _NoOpObserver()
+
+_VALID_RUN_OUTPUT = ClarifierOutput(
+    normalized_question="我在职场中遇到了困难，应该如何应对？",
+    intent_tag="career",
+    clarification_required=True,
+    clarifier_question="你目前在职场上面临的主要挑战是什么？",
+    clarification_prompts=[
+        ClarificationPrompt(
+            id="q1",
+            question="你目前在职场上面临的主要挑战是什么？",
+            helper_text="了解当前处境有助于塔罗牌更准确地指引职业方向。",
+            placeholder="例如：是否要接受一个新的工作机会",
+        ),
+        ClarificationPrompt(
+            id="q2",
+            question="你希望这次塔罗解读聚焦于哪个时间范围？",
+            helper_text="时间范围帮助塔罗牌定位能量走向。",
+            placeholder="例如：未来三个月内",
+        ),
+    ],
+)
+
+_VALID_FINALIZE_OUTPUT = ClarifierFinalizeOutput(
+    reframed_question="在职业发展的十字路口，我如何找到与内心价值对齐的方向？",
+    topic="职业发展与决策",
+    time_horizon="未来三个月",
+    intent="寻求职业发展方向的内在洞察",
+    constraints=["关注实际行动步骤"],
+)
+
+
+class _MockClarifierAgent:
+    def __init__(
+        self,
+        run_output: ClarifierOutput = _VALID_RUN_OUTPUT,
+        finalize_output: ClarifierFinalizeOutput = _VALID_FINALIZE_OUTPUT,
+        run_raises: Exception | None = None,
+        finalize_raises: Exception | None = None,
+    ):
+        self._run_output = run_output
+        self._finalize_output = finalize_output
+        self._run_raises = run_raises
+        self._finalize_raises = finalize_raises
+        self.run_call_count = 0
+        self.finalize_call_count = 0
+
+    def run(self, payload: ClarifierInput) -> ClarifierOutput:
+        self.run_call_count += 1
+        if self._run_raises:
+            raise self._run_raises
+        return self._run_output
+
+    def finalize(self, payload: ClarifierFinalizeInput) -> ClarifierFinalizeOutput:
+        self.finalize_call_count += 1
+        if self._finalize_raises:
+            raise self._finalize_raises
+        return self._finalize_output
+
+
+def _run(state: TarotWorkflowState, agent: _MockClarifierAgent) -> TarotWorkflowState:
+    return execute_clarifier_step(
+        state=state,
+        clarifier_agent=agent,
+        observer=_OBSERVER,
+        trace_event_factory=_noop_trace_event,
+        trace_logger=_noop_trace_logger,
     )
 
 
 # ---------------------------------------------------------------------------
-# Fixtures
+# Phase 1 tests: initial clarification question generation
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture(autouse=True)
-def reset_gateway():
-    """Reset the module-level gateway singleton before each test."""
-    clarifier.set_gateway(None)  # type: ignore[arg-type]
-    yield
-    clarifier.set_gateway(None)  # type: ignore[arg-type]
-
-
-# ---------------------------------------------------------------------------
-# Phase 1 tests: clarifier_init_node
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.asyncio
-async def test_clarifier_init_normal():
-    """Valid LLM response produces a well-formed ClarificationResult."""
-    clarifier.set_gateway(_make_gateway(return_value=_VALID_INIT_RESPONSE))
+def test_phase1_requires_clarification_produces_clarifying_status():
+    """When LLM says clarification required, state becomes CLARIFYING."""
     state = _make_state()
+    agent = _MockClarifierAgent()
 
-    with patch("asyncio.sleep"):
-        result_state = await clarifier.clarifier_init_node(state)
+    result = _run(state, agent)
 
-    result = result_state.clarification_result
-    assert result is not None
-    assert result.intent_tag == "career"
-    assert result.session_id == "test-session"
-    assert result.original_question == "我最近工作不顺，该怎么办？"
+    assert result.status is WorkflowStatus.CLARIFYING
     assert result.normalized_question == "我在职场中遇到了困难，应该如何应对？"
+    assert result.intent_tag == "career"
     assert len(result.clarification_prompts) == 2
-    assert result.clarification_prompts[0].id == "q1"
+    assert agent.run_call_count == 1
+    assert agent.finalize_call_count == 0
 
 
-@pytest.mark.asyncio
-async def test_clarifier_init_bad_json():
-    """Malformed LLM response falls back to default prompts with intent 'growth'."""
-    clarifier.set_gateway(_make_gateway(return_value="this is not json at all!"))
-    state = _make_state()
-
-    with patch("asyncio.sleep"):
-        result_state = await clarifier.clarifier_init_node(state)
-
-    result = result_state.clarification_result
-    assert result is not None
-    assert result.intent_tag == "growth"
-    assert len(result.clarification_prompts) >= 1
-    assert result.original_question == state.raw_question
-
-
-@pytest.mark.asyncio
-async def test_clarifier_init_invalid_intent_tag_defaults_to_growth():
-    """LLM returns an unrecognised intent_tag; node silently coerces it to 'growth'."""
-    response = json.dumps(
-        {
-            "intent_tag": "unknown_category",
-            "normalized_question": "some question",
-            "clarification_prompts": [
-                {
-                    "id": "q1",
-                    "question": "test?",
-                    "helper_text": "help",
-                    "placeholder": "ph",
-                }
-            ],
-        }
+def test_phase1_no_clarification_needed_chains_to_finalize():
+    """When clarification is not required, Phase 1 chains directly into Phase 2."""
+    no_clarif = ClarifierOutput(
+        normalized_question="我在职场遇到困难",
+        intent_tag="career",
+        clarification_required=False,
     )
-    clarifier.set_gateway(_make_gateway(return_value=response))
+    agent = _MockClarifierAgent(run_output=no_clarif)
     state = _make_state()
 
-    with patch("asyncio.sleep"):
-        result_state = await clarifier.clarifier_init_node(state)
+    result = _run(state, agent)
 
-    result = result_state.clarification_result
-    assert result is not None
-    assert result.intent_tag == "growth"
+    assert result.status is WorkflowStatus.READY_FOR_DRAW
+    assert result.normalized_question == _VALID_FINALIZE_OUTPUT.reframed_question
+    assert agent.run_call_count == 1
+    assert agent.finalize_call_count == 1
 
 
-@pytest.mark.asyncio
-async def test_clarifier_init_gateway_failure_retries_then_falls_back():
-    """Gateway always raises; node retries 3 times then falls back to defaults."""
-    gw = _make_gateway(side_effect=RuntimeError("LLM service unavailable"))
-    clarifier.set_gateway(gw)
+def test_phase1_skip_clarification_flag_bypasses_clarification():
+    """skip_clarification=True skips waiting for answers and chains to Phase 2 directly."""
+    agent = _MockClarifierAgent()
+    state = _make_state(skip_clarification=True)
+
+    result = _run(state, agent)
+
+    assert result.status is WorkflowStatus.READY_FOR_DRAW
+    assert agent.finalize_call_count == 1
+
+
+def test_phase1_intent_tag_stored_in_state():
+    """Intent tag from Phase 1 is propagated into the state."""
+    agent = _MockClarifierAgent()
     state = _make_state()
-
-    with patch("asyncio.sleep") as mock_sleep:
-        result_state = await clarifier.clarifier_init_node(state)
-
-    assert gw.run.call_count == 3
-    assert mock_sleep.call_count == 2  # sleep between attempts, not after the last
-
-    result = result_state.clarification_result
-    assert result is not None
-    assert result.intent_tag == "growth"
-    assert len(result.clarification_prompts) >= 1
-
-
-@pytest.mark.asyncio
-async def test_clarifier_init_prompts_capped_at_three():
-    """LLM returning more than 3 prompts: only the first 3 are kept."""
-    many_prompts = [
-        {"id": f"q{i}", "question": f"question {i}", "helper_text": "h", "placeholder": "p"} for i in range(1, 6)
-    ]
-    response = json.dumps(
-        {
-            "intent_tag": "study",
-            "normalized_question": "学习问题",
-            "clarification_prompts": many_prompts,
-        }
-    )
-    clarifier.set_gateway(_make_gateway(return_value=response))
-    state = _make_state(raw_question="我学习效率很低怎么办？")
-
-    with patch("asyncio.sleep"):
-        result_state = await clarifier.clarifier_init_node(state)
-
-    result = result_state.clarification_result
-    assert result is not None
-    assert len(result.clarification_prompts) == 3
-
-
-@pytest.mark.asyncio
-async def test_clarifier_init_markdown_wrapped_json():
-    """LLM wraps JSON in markdown fences; node should strip them and parse correctly."""
-    wrapped = f"```json\n{_VALID_INIT_RESPONSE}\n```"
-    clarifier.set_gateway(_make_gateway(return_value=wrapped))
-    state = _make_state()
-
-    with patch("asyncio.sleep"):
-        result_state = await clarifier.clarifier_init_node(state)
-
-    result = result_state.clarification_result
-    assert result is not None
+    result = _run(state, agent)
     assert result.intent_tag == "career"
 
 
-# ---------------------------------------------------------------------------
-# Phase 2 tests: clarifier_finalize_node
-# ---------------------------------------------------------------------------
+def test_phase1_agent_failure_falls_back_to_raw_question():
+    """When the agent raises, state falls back to raw question and is READY_FOR_DRAW."""
+    agent = _MockClarifierAgent(run_raises=RuntimeError("LLM down"))
+    state = _make_state()
 
+    result = _run(state, agent)
 
-@pytest.mark.asyncio
-async def test_clarifier_finalize_normal():
-    """Valid LLM response produces a well-formed ClarificationFinalizeResult."""
-    clarifier.set_gateway(_make_gateway(return_value=_VALID_FINALIZE_RESPONSE))
-    state = _make_state(
-        clarification_result=_make_clarification_result(),
-        clarification_answers={"q1": "我最近被同事排挤，感到很委屈"},
-    )
-
-    with patch("asyncio.sleep"):
-        result_state = await clarifier.clarifier_finalize_node(state)
-
-    assert result_state.finalize_result is not None
-    assert result_state.final_question == "在职业发展的十字路口，我如何找到与内心价值对齐的方向？"
-    assert result_state.finalize_result.topic == "职业发展与决策"
-    assert result_state.finalize_result.time_horizon == "未来三个月"
-    assert len(result_state.finalize_result.constraints) == 1
-
-
-@pytest.mark.asyncio
-async def test_clarifier_finalize_empty_answers():
-    """Empty clarification_answers: LLM still runs and a result is stored."""
-    clarifier.set_gateway(_make_gateway(return_value=_VALID_FINALIZE_RESPONSE))
-    state = _make_state(
-        clarification_result=_make_clarification_result(intent_tag="relationship"),
-        clarification_answers={},
-    )
-
-    with patch("asyncio.sleep"):
-        result_state = await clarifier.clarifier_finalize_node(state)
-
-    assert result_state.finalize_result is not None
-    assert result_state.final_question != ""
-
-
-@pytest.mark.asyncio
-async def test_clarifier_finalize_no_clarification_result():
-    """When Phase 1 result is absent, Phase 2 uses global fallback without calling LLM."""
-    gw = _make_gateway(return_value=_VALID_FINALIZE_RESPONSE)
-    clarifier.set_gateway(gw)
-    state = _make_state(clarification_result=None)
-
-    with patch("asyncio.sleep"):
-        result_state = await clarifier.clarifier_finalize_node(state)
-
-    gw.run.assert_not_called()
-    assert result_state.finalize_result is not None
-    assert result_state.final_question != ""
-
-
-@pytest.mark.asyncio
-async def test_clarifier_finalize_bad_json():
-    """Malformed LLM response in Phase 2: falls back to the normalized question."""
-    clarifier.set_gateway(_make_gateway(return_value="not valid json"))
-    state = _make_state(
-        clarification_result=_make_clarification_result(normalized_question="我面临选择时应如何决策？"),
-        clarification_answers={"q1": "关于职业选择"},
-    )
-
-    with patch("asyncio.sleep"):
-        result_state = await clarifier.clarifier_finalize_node(state)
-
-    assert result_state.finalize_result is not None
-    assert result_state.final_question == "我面临选择时应如何决策？"
-
-
-@pytest.mark.asyncio
-async def test_clarifier_finalize_gateway_failure_retries_then_falls_back():
-    """Gateway always raises during Phase 2; retries 3 times then falls back."""
-    gw = _make_gateway(side_effect=ConnectionError("API unreachable"))
-    clarifier.set_gateway(gw)
-    state = _make_state(
-        clarification_result=_make_clarification_result(normalized_question="我如何在个人成长中取得进步？"),
-        clarification_answers={"q1": "我想提升领导力"},
-    )
-
-    with patch("asyncio.sleep") as mock_sleep:
-        result_state = await clarifier.clarifier_finalize_node(state)
-
-    assert gw.run.call_count == 3
-    assert mock_sleep.call_count == 2
-    assert result_state.finalize_result is not None
-    assert result_state.final_question == "我如何在个人成长中取得进步？"
+    assert result.status is WorkflowStatus.READY_FOR_DRAW
+    assert result.normalized_question == state.raw_question
+    assert len(result.trace_events) == 1
+    assert result.trace_events[0].event_status is TraceEventStatus.FALLBACK
 
 
 # ---------------------------------------------------------------------------
-# Schema / intent_tag validation tests
+# Phase 2 tests: finalization with clarification answers
+# ---------------------------------------------------------------------------
+
+
+def test_phase2_resume_with_answers_produces_ready_state():
+    """When state is CLARIFYING with answers, Phase 2 runs and produces READY_FOR_DRAW."""
+    agent = _MockClarifierAgent()
+    state = _make_state(
+        status=WorkflowStatus.CLARIFYING,
+        normalized_question="我在职场中遇到了困难，应该如何应对？",
+        intent_tag="career",
+        clarification_answers={"q1": "我想了解职业方向的选择"},
+    )
+
+    result = _run(state, agent)
+
+    assert result.status is WorkflowStatus.READY_FOR_DRAW
+    assert result.normalized_question == _VALID_FINALIZE_OUTPUT.reframed_question
+    assert agent.run_call_count == 0
+    assert agent.finalize_call_count == 1
+
+
+def test_phase2_finalize_failure_falls_back_to_raw_question():
+    """When finalize raises, the node falls back to raw_question and is still READY_FOR_DRAW."""
+    agent = _MockClarifierAgent(finalize_raises=RuntimeError("API unreachable"))
+    raw = "我最近工作不顺，该怎么办？"
+    state = _make_state(
+        status=WorkflowStatus.CLARIFYING,
+        raw_question=raw,
+        normalized_question="我在职场遇到困难",
+        intent_tag="career",
+        clarification_answers={"q1": "some answer"},
+    )
+
+    result = _run(state, agent)
+
+    assert result.status is WorkflowStatus.READY_FOR_DRAW
+    # fallback overwrites normalized_question with raw_question (effective_question or raw_question)
+    assert result.normalized_question == raw
+
+
+def test_phase2_uses_existing_intent_tag_from_state():
+    """Phase 2 reads intent_tag from state, not from agent.run()."""
+    agent = _MockClarifierAgent()
+    state = _make_state(
+        status=WorkflowStatus.CLARIFYING,
+        normalized_question="关系问题",
+        intent_tag="relationship",
+        clarification_answers={"q1": "我和伴侣关系出现了问题"},
+    )
+
+    _run(state, agent)
+
+    assert agent.run_call_count == 0
+    assert agent.finalize_call_count == 1
+
+
+# ---------------------------------------------------------------------------
+# Trace event tests
+# ---------------------------------------------------------------------------
+
+
+def test_trace_event_recorded_on_success():
+    """A single SUCCEEDED trace event is appended on a normal Phase 1 call."""
+    agent = _MockClarifierAgent()
+    state = _make_state()
+    result = _run(state, agent)
+    assert len(result.trace_events) == 1
+    assert result.trace_events[0].event_status is TraceEventStatus.SUCCEEDED
+    assert result.trace_events[0].step_name == "clarifier"
+
+
+def test_trace_event_payload_contains_phase():
+    """Trace event payload includes a 'phase' key identifying the execution path."""
+    agent = _MockClarifierAgent()
+    state = _make_state()
+    result = _run(state, agent)
+    assert "phase" in result.trace_events[0].payload
+
+
+# ---------------------------------------------------------------------------
+# Intent tag validation
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize("intent_tag", ["career", "relationship", "study", "emotion", "growth"])
-def test_intent_tag_all_valid_values_accepted(intent_tag: str):
-    """Every legal IntentTag value is accepted by ClarificationResult."""
-    result = schemas.ClarificationResult(
-        session_id="s1",
-        original_question="q",
-        normalized_question="q",
-        intent_tag=intent_tag,  # type: ignore[arg-type]
-        clarification_prompts=[],
+def test_all_valid_intent_tags_accepted(intent_tag: str):
+    """Every valid intent tag can be stored in ClarifierOutput."""
+    output = ClarifierOutput(
+        normalized_question="test",
+        intent_tag=intent_tag,
+        clarification_required=False,
     )
-    assert result.intent_tag == intent_tag
-
-
-def test_intent_tag_invalid_value_raises():
-    """An unrecognised intent_tag raises Pydantic ValidationError at the schema level."""
-    from pydantic import ValidationError
-
-    with pytest.raises(ValidationError):
-        schemas.ClarificationResult(
-            session_id="s1",
-            original_question="q",
-            normalized_question="q",
-            intent_tag="invalid",  # type: ignore[arg-type]
-            clarification_prompts=[],
-        )
+    assert output.intent_tag == intent_tag

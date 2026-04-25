@@ -15,7 +15,12 @@ from agent.schemas.clarifier import (
     ClarifierOutput,
 )
 from agent.schemas.draw import DrawCard, DrawInput, DrawOutput
-from agent.schemas.safety import LLMSafetyCheckInput, LLMSafetyCheckOutput
+from agent.schemas.safety import (
+    LLMInputSecurityCheckInput,
+    LLMInputSecurityCheckOutput,
+    LLMSafetyCheckInput,
+    LLMSafetyCheckOutput,
+)
 from agent.schemas.synthesis import SynthesisInput, SynthesisOutput
 from backend.app.domain.enums import CardOrientation, CardPosition
 
@@ -37,7 +42,7 @@ _FENCE_RE = re.compile(r"```(?:json)?\s*([\s\S]*?)```", re.IGNORECASE)
 
 
 def _parse_json(raw: str) -> dict:
-    """ 去除 Markdown 代码围栏后解析 JSON 字符串。"""
+    """去除 Markdown 代码围栏后解析 JSON 字符串。"""
     match = _FENCE_RE.search(raw)
     text = match.group(1) if match else raw
     return json.loads(text.strip())
@@ -248,6 +253,111 @@ class LLMSynthesisAgent:
             except Exception as exc:
                 last_exc = exc
         raise RuntimeError(f"SynthesisAgent failed after {_MAX_RETRIES} attempts") from last_exc
+
+
+class LLMPreInputSecurityAgent:
+    """基于 LLM 的用户输入安全审查 Agent，替代正则规则引擎，支持中英文双语威胁检测。
+
+    检测类型：prompt_injection、secret_exfiltration、role_escalation、instruction_override、suspicious_content。
+    仅检测针对 AI 系统的攻击意图，不对塔罗咨询内容本身作出安全判断。
+    """
+
+    def __init__(self, gateway: ModelGateway) -> None:
+        self._gateway = gateway
+        self._system_prompt = load_prompt("security/pre_input_security_prompt")
+
+    def check(self, payload: LLMInputSecurityCheckInput) -> LLMInputSecurityCheckOutput:
+        """对用户原始输入进行安全检查，返回处置动作和风险评估。
+
+        temperature=0.0 确保评估结果稳定一致。
+        若 action 不在合法范围内，保守地视为 continue（避免误拦截）。
+        """
+        user_prompt = self._system_prompt.replace(
+            '"{content}"', json.dumps(payload.content, ensure_ascii=False)
+        ).replace('"{locale}"', json.dumps(payload.locale, ensure_ascii=False))
+        last_exc: Exception | None = None
+        for _ in range(_MAX_RETRIES):
+            try:
+                response = self._gateway.run(
+                    user_prompt,
+                    temperature=0.0,
+                    response_format={"type": "json_object"},
+                    generation_name="pre_input_security_llm",
+                )
+                data = _parse_json(response.content)
+                action = data.get("action", "continue").lower()
+                if action not in ("continue", "rewrite", "block"):
+                    action = "continue"
+                risk_level = data.get("risk_level", "LOW").upper()
+                if risk_level not in ("LOW", "MEDIUM", "HIGH"):
+                    risk_level = "LOW"
+                return LLMInputSecurityCheckOutput(
+                    action=action,
+                    risk_type=data.get("risk_type", "safe"),
+                    risk_level=risk_level,
+                    sanitized_content=data.get("sanitized_content"),
+                    reasoning=data.get("reasoning", ""),
+                )
+            except Exception as exc:
+                last_exc = exc
+        raise RuntimeError(f"LLMPreInputSecurityAgent failed after {_MAX_RETRIES} attempts") from last_exc
+
+
+class LLMIntermediateSecurityAgent:
+    """基于 LLM 的智能体间内容安全审查 Agent，检查抽牌节点生成的解读文本。
+
+    检测类型：prompt_injection（防止解读文本劫持综合节点）、harmful_content、
+    professional_override（超出塔罗范围的专业建议）、suspicious_formatting。
+    """
+
+    def __init__(self, gateway: ModelGateway) -> None:
+        self._gateway = gateway
+        self._system_prompt = load_prompt("security/intermediate_security_prompt")
+
+    def check(
+        self,
+        payload: LLMInputSecurityCheckInput,
+        *,
+        card_interpretations: list[str] | None = None,
+        question: str = "",
+    ) -> LLMInputSecurityCheckOutput:
+        """对智能体生成的解读内容进行安全检查。
+
+        card_interpretations 优先；若未提供则将 payload.content 作为单条解读处理。
+        temperature=0.0 确保评估确定性。
+        """
+        interpretations = card_interpretations or [payload.content]
+        user_prompt = (
+            self._system_prompt.replace("{card_interpretations}", json.dumps(interpretations, ensure_ascii=False))
+            .replace('"{question}"', json.dumps(question or payload.content[:200], ensure_ascii=False))
+            .replace('"{locale}"', json.dumps(payload.locale, ensure_ascii=False))
+        )
+        last_exc: Exception | None = None
+        for _ in range(_MAX_RETRIES):
+            try:
+                response = self._gateway.run(
+                    user_prompt,
+                    temperature=0.0,
+                    response_format={"type": "json_object"},
+                    generation_name="intermediate_security_llm",
+                )
+                data = _parse_json(response.content)
+                action = data.get("action", "continue").lower()
+                if action not in ("continue", "rewrite", "block"):
+                    action = "continue"
+                risk_level = data.get("risk_level", "LOW").upper()
+                if risk_level not in ("LOW", "MEDIUM", "HIGH"):
+                    risk_level = "LOW"
+                return LLMInputSecurityCheckOutput(
+                    action=action,
+                    risk_type=data.get("risk_type", "safe"),
+                    risk_level=risk_level,
+                    sanitized_content=data.get("sanitized_content"),
+                    reasoning=data.get("reasoning", ""),
+                )
+            except Exception as exc:
+                last_exc = exc
+        raise RuntimeError(f"LLMIntermediateSecurityAgent failed after {_MAX_RETRIES} attempts") from last_exc
 
 
 class LLMSafetyAgent:

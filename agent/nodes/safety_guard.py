@@ -265,9 +265,8 @@ def execute_safety_guard_step(
     """Check synthesis output against content policy and write SafetyReviewOutput.
 
     Flow:
-    1. HIGH keyword hit → block immediately (rule-based, no LLM needed).
-    2. MEDIUM keyword hit OR no keyword hit → LLM semantic evaluation when available.
-    3. No LLM → fall back to rule-based MEDIUM/LOW classification.
+    1. LLM semantic evaluation when available (covers all risk levels).
+    2. No LLM → rule-based keyword fallback for MEDIUM/LOW classification.
     """
     with observer.observe_step(
         step_name="safety_guard",
@@ -306,58 +305,30 @@ def execute_safety_guard_step(
         synth = state.synthesis_output
         scan_text = synth.summary + "\n" + synth.action_advice
 
-        # --- Step 1: Rule-based HIGH risk — always block, never delegate to LLM ---
-        high_hits = _scan(scan_text, _HIGH_RISK_KEYWORDS)
-        if high_hits:
-            state.safety_output = SafetyReviewOutput(
-                risk_level=RiskLevel.HIGH,
-                action_taken=SafetyAction.BLOCK_AND_FALLBACK,
-                safe_summary=_BLOCK_SAFE_SUMMARY,
-                safe_action_advice="",
-                safe_reflection_question="",
-                review_notes=f"高风险内容已拦截，命中关键词: {', '.join(high_hits)}",
-            )
-            state.status = WorkflowStatus.SAFE_FALLBACK_RETURNED
-            state.completed_at = datetime.now(UTC)
-            state.trace_events.append(
-                trace_event_factory(
-                    step_name="safety_guard",
-                    event_status=TraceEventStatus.FALLBACK,
-                    attempt_no=1,
-                    started=started,
-                    error_code="HIGH_RISK_CONTENT",
-                    payload={"risk_level": "HIGH", "action_taken": "BLOCK_AND_FALLBACK", "method": "rules"},
-                )
-            )
-            observation.failure(
-                error_code="HIGH_RISK_CONTENT",
-                message="High-risk content blocked by rules.",
-                metadata={"hits": high_hits},
-            )
-            trace_logger(state=state, reading_id=state.reading_id, only_latest=True)
-            return state
-
-        # --- Step 2: LLM semantic evaluation for MEDIUM keyword hits and clean content ---
-        medium_hits = _scan(scan_text, _MEDIUM_RISK_KEYWORDS)
-
         if safety_agent is not None:
             try:
                 llm_result = safety_agent.evaluate(
                     LLMSafetyCheckInput(
                         synthesis_text=scan_text,
                         question=state.raw_question or "",
-                        keyword_hits=medium_hits,
+                        keyword_hits=[],
                     )
                 )
                 effective_risk = llm_result.risk_level
                 review_notes = f"LLM评估: {llm_result.reasoning}"
             except Exception:
-                # LLM failure degrades gracefully to rule-based result
+                medium_hits = _scan(scan_text, _MEDIUM_RISK_KEYWORDS)
                 effective_risk = "MEDIUM" if medium_hits else "LOW"
                 review_notes = "LLM评估不可用，降级为规则判断"
         else:
-            effective_risk = "MEDIUM" if medium_hits else "LOW"
-            review_notes = None
+            high_hits = _scan(scan_text, _HIGH_RISK_KEYWORDS)
+            if high_hits:
+                effective_risk = "HIGH"
+                review_notes = f"规则判断高风险，命中关键词: {', '.join(high_hits)}"
+            else:
+                medium_hits = _scan(scan_text, _MEDIUM_RISK_KEYWORDS)
+                effective_risk = "MEDIUM" if medium_hits else "LOW"
+                review_notes = None
 
         if effective_risk == "HIGH":
             state.safety_output = SafetyReviewOutput(
@@ -377,12 +348,16 @@ def execute_safety_guard_step(
                     attempt_no=1,
                     started=started,
                     error_code="HIGH_RISK_CONTENT",
-                    payload={"risk_level": "HIGH", "action_taken": "BLOCK_AND_FALLBACK", "method": "llm"},
+                    payload={
+                        "risk_level": "HIGH",
+                        "action_taken": "BLOCK_AND_FALLBACK",
+                        "method": "llm" if safety_agent is not None else "rules",
+                    },
                 )
             )
             observation.failure(
                 error_code="HIGH_RISK_CONTENT",
-                message="High-risk content blocked by LLM.",
+                message="High-risk content blocked.",
             )
             trace_logger(state=state, reading_id=state.reading_id, only_latest=True)
             return state

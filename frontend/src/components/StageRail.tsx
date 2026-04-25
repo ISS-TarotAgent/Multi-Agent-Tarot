@@ -1,10 +1,11 @@
 import type { FlowStage } from "../types";
 
 const STAGES: Array<{ id: Exclude<FlowStage, "history">; label: string; desc: string }> = [
-  { id: "intake", label: "01 Intake", desc: "Capture the original question" },
-  { id: "clarify", label: "02 Clarify", desc: "Add context and constraints" },
+  { id: "intake", label: "01 Intake", desc: "Describe your question or situation" },
+  { id: "clarify", label: "02 Clarify", desc: "Add context so the agents can focus" },
   { id: "draw", label: "03 Draw", desc: "Reveal the three-card spread" },
-  { id: "result", label: "04 Result", desc: "Review synthesis and guidance" }
+  { id: "result", label: "04 Result", desc: "Read the synthesis and card guidance" },
+  { id: "fallback", label: "Safety", desc: "Question could not be processed" },
 ];
 
 interface StageRailProps {
@@ -17,9 +18,9 @@ export function StageRail({ activeStage, onOpenHistory }: StageRailProps) {
     <aside className="stage-rail">
       <div className="stage-rail__intro">
         <p className="eyebrow">Tarot Reflection Flow</p>
-        <h2>Multi-Agent Reflection Flow</h2>
+        <h2>Multi-Agent Reading</h2>
         <p>
-          The README defines five frontend pages. This sidebar turns them into one continuous single-page flow.
+          Your question passes through a pipeline of AI agents — security, clarification, card draw, synthesis, and safety review.
         </p>
       </div>
 

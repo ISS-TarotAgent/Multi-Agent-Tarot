@@ -25,6 +25,7 @@ class CreateSessionResponse(ApiSchema):
 
 class SubmitQuestionRequest(ApiSchema):
     raw_question: str
+    skip_clarification: bool = False
 
     @field_validator("raw_question")
     @classmethod
