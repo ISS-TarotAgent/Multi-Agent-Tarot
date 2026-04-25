@@ -57,13 +57,14 @@
 
 **本系统核心能力（✅ 已实现）:**
 
-- ✅ **Clarification**：对用户模糊问题进行澄清（LLM 驱动，支持多轮）
-- ✅ **Card Draw & Interpretation**：执行抽牌并生成牌义解释（含 keywords / caution_note / reflection_question）
-- ✅ **Synthesis**：基于多张牌生成综合洞察与行动建议
-- ✅ **Safety Review**：对输出进行安全审查与风险修正（LLM 语义评估，规则引擎兜底，三级风险）
-- ✅ **Trace Logging**：结构化 JSON 日志 + Langfuse 全链路追踪
-- ✅ **Frontend Interaction**：通过 Web UI 展示完整使用流程
-- ✅ **Agent Cybersecurity**：LLM 驱动的三层安全检测（输入注入、Agent 间内容审查、输出安全审查），各层均有规则引擎兜底
+- ✅ **Clarification**：对用户模糊问题进行澄清（LLM 驱动，两阶段：意图识别 + 问题重构）
+- ✅ **Card Draw & Interpretation**：从 78 张 RWS 牌库随机抽取三张（支持逆位），每张牌独立 LLM 解读（含 keywords / caution_note / reflection_question）
+- ✅ **Synthesis**：基于三张牌综合生成洞察、行动建议与反思问题
+- ✅ **Safety Review**：三层安全审查，LLM 语义评估优先、规则引擎兜底，三级风险处理（PASSTHROUGH / REWRITE / BLOCK_AND_FALLBACK）
+- ✅ **Trace Logging**：结构化 JSON 日志 + Langfuse 全链路追踪（Trace → Span → Generation）
+- ✅ **Frontend Interaction**：六阶段 Web UI（问题输入 → 澄清 → 抽牌 → 结果 → 历史 → 安全回退）
+- ✅ **Agent Cybersecurity**：LLM 驱动的三层安全检测（Pre-Input / Intermediate / Safety Guard），各层均有规则引擎兜底
+- ✅ **Promptfoo Evals**：47+ 测试用例覆盖正常流程、澄清流程、安全拦截、中风险改写
 
 ## 5.系统角色划分
 
@@ -87,7 +88,11 @@
 
 * **Synthesis Agent: 负责综合分析与建议生成**
 
-* **Safety Guard Agent: 负责风险识别,安全审查以及输出修正**
+* **Pre-Input Security Agent: 负责用户输入的安全检测（LLM + 规则引擎兜底）**
+
+* **Intermediate Security Agent: 负责 Agent 间内容传递的安全审查（防注入）**
+
+* **Safety Guard Agent: 负责最终输出的风险识别与内容修正（LLM + 关键词规则兜底）**
 
 * **Model Gateway: 统一管理模型调用,参数和日志**
 
@@ -139,15 +144,16 @@
 project-root/
 ├── README.md
 ├── Developer-Guide.md      # 开发者指南（快速启动、架构说明、各模块开发规范）
-├── frontend/               # React + TypeScript UI
-├── backend/                # FastAPI + SQLAlchemy + Alembic
-├── agent/                  # LangGraph 工作流 + LLM Agents
-├── prompts/                # Prompt 模板文件（独立于代码管理）
-├── evals/                  # Promptfoo eval 套件
+├── DEMO-SCRIPT.md          # Demo 录屏脚本
+├── frontend/               # React + TypeScript UI（6 阶段状态机）
+├── backend/                # FastAPI + SQLAlchemy + Alembic（3 次迁移）
+├── agent/                  # LangGraph 工作流 + 6 个 LLM Agent
+├── prompts/                # Prompt 模板文件（9 个 .md 文件，独立于代码管理）
+├── evals/                  # Promptfoo eval 套件（47+ 测试用例）
 ├── docs/                   # 设计文档
 ├── Docker/
 │   └── docker-compose.yml  # 全栈编排（postgres + backend + frontend + langfuse）
-└── .github/workflows/      # GitHub Actions CI
+└── .github/workflows/      # GitHub Actions CI（Python + Frontend 两条流水线）
 ```
 
 ### 7.1 Frontend/
@@ -156,10 +162,12 @@ project-root/
 
 **已实现页面：**
 
-* **用户输入问题页面**
-* **澄清问题交互页面**
-* **抽牌与解读展示页面（含 caution_note / reflection_question / keywords）**
-* **综合结果展示页面**
+* **用户输入问题页面**（QuestionComposer + StageRail 进度条）
+* **澄清问题交互页面**（ClarificationPanel，单题逐步显示）
+* **抽牌与解读展示页面**（CardSpread，含 caution_note / reflection_question / keywords）
+* **综合结果展示页面**（ResultPanel，含 safety review 状态）
+* **历史解读列表页面**（HistoryPanel）
+* **安全回退页面**（FallbackInfo，高风险输入触发时展示）
 
 ### 7.2 Backend/
 
@@ -229,13 +237,19 @@ project-root/
 
 **存放 GitHub Actions 的 CI/CD 工作流配置**
 
-CI 包含四个 job：
+**Python CI**（push/PR → main / develop，路径：backend / agent / prompts）
 
 | Job | 内容 |
 |-----|------|
-| `lint` | ruff 代码风格检查 |
+| `lint` | ruff 代码风格 + 格式检查 |
 | `test-agent` | Agent 单元测试（无需数据库、无需 API key） |
 | `test-backend-unit` | Backend 单元测试（SQLite 内存库） |
-| `test-backend-integration` | Backend 集成测试，由 service container 提供 PostgreSQL |
+| `test-backend-integration` | Backend 集成测试，service container 提供 PostgreSQL |
+
+**Frontend CI**（push/PR → main / develop，路径：frontend）
+
+| Job | 内容 |
+|-----|------|
+| `build` | `npm ci` + TypeScript 类型检查 + `npm run build` |
 
 集成测试通过 `DATABASE_URL` 环境变量连接数据库；本地运行时若未设置该变量，相关测试会自动 skip。
