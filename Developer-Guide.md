@@ -1,6 +1,6 @@
 # Developer Guide — AI Tarot Multi-Agent System
 
-> **当前状态（2026-04-25）**：Docker 完整链路可用。五条 LLM Agent（Clarifier / Draw / Synthesis / PreInputSecurity / IntermediateSecurity）已接入真实 OpenAI 模型，安全层全面升级为 LLM 语义检测并保留规则引擎兜底，Langfuse v2 可观测性已集成并验证可用。
+> **当前状态（2026-04-25）**：Docker 完整链路可用。六条 LLM Agent（Clarifier / Draw / Synthesis / PreInputSecurity / IntermediateSecurity / SafetyGuard）已接入真实 OpenAI 模型，安全层全面升级为 LLM 语义检测并保留规则引擎兜底，Langfuse v2 可观测性已集成并验证可用。
 
 ---
 
@@ -75,6 +75,7 @@ docker compose down -v       # 停止并清除所有 volume（数据库重置）
 project-root/
 ├── Developer-Guide.md          # 本文档
 ├── README.md
+├── DEMO-SCRIPT.md              # 演示录屏脚本
 ├── frontend/                   # React + TypeScript UI
 │   ├── src/
 │   │   ├── components/         # CardSpread, ResultPanel, ClarificationPanel...
@@ -92,10 +93,11 @@ project-root/
 │   └── pyproject.toml
 ├── agent/                      # LangGraph 工作流 + LLM Agents
 │   ├── workflows/              # TarotReflectionWorkflow + build_llm_workflow()
-│   ├── nodes/                  # 各工作流节点
-│   ├── core/                   # ModelGateway / LLM Agents / Langfuse client / trace context
+│   ├── nodes/                  # 各工作流节点（每节点一个 execute_*_step 函数）
+│   ├── core/                   # ModelGateway / LLM Agents / Langfuse client / prompt_registry
 │   ├── schemas/                # Agent 层 Pydantic I/O 类型
-│   ├── security/               # 输入安全检测器套件
+│   ├── security/               # 规则引擎兜底：detectors / sanitizer / guards
+│   ├── data/                   # tarot_meanings.json（78 张牌数据）
 │   └── tests/                  # Agent 单元测试
 ├── prompts/                    # Prompt 模板文件（.md），被 prompt_registry.py 加载
 ├── evals/promptfoo/            # Promptfoo eval 套件
@@ -211,12 +213,33 @@ backend/app/
     └── workflow/          # TarotWorkflowState（backend ↔ agent 的唯一接口对象）
 ```
 
-### 5.2 两条主 API 路径
+### 5.2 主要 API 路径
 
-| 路径                                                                    | 说明                   |
-| --------------------------------------------------------------------- | -------------------- |
-| `POST /api/v1/readings`                                               | 单步模式：一次提交问题，等待完整解读结果 |
-| `POST /api/v1/sessions` + `POST /api/v1/sessions/{id}/question` + ... | 多步 Session 模式：支持多轮澄清 |
+**单步 Reading**
+
+| 路径 | 说明 |
+|------|------|
+| `POST /api/v1/readings` | 一次提交问题，等待完整解读结果 |
+| `GET /api/v1/readings/{reading_id}` | 查询已完成的解读 |
+
+**多步 Session（支持多轮澄清）**
+
+| 路径 | 说明 |
+|------|------|
+| `POST /api/v1/sessions` | 创建新会话 |
+| `POST /api/v1/sessions/{id}/question` | 提交问题（触发 Pre-Input Security + Clarifier） |
+| `POST /api/v1/sessions/{id}/clarifications` | 提交澄清回答 |
+| `POST /api/v1/sessions/{id}/run` | 执行解读（Draw → Synthesis → Safety Guard） |
+| `GET /api/v1/sessions/{id}` | 获取会话快照 |
+| `GET /api/v1/sessions/{id}/result` | 获取解读结果 |
+| `GET /api/v1/sessions/{id}/history` | 获取会话历史消息 |
+
+**其他**
+
+| 路径 | 说明 |
+|------|------|
+| `GET /api/v1/health` | 系统健康检查（DB / OpenAI / Langfuse 状态） |
+| `GET /api/v1/readings/{id}/trace` | 获取工作流 trace 事件列表 |
 
 ### 5.3 deps.py — 核心注入点
 
@@ -246,24 +269,26 @@ docker compose exec backend python -m alembic upgrade head
 
 ### 6.1 工作流入口
 
-backend 通过 `TarotReflectionWorkflow` 的三个方法驱动 agent：
+backend 通过 `TarotReflectionWorkflow` 的四个方法驱动 agent：
 
-| 方法                                          | 调用时机            | 执行的节点                                                                                    |
-| ------------------------------------------- | --------------- | ---------------------------------------------------------------------------------------- |
-| `workflow.run(...)`                         | 单步 Reading      | Pre-Input Security → Clarifier → Draw → Intermediate Security → Synthesis → Safety Guard |
-| `workflow.evaluate_question(...)`           | 多步 Session 问题评估 | Pre-Input Security + Clarifier                                                           |
-| `workflow.continue_from_ready_state(state)` | 多步 Session 执行阶段 | Draw → Intermediate Security → Synthesis → Safety Guard                                  |
+| 方法 | 调用时机 | 执行的节点 |
+|------|---------|-----------|
+| `workflow.run(...)` | 单步 Reading | Pre-Input Security → Clarifier → Draw → Intermediate Security → Synthesis → Safety Guard |
+| `workflow.evaluate_question(...)` | 多步 Session 问题评估 | Pre-Input Security + Clarifier |
+| `workflow.resume_clarification(state)` | 多步 Session 澄清完成后 | Clarifier finalize（整合用户回答，重构问题） |
+| `workflow.continue_from_ready_state(state)` | 多步 Session 执行阶段 | Draw → Intermediate Security → Synthesis → Safety Guard |
 
 ### 6.2 工作流状态机
 
 ```
 CREATED
-  → QUESTION_RECEIVED   (evaluate_question 初始化)
-  → CLARIFYING          (Clarifier 判断问题模糊)
-  → READY_FOR_DRAW      (Clarifier 判断问题清晰)
-  → DRAW_COMPLETED      (Draw 节点成功)
-  → SYNTHESIS_COMPLETED (Synthesis 节点成功)
-  → COMPLETED           (Safety Guard 通过)
+  → QUESTION_RECEIVED    (evaluate_question 初始化)
+  → CLARIFYING           (Clarifier 判断问题模糊，等待用户回答)
+  → READY_FOR_DRAW       (Clarifier 判断问题清晰 / finalize 完成)
+  → DRAW_COMPLETED       (Draw 节点成功)
+  → SYNTHESIS_COMPLETED  (Synthesis 节点成功)
+  → SAFETY_REVIEWED      (Safety Guard 完成评估)
+  → COMPLETED            (全流程通过)
 
 任何节点失败 → SAFE_FALLBACK_RETURNED
 ```
@@ -276,7 +301,7 @@ CREATED
 | `clarifier`             | `nodes/clarifier.py`             | LLM (`LLMClarifierAgent`)                   | ✅ 可用              |
 | `draw_and_interpret`    | `nodes/draw_and_interpret.py`    | LLM (`LLMDrawAgent`)                        | ✅ 可用（抽牌随机性依赖 LLM） |
 | `intermediate_security` | `nodes/intermediate_security.py` | LLM (`LLMIntermediateSecurityAgent`)，规则引擎兜底 | ✅ 可用              |
-| `synthesis`             | 内联在 `orchestrator.py`            | LLM (`LLMSynthesisAgent`)                   | ✅ 可用（无独立节点文件）     |
+| `synthesis`             | `nodes/synthesis.py`             | LLM (`LLMSynthesisAgent`)                   | ✅ 可用              |
 | `safety_guard`          | `nodes/safety_guard.py`          | LLM (`LLMSafetyAgent`)，关键词规则兜底              | ✅ 可用              |
 
 ### 6.4 LLM Agent 实现
@@ -284,11 +309,12 @@ CREATED
 所有 LLM Agent 均在 `agent/core/llm_agents.py`：
 
 ```python
-class LLMClarifierAgent:              # temperature=0.2，归一化 + 澄清判断
-class LLMDrawAgent:                   # temperature=1.0，抽牌 + 解读
-class LLMSynthesisAgent:              # temperature=0.7，综合分析
-class LLMPreInputSecurityAgent:       # temperature=0.0，用户输入安全检测，规则引擎兜底
-class LLMIntermediateSecurityAgent:   # temperature=0.0，Agent 间内容审查，规则引擎兜底
+class LLMClarifierAgent:              # temperature=0.2 / 0.3，意图识别 + 问题重构
+class LLMDrawAgent:                   # temperature=0.7，抽牌 + 单牌解读（78 张 RWS 牌库）
+class LLMSynthesisAgent:              # temperature=0.7，综合三张牌生成建议
+class LLMPreInputSecurityAgent:       # temperature=0.0，用户输入语义检测，规则引擎兜底
+class LLMIntermediateSecurityAgent:   # temperature=0.0，Draw Agent 输出内容审查，规则引擎兜底
+class LLMSafetyAgent:                 # temperature=0.0，Synthesis 输出语义安全评估，关键词规则兜底
 ```
 
 通过 `build_llm_workflow()` 工厂函数统一构建并注入 backend：
@@ -303,6 +329,7 @@ def build_llm_workflow(*, observer=None) -> TarotReflectionWorkflow:
         synthesis_agent=LLMSynthesisAgent(gateway),
         pre_input_security_agent=LLMPreInputSecurityAgent(gateway),
         intermediate_security_agent=LLMIntermediateSecurityAgent(gateway),
+        safety_agent=LLMSafetyAgent(gateway),
         observer=observer,
     )
 ```
@@ -354,17 +381,21 @@ prompts/
 
 ### 6.8 Agent 协议接口（Protocol）
 
-新 Agent 无需继承任何基类，只需满足对应 Protocol 的 `.run()` 签名：
+新 Agent 无需继承任何基类，只需满足对应 Protocol 的方法签名：
 
 ```python
 class ClarifierAgent(Protocol):
     def run(self, payload: ClarifierInput) -> ClarifierOutput: ...
+    def finalize(self, payload: ClarifierFinalizeInput) -> ClarifierFinalizeOutput: ...
 
 class DrawAgent(Protocol):
     def run(self, payload: DrawInput) -> DrawOutput: ...
 
 class SynthesisAgent(Protocol):
     def run(self, payload: SynthesisInput) -> SynthesisOutput: ...
+
+class SafetyAgent(Protocol):
+    def evaluate(self, payload: LLMSafetyCheckInput) -> LLMSafetyCheckOutput: ...
 ```
 
 ---
@@ -381,36 +412,51 @@ class SynthesisAgent(Protocol):
 
 ```
 frontend/src/
-├── App.tsx                 # 根组件，控制主流程状态机
-├── types.ts                # 前端领域类型（TarotCardInsight / IntentTag 等）
-├── services/api.ts         # REST 调用封装 + 后端类型映射（mapCard / mapReading）
+├── App.tsx                     # 根组件，控制 6 阶段状态机（intake / clarify / draw / result / history / fallback）
+├── types.ts                    # 前端领域类型（SessionDraft / TarotCardInsight / ReadingResult 等）
+├── services/api.ts             # REST 调用封装（startSession / submitClarification / completeReading / loadHistory）
+├── data/                       # 塔罗牌本地元数据
 ├── components/
-│   ├── QuestionInput.tsx   # 用户问题输入
-│   ├── ClarificationPanel.tsx  # 澄清问题展示与回答
-│   ├── CardSpread.tsx      # 三张牌布局展示（含 caution_note / reflection_prompt）
-│   └── ResultPanel.tsx     # 综合结果（synthesis + 每张牌详情）
-└── index.css               # 全局样式
+│   ├── QuestionComposer.tsx    # 用户问题输入
+│   ├── ClarificationPanel.tsx  # 澄清问题展示与回答（单题逐步显示）
+│   ├── CardSpread.tsx          # 三张牌布局展示（含 caution_note / reflection_question / keywords）
+│   ├── ResultPanel.tsx         # 综合结果（synthesis + 每张牌详情）
+│   ├── StageRail.tsx           # 顶部流程进度指示器
+│   └── HistoryPanel.tsx        # 历史解读列表
+└── index.css                   # 全局样式
 ```
 
 ### 7.3 关键数据流
 
 ```
 用户输入问题
-  → api.createReading()              POST /api/v1/readings
-  → 若 status=CLARIFYING             展示 ClarificationPanel
-  → 用户回答澄清问题（Session 路径）   POST /api/v1/sessions/{id}/clarifications
+  → api.startSession()               POST /api/v1/readings
+  → status=CLARIFYING                展示 ClarificationPanel（多轮澄清）
+  → api.submitClarification()        POST /api/v1/sessions/{id}/clarifications
+  → api.completeReading()            POST /api/v1/sessions/{id}/run
   → status=COMPLETED                 展示 CardSpread + ResultPanel
+
+  → status=SAFE_FALLBACK_RETURNED    展示 FallbackInfo（保护性提示）
+
+  → api.loadHistory()                GET /api/v1/sessions + history
+  →                                  展示 HistoryPanel（历史解读）
 ```
 
 ### 7.4 后端字段映射
 
-`services/api.ts` 中的 `mapCard()` 负责把后端字段映射为前端类型：
+`services/api.ts` 负责将后端响应映射为前端类型：
 
 ```typescript
 // BackendCard → TarotCardInsight
 keywords:         c.keywords ?? []
 reflectionPrompt: c.reflection_question ?? fallback
 cautionNote:      c.caution_note ?? undefined
+
+// ReadingResult 是判别联合类型
+type ReadingResult =
+  | { type: "clarifying"; sessionId: string; prompts: ClarificationPrompt[] }
+  | { type: "complete";   reading: ReadingRecord }
+  | { type: "fallback";   info: FallbackInfo }
 ```
 
 ---
@@ -424,13 +470,20 @@ Langfuse 追踪采用 **Trace → Span → Generation** 三层结构，通过 Py
 ```
 Trace（一次 reading 操作）
   └── Span: pre_input_security
+  │     └── Generation: pre_input_security_llm    ← LLM 语义检测（有 agent 时）
   └── Span: clarifier
+  │     └── Generation: clarifier_init
+  │     └── Generation: clarifier_finalize         ← 有澄清回答时
   └── Span: draw_and_interpret
-  │     └── Generation: draw_interpret_past     ← ModelGateway 自动记录
+  │     └── Generation: draw_interpret_past        ← ModelGateway 自动记录
   │     └── Generation: draw_interpret_present
   │     └── Generation: draw_interpret_future
+  └── Span: intermediate_security
+  │     └── Generation: intermediate_security_llm  ← LLM 语义检测（有 agent 时）
   └── Span: synthesis
-        └── Generation: synthesis
+  │     └── Generation: synthesis
+  └── Span: safety_guard
+        └── Generation: safety_guard_llm           ← LLM 语义评估（有 agent 时）
 ```
 
 ### 8.2 核心文件
@@ -479,11 +532,11 @@ with observer.observe_step(step_name="clarifier", as_type="chain") as obs:
 
 ### 9.1 三层安全检查
 
-| 位置  | 节点                      | 检查对象                         |
-| --- | ----------------------- | ---------------------------- |
-| 最前  | `pre_input_security`    | 用户原始输入                       |
-| 中间  | `intermediate_security` | Draw Agent 产出内容（防 agent 间注入） |
-| 最后  | `safety_guard`          | Synthesis 最终输出（关键词审查）        |
+| 位置 | 节点 | 检查对象 | 实现 |
+|------|------|---------|------|
+| 最前 | `pre_input_security` | 用户原始输入 | LLM 语义检测，兜底规则引擎 |
+| 中间 | `intermediate_security` | Draw Agent 产出内容（防 agent 间注入） | LLM 语义检测，兜底规则引擎 |
+| 最后 | `safety_guard` | Synthesis 最终输出 | LLM 语义评估，兜底关键词规则 |
 
 ### 9.2 输入安全决策
 
@@ -569,14 +622,17 @@ python -m pytest agent/tests/ -v
 
 主要测试文件：
 
-| 文件                              | 覆盖内容                 |
-| ------------------------------- | -------------------- |
-| `test_pre_input_guard.py`       | 输入安全决策逻辑             |
-| `test_sanitizer.py`             | 输入清洗                 |
-| `test_prompt_injection.py`      | 注入检测                 |
-| `test_safety_guard_node.py`     | 最终输出安全审查             |
-| `test_security_orchestrator.py` | 安全流水线整体              |
-| `test_workflow_stub.py`         | 工作流完整链路（stub agents） |
+| 文件 | 覆盖内容 |
+|------|---------|
+| `test_clarifier.py` | Clarifier 两阶段逻辑（Phase 1 / Phase 2 / fallback） |
+| `test_synthesis.py` | Synthesis 节点逻辑 |
+| `test_pre_input_guard.py` | 输入安全决策逻辑（规则引擎） |
+| `test_inter_agent_guard.py` | Agent 间内容审查（规则引擎） |
+| `test_sanitizer.py` | 输入清洗 |
+| `test_prompt_injection.py` | 注入攻击检测 |
+| `test_safety_guard_node.py` | 最终输出安全审查节点 |
+| `test_security_orchestrator.py` | 安全流水线整体流程 |
+| `test_workflow_stub.py` | 工作流完整链路（stub agents） |
 
 ### 11.3 Backend 集成测试
 
@@ -693,4 +749,15 @@ state = workflow.run(
     spread_type=SpreadType.THREE_CARD_REFLECTION,
 )
 print(state.status, [c.card_name for c in state.cards])
+```
+
+### Q：塔罗牌牌库有多少张？如何自定义？
+
+系统使用标准 **Rider-Waite-Smith 78 张**牌库（大阿尔卡那 22 张 + 小阿尔卡那 56 张），支持正位 / 逆位两种朝向。
+
+牌库数据位于 `agent/data/tarot_meanings.json`，抽牌逻辑在 `agent/core/tarot_deck.py`：
+
+```python
+# 每次 reading 固定抽 3 张（PAST / PRESENT / FUTURE），支持重现
+cards, seed = draw_cards(count=3, allow_reversed=True)
 ```
