@@ -10,6 +10,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.db.base import Base
 
+JSONB_COMPAT = JSONB().with_variant(JSON(), "sqlite")
+
 
 class SessionModel(Base):
     """Represents a single tarot reflection session."""
@@ -22,8 +24,8 @@ class SessionModel(Base):
     spread_type: Mapped[str] = mapped_column(Text, nullable=False)
     normalized_question: Mapped[str | None] = mapped_column(Text, nullable=True)
     intent_tag: Mapped[str | None] = mapped_column(Text, nullable=True)
-    clarification_prompts: Mapped[list | None] = mapped_column(JSONB, nullable=True)
-    clarification_answers: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    clarification_prompts: Mapped[list | None] = mapped_column(JSONB_COMPAT, nullable=True)
+    clarification_answers: Mapped[dict | None] = mapped_column(JSONB_COMPAT, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -119,7 +121,7 @@ class ReadingCardModel(Base):
     interpretation: Mapped[str] = mapped_column(Text, nullable=False)
     reflection_question: Mapped[str | None] = mapped_column(Text, nullable=True)
     caution_note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    keywords: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+    keywords: Mapped[list | None] = mapped_column(JSONB_COMPAT, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     reading: Mapped[ReadingModel] = relationship(back_populates="cards")

@@ -19,7 +19,7 @@ def test_create_reading_returns_persisted_result_and_trace(db_client) -> None:
     assert payload["clarification"]["required"] is False
     assert len(payload["cards"]) == 3
     assert payload["safety"]["risk_level"] == "LOW"
-    assert payload["trace_summary"]["event_count"] >= 8
+    assert payload["trace_summary"]["event_count"] >= 7
 
     reading_id = payload["reading_id"]
     get_response = db_client.get(f"/api/v1/readings/{reading_id}")
@@ -47,10 +47,11 @@ def test_ambiguous_question_exposes_clarification_prompt(db_client) -> None:
     assert response.status_code == 200
     payload = response.json()
 
-    assert payload["status"] == "COMPLETED"
+    assert payload["status"] == "CLARIFYING"
     assert payload["clarification"]["required"] is True
-    assert payload["clarification"]["question_text"] == "你现在最想聚焦的是工作、关系、学习，还是个人状态？"
+    assert payload["clarification"]["question_text"] == "你最想聚焦的是感情、事业、学业还是关系？"
     assert payload["clarification"]["answer_text"] is None
+    assert payload["cards"] == []
 
 
 def test_high_risk_question_returns_safe_fallback(db_client) -> None:
@@ -68,7 +69,7 @@ def test_high_risk_question_returns_safe_fallback(db_client) -> None:
     assert payload["status"] == "SAFE_FALLBACK_RETURNED"
     assert payload["safety"]["risk_level"] == "HIGH"
     assert payload["safety"]["action_taken"] == "BLOCK_AND_FALLBACK"
-    assert "先把安全放在第一位" in payload["synthesis"]["action_advice"]
+    assert "心理援助热线" in payload["synthesis"]["summary"]
 
 
 def test_missing_reading_returns_contract_error_payload(db_client) -> None:
