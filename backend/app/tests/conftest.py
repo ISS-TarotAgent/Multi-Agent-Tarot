@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -14,6 +15,23 @@ from app.infrastructure.config.settings import get_settings
 from app.main import create_app
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _docker_available() -> tuple[bool, str | None]:
+    try:
+        result = subprocess.run(
+            ["docker", "info"],
+            capture_output=True,
+            check=False,
+            text=True,
+            timeout=10,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+        return False, str(exc)
+
+    if result.returncode == 0:
+        return True, None
+    return False, result.stderr.strip() or result.stdout.strip() or f"docker info exited {result.returncode}"
 
 
 def _clear_runtime_caches() -> None:

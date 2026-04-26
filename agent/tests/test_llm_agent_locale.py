@@ -57,9 +57,7 @@ def test_clarifier_init_prompt_includes_locale() -> None:
         ]
     )
 
-    LLMClarifierAgent(gateway).run(
-        ClarifierInput(raw_question="Should I change jobs this year?", locale="en")
-    )
+    LLMClarifierAgent(gateway).run(ClarifierInput(raw_question="Should I change jobs this year?", locale="en"))
 
     assert 'locale: "en"' in gateway.calls[0]["user_prompt"]
 

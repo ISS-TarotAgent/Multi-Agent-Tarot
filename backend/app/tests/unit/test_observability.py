@@ -8,14 +8,14 @@ class FakeObservation:
         self,
         *,
         client: "FakeLangfuseClient",
+        observation_id: str,
         name: str,
-        as_type: str,
         input_payload: dict[str, object] | None,
         metadata: dict[str, object] | None,
     ) -> None:
         self._client = client
+        self.id = observation_id
         self.name = name
-        self.as_type = as_type
         self.input_payload = input_payload
         self.metadata = metadata
         self.updates: list[dict[str, object]] = []
@@ -30,12 +30,50 @@ class FakeObservation:
     def update(self, **kwargs: object) -> None:
         self.updates.append(kwargs)
 
+    def end(self, **kwargs: object) -> None:
+        self.update(**kwargs)
+
+    def span(
+        self,
+        *,
+        name: str,
+        input: dict[str, object] | None = None,  # noqa: A002
+        metadata: dict[str, object] | None = None,
+    ) -> "FakeObservation":
+        observation = FakeObservation(
+            client=self._client,
+            observation_id=f"span_{len(self._client.created)}",
+            name=name,
+            input_payload=input,
+            metadata=metadata,
+        )
+        self._client.created.append(observation)
+        return observation
+
 
 class FakeLangfuseClient:
     def __init__(self) -> None:
-        self.trace_id = "trace_test_123"
         self.stack: list[FakeObservation] = []
         self.created: list[FakeObservation] = []
+
+    def trace(
+        self,
+        *,
+        id: str | None = None,  # noqa: A002
+        name: str,
+        session_id: str,
+        input: dict[str, object] | None = None,  # noqa: A002
+        metadata: dict[str, object] | None = None,
+    ) -> FakeObservation:
+        observation = FakeObservation(
+            client=self,
+            observation_id=id or f"trace_{len(self.created)}",
+            name=name,
+            input_payload=input,
+            metadata=metadata | {"session_id": session_id} if metadata is not None else {"session_id": session_id},
+        )
+        self.created.append(observation)
+        return observation
 
     def start_as_current_observation(
         self,
@@ -47,8 +85,8 @@ class FakeLangfuseClient:
     ) -> FakeObservation:
         observation = FakeObservation(
             client=self,
+            observation_id=f"observation_{len(self.created)}",
             name=name,
-            as_type=as_type,
             input_payload=input,
             metadata=metadata,
         )
@@ -58,7 +96,7 @@ class FakeLangfuseClient:
     def get_current_trace_id(self) -> str | None:
         if not self.stack:
             return None
-        return self.trace_id
+        return self.stack[0].id
 
 
 def test_noop_workflow_observer_supports_nested_scopes() -> None:
@@ -92,7 +130,7 @@ def test_langfuse_workflow_observer_records_operation_and_step_payloads() -> Non
         input_payload={"question": "我应该如何处理当前的工作压力？"},
         metadata={"locale": "zh-CN"},
     ) as operation:
-        assert observer.get_current_trace_id() == "trace_test_123"
+        assert observer.get_current_trace_id() == "reading-1"
         operation.success(output={"status": "COMPLETED"})
 
         with observer.observe_step(
@@ -114,5 +152,4 @@ def test_langfuse_workflow_observer_records_operation_and_step_payloads() -> Non
         "reading_id": "reading-1",
     }
     assert client.created[0].updates[-1]["output"] == {"status": "COMPLETED"}
-    assert client.created[1].as_type == "agent"
     assert client.created[1].updates[-1]["output"] == {"clarification_required": False}

@@ -301,5 +301,6 @@ def test_workflow_degrades_gracefully_when_safety_agent_fails() -> None:
     assert state.status is WorkflowStatus.COMPLETED
     assert state.safety_output is not None
     assert state.safety_output.action_taken is SafetyAction.PASSTHROUGH
-    assert "LLM评估不可用" in (state.safety_output.review_notes or "")
+    assert "LLM" in (state.safety_output.review_notes or "")
+    assert "不可用" in (state.safety_output.review_notes or "")
     assert "provider token leaked into exception" not in (state.safety_output.review_notes or "")

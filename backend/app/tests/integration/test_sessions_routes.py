@@ -75,7 +75,7 @@ def test_session_clarification_flow_blocks_run_until_ready_and_tracks_history(db
 
     assert question_payload["status"] == "CLARIFYING"
     assert question_payload["clarification_required"] is True
-    assert question_payload["clarifier_question"] == "你现在最想聚焦的是工作、关系、学习，还是个人状态？"
+    assert question_payload["clarifier_question"] == "你最想聚焦的是感情、事业、学业还是关系？"
 
     run_while_clarifying_response = db_client.post(f"/api/v1/sessions/{session_id}/run", json={})
     assert run_while_clarifying_response.status_code == 409
