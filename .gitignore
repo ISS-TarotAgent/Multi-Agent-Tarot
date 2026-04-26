@@ -33,6 +33,12 @@ Thumbs.db
 # Claude Code memory
 .claude/
 
+# Local agent/tool state
+.ace-tool/
+.jj/
+.playwright-mcp/
+.serena/
+
 # Pytest / coverage
 .pytest_cache/
 .coverage
@@ -46,3 +52,9 @@ node_modules/
 
 # Docker volumes / local data
 *.db
+
+# Generated tarot image job artifacts
+generated/tarot-cards/
+
+# Local visual verification screenshots
+tarot-*.png

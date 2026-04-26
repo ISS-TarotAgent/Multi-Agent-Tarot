@@ -15,6 +15,7 @@
 
 - `original_question`（string）：用户的原始问题（Phase 1 标准化后的版本）。
 - `intent_tag`（string）：Phase 1 识别出的意图类别，值为以下之一：`career` / `relationship` / `study` / `emotion` / `growth`。
+- `locale`（string）：本次会话的语言环境代码，例如 `zh-CN` 或 `en`。
 - `clarification_answers`（object）：用户对澄清问题的回答，键为问题 ID（如 `q1`、`q2`、`q3`），值为用户的文字回答。若某题未作答，值为空字符串。
 
 当前输入：
@@ -23,6 +24,7 @@
 {
   "original_question": "{original_question}",
   "intent_tag": "{intent_tag}",
+  "locale": "{locale}",
   "clarification_answers": {clarification_answers}
 }
 ```
@@ -40,7 +42,9 @@
 1. **问题重构规则**：
    - 将 `original_question` 与所有非空的 `clarification_answers` 综合，形成一个完整表述。
    - 语气应保持**中性、开放**，避免预设结果（将"能否成功"改为"在……方向上的挑战与机遇"）。
-   - 保留用户的语言（中文输入输出中文，英文输入输出英文）。
+   - 所有用户可见输出字段必须与 `locale` 保持一致。
+   - 当 `locale` 为 `en` 时，`reframed_question`、`topic`、`time_horizon`、`intent`、`constraints` 必须全部使用英文。
+   - 当 `locale` 为 `zh-CN` 时，`reframed_question`、`topic`、`time_horizon`、`intent`、`constraints` 必须全部使用简体中文。
    - 重构后的问题应能独立成句，无需参考原始输入即可被理解。
 
 2. **上下文提炼规则**：

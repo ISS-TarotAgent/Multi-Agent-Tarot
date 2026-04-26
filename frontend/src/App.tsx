@@ -217,24 +217,35 @@ function App() {
 
   return (
     <div className="app-shell">
+      <div className="starfield" aria-hidden="true" />
       <div className="ambient ambient--left" />
       <div className="ambient ambient--right" />
+      <div className="ritual-compass" aria-hidden="true">
+        <span className="ritual-compass__mark ritual-compass__mark--north">N</span>
+        <span className="ritual-compass__mark ritual-compass__mark--east">E</span>
+        <span className="ritual-compass__mark ritual-compass__mark--south">S</span>
+        <span className="ritual-compass__mark ritual-compass__mark--west">W</span>
+      </div>
 
       <header className="topbar">
         <div>
-          <p className="eyebrow">AI Tarot · Multi-Agent System</p>
-          <h1 className="topbar__title">Tarot Reading</h1>
+          <p className="eyebrow">AI Tarot · Multi-Agent Oracle</p>
+          <h1 className="topbar__title">The Oracle Room</h1>
         </div>
         <div className="topbar__meta">
           <span>Three-Card Spread</span>
-          <span>Live Backend</span>
-          <span>Local History</span>
+          <span>Live Agents</span>
+          <span>Private History</span>
         </div>
       </header>
 
       <main className="workspace">
         <StageRail activeStage={stage} onOpenHistory={openHistory} />
-        <section className="content-area">{renderStage()}</section>
+        <section className="content-area">
+          <div key={stage} className="stage-surface">
+            {renderStage()}
+          </div>
+        </section>
       </main>
     </div>
   );

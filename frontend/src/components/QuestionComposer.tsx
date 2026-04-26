@@ -8,9 +8,9 @@ interface QuestionComposerProps {
 
 const SAMPLE_QUESTIONS = [
   "I am stuck between two job offers and cannot tell what to prioritize.",
-  "我不确定是否该继续这段关系，想更清楚地了解自己真正的需求。",
+  "I am unsure whether to keep investing in this relationship and want to understand my real needs more clearly.",
   "My semester rhythm has fallen apart and I want to know how to rebuild momentum.",
-  "我最近情绪很低落，感觉内耗严重，想知道怎么找回状态。",
+  "I have been feeling emotionally drained lately and want to know how to get back on track.",
 ];
 
 export function QuestionComposer({ onSubmit, isSubmitting }: QuestionComposerProps) {
@@ -75,16 +75,16 @@ export function QuestionComposer({ onSubmit, isSubmitting }: QuestionComposerPro
             className={`mode-chip ${!skipClarification ? "mode-chip--active" : ""}`}
             onClick={() => setSkipClarification(false)}
           >
-            <strong>AI 引导澄清</strong>
-            <span>让 AI 提问，帮你聚焦问题核心</span>
+            <strong>AI-Guided Clarification</strong>
+            <span>Let AI ask follow-up questions to sharpen your focus.</span>
           </button>
           <button
             type="button"
             className={`mode-chip ${skipClarification ? "mode-chip--active" : ""}`}
             onClick={() => setSkipClarification(true)}
           >
-            <strong>直接抽牌</strong>
-            <span>跳过澄清，直接进入牌阵解读</span>
+            <strong>Draw Cards Directly</strong>
+            <span>Skip clarification and go straight to the spread reading.</span>
           </button>
         </div>
 

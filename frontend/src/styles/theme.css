@@ -1,0 +1,121 @@
+:root {
+  color-scheme: dark;
+  font-family: "Josefin Sans", "Segoe UI", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text);
+  background: var(--bg);
+  --bg: oklch(12% 0.035 286);
+  --bg-deep: oklch(7% 0.026 286);
+  --surface: color-mix(in oklch, oklch(20% 0.044 286) 82%, transparent);
+  --surface-strong: color-mix(in oklch, oklch(25% 0.052 286) 92%, transparent);
+  --surface-soft: color-mix(in oklch, oklch(31% 0.06 286) 46%, transparent);
+  --border: color-mix(in oklch, oklch(78% 0.07 91) 28%, transparent);
+  --border-strong: color-mix(in oklch, oklch(81% 0.09 91) 46%, transparent);
+  --text: oklch(92% 0.025 88);
+  --text-soft: oklch(79% 0.034 92);
+  --text-muted: oklch(68% 0.034 286);
+  --gold: oklch(78% 0.13 84);
+  --gold-soft: oklch(84% 0.09 88);
+  --violet: oklch(45% 0.11 294);
+  --wine: oklch(39% 0.1 348);
+  --danger: oklch(68% 0.16 25);
+  --success: oklch(70% 0.11 158);
+  --shadow: 0 28px 90px color-mix(in oklch, var(--bg-deep) 72%, transparent);
+  --shadow-soft: 0 18px 50px color-mix(in oklch, var(--bg-deep) 48%, transparent);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(circle at 18% -8%, color-mix(in oklch, var(--wine) 42%, transparent), transparent 34rem),
+    radial-gradient(circle at 88% 12%, color-mix(in oklch, var(--violet) 54%, transparent), transparent 30rem),
+    linear-gradient(150deg, var(--bg-deep) 0%, var(--bg) 48%, oklch(10% 0.04 305) 100%);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.topbar__title,
+.panel-copy h1,
+.stage-rail h2,
+.history-card h2,
+.result-block h2,
+.tarot-card__name,
+.result-card__name,
+.tarot-card__image--fallback,
+.result-card__image--fallback {
+  margin: 0;
+  font-family: "Cinzel", "Palatino Linotype", serif;
+  letter-spacing: 0.015em;
+}
+
+.eyebrow,
+.topbar__meta span,
+.history-card__tag,
+.keyword,
+.safety-badge,
+.tarot-card__role,
+.result-card__role,
+.question-meta__label,
+.clarification-context__label {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  margin: 0 0 var(--space-sm);
+  color: var(--gold);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.field-error {
+  margin: -4px 0 0;
+  color: var(--danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

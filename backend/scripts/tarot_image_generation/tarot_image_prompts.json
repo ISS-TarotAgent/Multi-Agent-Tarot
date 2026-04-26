@@ -1,0 +1,470 @@
+[
+  {
+    "card_code": "major-fool",
+    "card_name": "The Fool",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Fool, a youthful traveler stepping toward a cliff edge with a small satchel, white rose in hand, loyal white dog at their side, bright dawn sky, distant mountains, feeling of wonder, trust, and open possibility, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-fool.png"
+  },
+  {
+    "card_code": "major-magician",
+    "card_name": "The Magician",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Magician at a ritual altar, one wand raised to the sky and one hand pointing downward, cup sword wand and pentacle laid before them, infinity symbol above the head, roses and lilies around the scene, radiant focus and manifestation, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-magician.png"
+  },
+  {
+    "card_code": "major-high-priestess",
+    "card_name": "The High Priestess",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The High Priestess seated between black and white pillars, crescent moon at her feet, veil of pomegranates behind her, sacred scroll in hand, moonlit silence, hidden knowledge, serene intuition, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-high-priestess.png"
+  },
+  {
+    "card_code": "major-empress",
+    "card_name": "The Empress",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Empress on a cushioned throne in a lush meadow, crown of stars, wheat field and flowing river nearby, venus motif, abundant garden, maternal warmth, creative fertility, rich natural beauty, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-empress.png"
+  },
+  {
+    "card_code": "major-emperor",
+    "card_name": "The Emperor",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Emperor seated on a stone throne carved with ram heads, scepter and orb in hand, red robes over armor, stern mountains behind, ordered structure, authority, stability, disciplined power, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-emperor.png"
+  },
+  {
+    "card_code": "major-hierophant",
+    "card_name": "The Hierophant",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Hierophant on a temple throne giving a blessing, two acolytes kneeling before him, crossed keys below, sacred architecture, tradition, teaching, ritual wisdom, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-hierophant.png"
+  },
+  {
+    "card_code": "major-lovers",
+    "card_name": "The Lovers",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Lovers with two figures beneath a radiant angel, mountain peak behind, fruit tree and fiery tree on either side, open sky, union, choice, values aligned with the heart, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-lovers.png"
+  },
+  {
+    "card_code": "major-chariot",
+    "card_name": "The Chariot",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Chariot with a victorious charioteer under a starry canopy, black and white sphinxes drawing the chariot, city walls behind, forward movement, resolve, controlled momentum, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-chariot.png"
+  },
+  {
+    "card_code": "major-strength",
+    "card_name": "Strength",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Strength as a calm woman gently opening a lion's jaws, infinity symbol above her head, white gown, flowers and greenery around, gentle mastery, inner courage, emotional steadiness, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-strength.png"
+  },
+  {
+    "card_code": "major-hermit",
+    "card_name": "The Hermit",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Hermit standing alone on a snowy mountain peak, lantern glowing in one hand, staff in the other, deep blue night, solitude, introspection, quiet guidance, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-hermit.png"
+  },
+  {
+    "card_code": "major-wheel-of-fortune",
+    "card_name": "Wheel of Fortune",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Wheel of Fortune as a giant celestial wheel turning in clouds, sphinx at the top, serpent descending, winged beings reading in the corners, fate, cycles, turning points, sacred motion, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-wheel-of-fortune.png"
+  },
+  {
+    "card_code": "major-justice",
+    "card_name": "Justice",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Justice seated upright on a throne between red drapes, sword held vertically in one hand and balanced scales in the other, symmetrical composition, truth, fairness, accountability, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-justice.png"
+  },
+  {
+    "card_code": "major-hanged-man",
+    "card_name": "The Hanged Man",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Hanged Man suspended by one foot from a living tree, glowing halo around the head, calm expression, still air, surrender, altered perspective, suspended wisdom, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-hanged-man.png"
+  },
+  {
+    "card_code": "major-death",
+    "card_name": "Death",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Death as a skeletal rider on a white horse carrying a black banner with a white rose, fallen crown on the ground, river and dawn on the horizon, transformation, necessary ending, solemn release, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-death.png"
+  },
+  {
+    "card_code": "major-temperance",
+    "card_name": "Temperance",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Temperance as an angel pouring water between two cups, one foot on land and one in a stream, irises in bloom, golden crown in the distance, balance, healing, measured flow, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-temperance.png"
+  },
+  {
+    "card_code": "major-devil",
+    "card_name": "The Devil",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Devil enthroned on a dark pedestal, horned figure above two loosely chained humans, torchlit cavern atmosphere, temptation, bondage, shadow attachment, oppressive glamour, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-devil.png"
+  },
+  {
+    "card_code": "major-tower",
+    "card_name": "The Tower",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Tower struck by lightning, crown blasted from the top, flames bursting from windows, figures falling through storm clouds, sudden revelation, collapse of false structure, violent truth, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-tower.png"
+  },
+  {
+    "card_code": "major-star",
+    "card_name": "The Star",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Star with a kneeling figure pouring water into a pool and onto the earth, giant eight-pointed star above, smaller stars surrounding it, ibis nearby, hope, renewal, soft celestial calm, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-star.png"
+  },
+  {
+    "card_code": "major-moon",
+    "card_name": "The Moon",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Moon above twin towers, a wolf and dog howling on either side of a winding path, crayfish emerging from a pool, misty blue night, dreams, illusion, uncertainty, subconscious pull, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-moon.png"
+  },
+  {
+    "card_code": "major-sun",
+    "card_name": "The Sun",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The Sun with a radiant child riding a white horse, red banner flowing, giant sun overhead, sunflowers behind a stone wall, joy, warmth, clarity, open vitality, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-sun.png"
+  },
+  {
+    "card_code": "major-judgement",
+    "card_name": "Judgement",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Judgement as an angel sounding a trumpet from the clouds, people rising from coffins with uplifted arms, mountains in the distance, awakening, absolution, decisive calling, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-judgement.png"
+  },
+  {
+    "card_code": "major-world",
+    "card_name": "The World",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, The World with a dancing figure inside a laurel wreath, wand in each hand, bull eagle lion and angel in the four corners, completion, harmony, integrated wholeness, palette accent of midnight blue, ivory, antique gold, with each card's symbolic accent color. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "major-world.png"
+  },
+  {
+    "card_code": "cups-ace",
+    "card_name": "Ace of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Ace of Cups, an overflowing chalice hovering above a lotus pond, five streams of water pouring down, white dove descending with sacred light, emotional renewal, blessing, open heart, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-ace.png"
+  },
+  {
+    "card_code": "cups-2",
+    "card_name": "Two of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Two of Cups, two figures facing each other and exchanging golden cups, winged lion and caduceus floating above them, mutual recognition, partnership, balanced affection, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-2.png"
+  },
+  {
+    "card_code": "cups-3",
+    "card_name": "Three of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Three of Cups, three women in flowing dresses raising their cups in celebration, harvest fruit and flowers at their feet, friendship, joy, communal abundance, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-3.png"
+  },
+  {
+    "card_code": "cups-4",
+    "card_name": "Four of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Four of Cups, a seated figure beneath a tree with arms crossed, three cups before them and a fourth offered from a cloud, contemplation, withdrawal, unnoticed opportunity, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-4.png"
+  },
+  {
+    "card_code": "cups-5",
+    "card_name": "Five of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Five of Cups, a cloaked figure mourning three spilled cups while two upright cups remain behind, river and bridge leading to a distant home, grief, regret, surviving hope, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-5.png"
+  },
+  {
+    "card_code": "cups-6",
+    "card_name": "Six of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Six of Cups, a gentle courtyard scene where one child offers a cup of flowers to another, old buildings behind, nostalgia, innocence, tender memory, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-6.png"
+  },
+  {
+    "card_code": "cups-7",
+    "card_name": "Seven of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Seven of Cups, a figure gazing at seven floating cups containing jewels, snake, laurel wreath, dragon, castle, shrouded figure, dream choice, fantasy, overwhelming possibilities, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-7.png"
+  },
+  {
+    "card_code": "cups-8",
+    "card_name": "Eight of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Eight of Cups, a lone traveler walking away from a stack of cups beneath an eclipsed moon, rocky mountains ahead, leaving what no longer satisfies, searching for deeper meaning, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-8.png"
+  },
+  {
+    "card_code": "cups-9",
+    "card_name": "Nine of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Nine of Cups, a satisfied host seated proudly before a curved display of nine cups, rich fabrics, fulfilled wish, comfort, emotional contentment, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-9.png"
+  },
+  {
+    "card_code": "cups-10",
+    "card_name": "Ten of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Ten of Cups, a family standing together beneath a rainbow arch of ten golden cups, children playing, green meadow, river and home, harmony, lasting happiness, shared fulfillment, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-10.png"
+  },
+  {
+    "card_code": "cups-page",
+    "card_name": "Page of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Page of Cups, a youthful messenger in blue holding a cup with a fish emerging from it, shoreline behind, playful intuition, emotional curiosity, surprising inspiration, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-page.png"
+  },
+  {
+    "card_code": "cups-knight",
+    "card_name": "Knight of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Knight of Cups, an armored rider on a calm white horse carrying a silver cup, slow river and gentle hills nearby, romance, idealism, graceful pursuit, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-knight.png"
+  },
+  {
+    "card_code": "cups-queen",
+    "card_name": "Queen of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Queen of Cups, a queen seated on an ornate throne by the sea, holding a closed ceremonial cup, shell motifs and calm tides around her, empathy, intuition, deep feeling, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-queen.png"
+  },
+  {
+    "card_code": "cups-king",
+    "card_name": "King of Cups",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, King of Cups, a king on a stone throne floating over choppy water, cup in one hand and scepter in the other, ship and fish in the waves, emotional mastery, composed compassion, palette accent of pearl teal, moon silver, sea-glass cyan, soft rose light. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "cups-king.png"
+  },
+  {
+    "card_code": "wands-ace",
+    "card_name": "Ace of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Ace of Wands, a hand emerging from a cloud holding a budding wand, sparks of life around the branch, bright sky and distant hills, creative ignition, bold beginning, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-ace.png"
+  },
+  {
+    "card_code": "wands-2",
+    "card_name": "Two of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Two of Wands, a figure standing on battlements holding a globe and looking over sea and land, one wand in hand and one fixed behind, planning, range, future vision, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-2.png"
+  },
+  {
+    "card_code": "wands-3",
+    "card_name": "Three of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Three of Wands, a cloaked figure on a hill watching ships travel across open water, three planted wands nearby, expansion, foresight, opportunities unfolding, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-3.png"
+  },
+  {
+    "card_code": "wands-4",
+    "card_name": "Four of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Four of Wands, four decorated wands forming a garlanded gateway, dancers celebrating before a distant castle, stable joy, welcome, milestone celebration, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-4.png"
+  },
+  {
+    "card_code": "wands-5",
+    "card_name": "Five of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Five of Wands, five youths crossing staves in chaotic competition, dust and movement everywhere, conflict, friction, energetic struggle without fatal harm, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-5.png"
+  },
+  {
+    "card_code": "wands-6",
+    "card_name": "Six of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Six of Wands, a rider wearing a laurel crown on horseback, holding a decorated wand while a crowd looks on, recognition, public victory, earned confidence, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-6.png"
+  },
+  {
+    "card_code": "wands-7",
+    "card_name": "Seven of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Seven of Wands, a figure on higher ground defending with one wand against six rising from below, windswept stance, courage under pressure, holding one's ground, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-7.png"
+  },
+  {
+    "card_code": "wands-8",
+    "card_name": "Eight of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Eight of Wands, eight staffs streaking diagonally through open sky over a river valley, swift movement, acceleration, events rushing toward resolution, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-8.png"
+  },
+  {
+    "card_code": "wands-9",
+    "card_name": "Nine of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Nine of Wands, a weary bandaged figure gripping one wand while eight stand behind like a fence, guarded posture, resilience, fatigue, readiness to endure, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-9.png"
+  },
+  {
+    "card_code": "wands-10",
+    "card_name": "Ten of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Ten of Wands, a person bent under the weight of ten bundled staffs while walking toward a town, burden, overcommitment, final push under pressure, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-10.png"
+  },
+  {
+    "card_code": "wands-page",
+    "card_name": "Page of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Page of Wands, a bright-eyed youth in a desert holding a sprouting wand, wind catching the tunic, adventurous energy, curiosity, early confidence, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-page.png"
+  },
+  {
+    "card_code": "wands-knight",
+    "card_name": "Knight of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Knight of Wands, a fierce rider on a rearing horse charging forward with a flaming wand, desert winds and speed lines in the dust, passion, impulse, daring motion, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-knight.png"
+  },
+  {
+    "card_code": "wands-queen",
+    "card_name": "Queen of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Queen of Wands, a confident queen on a sunflower throne with a black cat at her feet, flowering wand in hand, charismatic warmth, creative authority, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-queen.png"
+  },
+  {
+    "card_code": "wands-king",
+    "card_name": "King of Wands",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, King of Wands, a commanding king on a salamander-carved throne holding a flowering wand, desert horizon behind, visionary leadership, bold execution, palette accent of ember orange, warm gold, sunlit ochre, crimson flame. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "wands-king.png"
+  },
+  {
+    "card_code": "swords-ace",
+    "card_name": "Ace of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Ace of Swords, a hand rising from a cloud and lifting a gleaming upright sword crowned with laurel and gold, crisp mountain air, clarity, truth, decisive breakthrough, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-ace.png"
+  },
+  {
+    "card_code": "swords-2",
+    "card_name": "Two of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Two of Swords, a blindfolded figure seated by the sea with two crossed swords over the chest, crescent moon in the night sky, stalemate, guarded mind, suspended choice, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-2.png"
+  },
+  {
+    "card_code": "swords-3",
+    "card_name": "Three of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Three of Swords, a red heart pierced by three blades against a stormy rain-filled sky, heartbreak, painful truth, emotional rupture, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-3.png"
+  },
+  {
+    "card_code": "swords-4",
+    "card_name": "Four of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Four of Swords, a resting knight carved in a chapel tomb, three swords hanging above and one laid below, candlelit stillness, recovery, pause, sacred rest, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-4.png"
+  },
+  {
+    "card_code": "swords-5",
+    "card_name": "Five of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Five of Swords, a smug figure gathering swords while two defeated people walk away near a gray shoreline, hollow victory, conflict, moral cost, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-5.png"
+  },
+  {
+    "card_code": "swords-6",
+    "card_name": "Six of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Six of Swords, a small boat crossing calm water with a ferryman, cloaked passenger and child, six swords standing in the boat, transition, departure, moving toward peace, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-6.png"
+  },
+  {
+    "card_code": "swords-7",
+    "card_name": "Seven of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Seven of Swords, a stealthy figure carrying five swords away from a military camp while two remain behind, strategy, secrecy, evasion, uneasy cleverness, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-7.png"
+  },
+  {
+    "card_code": "swords-8",
+    "card_name": "Eight of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Eight of Swords, a blindfolded bound woman surrounded by eight swords in muddy ground, open path still visible beyond, trapped perception, anxiety, self-limitation, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-8.png"
+  },
+  {
+    "card_code": "swords-9",
+    "card_name": "Nine of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Nine of Swords, a person sitting upright in bed with face in hands while nine swords hang on a dark wall, nightmare, guilt, sleepless worry, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-9.png"
+  },
+  {
+    "card_code": "swords-10",
+    "card_name": "Ten of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Ten of Swords, a fallen figure pierced by ten blades at the end of a black night while dawn begins at the horizon, collapse, finality, painful ending before renewal, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-10.png"
+  },
+  {
+    "card_code": "swords-page",
+    "card_name": "Page of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Page of Swords, an alert youth on a windy hill holding a raised sword, clouds racing overhead, sharp curiosity, vigilance, restless intellect, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-page.png"
+  },
+  {
+    "card_code": "swords-knight",
+    "card_name": "Knight of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Knight of Swords, an armored rider charging through storm and wind with sword extended, horse in full motion, forceful thought, speed, uncompromising action, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-knight.png"
+  },
+  {
+    "card_code": "swords-queen",
+    "card_name": "Queen of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Queen of Swords, a stern queen on a clouded throne holding her sword upright while extending one hand, clear boundary, discernment, cool intelligence, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-queen.png"
+  },
+  {
+    "card_code": "swords-king",
+    "card_name": "King of Swords",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, King of Swords, a king on a butterfly-carved throne with a straight sword and steady gaze, storm clouds behind but posture unmoved, logic, authority, just judgment, palette accent of steel blue, moon gray, silver white, storm-cloud indigo. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "swords-king.png"
+  },
+  {
+    "card_code": "pentacles-ace",
+    "card_name": "Ace of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Ace of Pentacles, a hand emerging from a cloud offering a glowing golden pentacle above a garden arch and mountain path, tangible opportunity, grounded blessing, prosperity seed, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-ace.png"
+  },
+  {
+    "card_code": "pentacles-2",
+    "card_name": "Two of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Two of Pentacles, a juggler balancing two pentacles linked by an infinity ribbon while ships rise on rough waves behind, adaptability, balance, playful management, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-2.png"
+  },
+  {
+    "card_code": "pentacles-3",
+    "card_name": "Three of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Three of Pentacles, a craftsperson showing detailed stonework inside a cathedral to a monk and architect, teamwork, skill, collaborative building, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-3.png"
+  },
+  {
+    "card_code": "pentacles-4",
+    "card_name": "Four of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Four of Pentacles, a seated figure tightly holding pentacles at chest, head, and feet with a city in the background, security, control, possessiveness, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-4.png"
+  },
+  {
+    "card_code": "pentacles-5",
+    "card_name": "Five of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Five of Pentacles, two struggling figures walking through snow outside a glowing stained-glass window, hardship, exclusion, ignored sanctuary, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-5.png"
+  },
+  {
+    "card_code": "pentacles-6",
+    "card_name": "Six of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Six of Pentacles, a wealthy figure with scales distributing coins to kneeling people, fair exchange, generosity, uneven power dynamics made visible, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-6.png"
+  },
+  {
+    "card_code": "pentacles-7",
+    "card_name": "Seven of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Seven of Pentacles, a gardener leaning on a staff and studying pentacles growing on a vine, patient assessment, investment, waiting for results, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-7.png"
+  },
+  {
+    "card_code": "pentacles-8",
+    "card_name": "Eight of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Eight of Pentacles, a focused artisan seated at a workbench carving pentacles one by one, disciplined craft, repetition, mastery through effort, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-8.png"
+  },
+  {
+    "card_code": "pentacles-9",
+    "card_name": "Nine of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Nine of Pentacles, an elegant figure in a vineyard with a falcon on one hand and pentacles among the vines, self-sufficiency, cultivated abundance, refined independence, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-9.png"
+  },
+  {
+    "card_code": "pentacles-10",
+    "card_name": "Ten of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Ten of Pentacles, an elder beneath an archway watching a family with dogs in a prosperous courtyard, pentacles woven through the architecture, legacy, stability, generational wealth, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-10.png"
+  },
+  {
+    "card_code": "pentacles-page",
+    "card_name": "Page of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Page of Pentacles, a young scholar standing in a green field and studying a single pentacle with full attention, grounded ambition, practical learning, first real step, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-page.png"
+  },
+  {
+    "card_code": "pentacles-knight",
+    "card_name": "Knight of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Knight of Pentacles, a steadfast rider on a heavy dark horse holding a pentacle over ploughed earth, patience, discipline, dependable progress, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-knight.png"
+  },
+  {
+    "card_code": "pentacles-queen",
+    "card_name": "Queen of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, Queen of Pentacles, a queen seated in a lush garden holding a pentacle on her lap, rabbit near the throne, comfort, nurturing practicality, embodied abundance, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-queen.png"
+  },
+  {
+    "card_code": "pentacles-king",
+    "card_name": "King of Pentacles",
+    "prompt": "vertical 2:3 tarot card illustration, cohesive full-deck art direction, mystical art nouveau fantasy, detailed gouache and ink painting, luminous jewel tones, antique gold filigree, elegant celestial border, centered symbolic composition, soft parchment texture, cinematic rim light, polished storytelling illustration, highly readable silhouette, sacred and contemplative mood, no card title text, no watermark, no logo, no modern props, no sci-fi elements, King of Pentacles, a richly robed king on a vine-covered throne with bull motifs, pentacle in one hand and scepter in the other, grounded power, financial mastery, stable stewardship, palette accent of olive green, harvest amber, moss, earth gold. Avoid blurry, low detail, noisy image, muddy colors, extra limbs, extra fingers, duplicated objects, deformed anatomy, cropped face, cut-off hands, unreadable symbolism, busy background, collage, photorealism, 3d render, comic panel layout, modern city, neon cyberpunk, typography, watermark, logo, frame mismatch.",
+    "output_filename": "pentacles-king.png"
+  }
+]
