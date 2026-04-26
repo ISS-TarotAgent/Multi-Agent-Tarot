@@ -1,13 +1,14 @@
 """Promptfoo Python provider for the Multi-Agent Tarot workflow.
 
-Runs TarotReflectionWorkflow directly (no HTTP server required),
-so evals can run in CI without Docker.
+Runs build_llm_workflow() directly (no HTTP server required), using real LLM
+agents so evals exercise the full production path.
 
 Entry point used by promptfoo: call_api(prompt, options, context)
 """
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -18,11 +19,8 @@ from uuid import uuid4
 # Path bootstrap
 # ---------------------------------------------------------------------------
 
-def _discover_venv_site_packages(venv_root: Path, *, platform: str = sys.platform) -> list[Path]:
-    """Return candidate site-packages paths inside a venv.
 
-    Used by call_api to extend sys.path when backend deps live in a local venv.
-    """
+def _discover_venv_site_packages(venv_root: Path, *, platform: str = sys.platform) -> list[Path]:
     if platform == "win32":
         return [venv_root / "Lib" / "site-packages"]
     lib = venv_root / "lib"
@@ -35,7 +33,6 @@ def _bootstrap_paths() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     candidates = [str(repo_root), str(repo_root / "backend")]
 
-    # Optionally include a local venv so promptfoo can find installed deps
     venv_root = repo_root / "backend" / ".venv"
     if venv_root.exists():
         for sp in _discover_venv_site_packages(venv_root):
@@ -47,9 +44,24 @@ def _bootstrap_paths() -> None:
             sys.path.insert(0, path)
 
 
+def _load_env() -> None:
+    """Load backend/.env so OPENAI_API_KEY and other settings are available."""
+    repo_root = Path(__file__).resolve().parents[2]
+    env_file = repo_root / "backend" / ".env"
+    if not env_file.exists():
+        return
+    for line in env_file.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip())
+
+
 # ---------------------------------------------------------------------------
 # Provider entry point
 # ---------------------------------------------------------------------------
+
 
 def call_api(prompt: str, options: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
     """Promptfoo provider entry point.
@@ -57,28 +69,38 @@ def call_api(prompt: str, options: dict[str, Any], context: dict[str, Any]) -> d
     Args:
         prompt:  The rendered prompt string — treated as the tarot question.
         options: Provider options from promptfooconfig.yaml.
-                 options['config'] may carry: locale, spread_type.
         context: Promptfoo execution context (vars, test metadata).
+                 context['vars']['skip_clarification'] = true skips the
+                 clarification wait and drives the full pipeline to Safety Guard.
 
     Returns:
         {"output": {...}} with workflow result fields for assertion.
     """
     _bootstrap_paths()
+    _load_env()
 
-    from agent.workflows.orchestrator import TarotReflectionWorkflow  # noqa: PLC0415
+    from agent.workflows.orchestrator import build_llm_workflow  # noqa: PLC0415
     from backend.app.domain.enums import SpreadType  # noqa: PLC0415
 
     cfg = (options or {}).get("config") or {}
-    locale: str = cfg.get("locale", "zh-CN")
     spread_type = SpreadType(cfg.get("spread_type", "THREE_CARD_REFLECTION"))
+    locale: str = cfg.get("locale", "zh-CN")
 
-    workflow = TarotReflectionWorkflow()
+    # Per-test override: set skip_clarification=true in test vars to bypass
+    # the clarification wait and drive the full pipeline (Draw → Synthesis →
+    # Safety Guard). Required for happy-path and safety tests.
+    vars_ = (context or {}).get("vars") or {}
+    skip_clarification = str(vars_.get("skip_clarification", "false")).lower() == "true"
+
+    workflow = build_llm_workflow()
+
     state = workflow.run(
         session_id=str(uuid4()),
         reading_id=str(uuid4()),
         raw_question=prompt,
         locale=locale,
         spread_type=spread_type,
+        skip_clarification=skip_clarification,
     )
 
     safety = state.safety_output

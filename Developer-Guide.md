@@ -73,37 +73,36 @@ docker compose down -v       # 停止并清除所有 volume（数据库重置）
 
 ```
 project-root/
-├── Developer-Guide.md          # 本文档
-├── README.md
-├── DEMO-SCRIPT.md              # 演示录屏脚本
+├── Developer-Guide.md          # Developer Guide
+├── README.md                   # Project Overview
 ├── frontend/                   # React + TypeScript UI
 │   ├── src/
 │   │   ├── components/         # CardSpread, ResultPanel, ClarificationPanel...
-│   │   ├── services/api.ts     # HTTP 调用封装 + 类型映射
-│   │   └── types.ts            # 前端领域类型
-│   └── Dockerfile
+│   │   ├── services/api.ts     # HTTP request wrapper + Type mapping
+│   │   └── types.ts            # Frontend domain types
+│   └── Dockerfile              # Frontend Docker configuration
 ├── backend/                    # FastAPI + SQLAlchemy
 │   ├── app/
-│   │   ├── api/                # 路由、依赖注入（deps.py）
-│   │   ├── application/        # 服务层（TarotReadingService / TarotSessionService）
-│   │   ├── domain/             # 枚举、Repository 接口
-│   │   ├── infrastructure/     # DB 实现、配置、可观测性 (WorkflowObserver)
-│   │   └── schemas/            # API / Persistence / Workflow Schema
-│   ├── alembic/                # 数据库迁移
-│   └── pyproject.toml
-├── agent/                      # LangGraph 工作流 + LLM Agents
+│   │   ├── api/                # Routes, Dependency Injection (deps.py)
+│   │   ├── application/        # Service layer (TarotReadingService / TarotSessionService)
+│   │   ├── domain/             # Enums, Repository interfaces
+│   │   ├── infrastructure/     # DB implementation, Configuration, Observability (WorkflowObserver)
+│   │   └── schemas/            # API / Persistence / Workflow Schemas
+│   ├── alembic/                # Database migrations
+│   └── pyproject.toml          # Backend dependencies and configuration
+├── agent/                      # LangGraph workflows + LLM Agents
 │   ├── workflows/              # TarotReflectionWorkflow + build_llm_workflow()
-│   ├── nodes/                  # 各工作流节点（每节点一个 execute_*_step 函数）
+│   ├── nodes/                  # Workflow nodes (each node has an execute_*_step function)
 │   ├── core/                   # ModelGateway / LLM Agents / Langfuse client / prompt_registry
-│   ├── schemas/                # Agent 层 Pydantic I/O 类型
-│   ├── security/               # 规则引擎兜底：detectors / sanitizer / guards
-│   ├── data/                   # tarot_meanings.json（78 张牌数据）
-│   └── tests/                  # Agent 单元测试
-├── prompts/                    # Prompt 模板文件（.md），被 prompt_registry.py 加载
-├── evals/promptfoo/            # Promptfoo eval 套件
+│   ├── schemas/                # Agent-layer Pydantic I/O types
+│   ├── security/               # Rule engine fallbacks: detectors / sanitizer / guards
+│   ├── data/                   # tarot_meanings.json (78 card data)
+│   └── tests/                  # Agent unit tests
+├── prompts/                    # Prompt template files (.md), loaded by prompt_registry.py
+├── evals/promptfoo/            # Promptfoo evaluation suite
 ├── Docker/
-│   └── docker-compose.yml      # 全栈编排：postgres + backend + frontend + langfuse
-└── docs/                       # 其他设计文档
+│   └── docker-compose.yml      # Full-stack orchestration: postgres + backend + frontend + langfuse
+└── docs/                     # 其他设计文档
 ```
 
 ---
