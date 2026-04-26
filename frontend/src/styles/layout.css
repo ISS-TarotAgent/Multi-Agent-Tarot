@@ -1,0 +1,398 @@
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: var(--space-2xl);
+}
+
+.starfield,
+.starfield::before,
+.starfield::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.starfield {
+  background-image:
+    radial-gradient(circle, color-mix(in oklch, var(--gold) 70%, transparent) 0 1px, transparent 1.4px),
+    radial-gradient(circle, color-mix(in oklch, var(--text) 42%, transparent) 0 1px, transparent 1.3px);
+  background-position: 0 0, 36px 44px;
+  background-size: 96px 96px, 138px 138px;
+  mask-image: linear-gradient(180deg, black 0%, transparent 78%);
+  opacity: 0.38;
+}
+
+.starfield::before {
+  content: "";
+  background:
+    linear-gradient(90deg, transparent 49.8%, color-mix(in oklch, var(--gold) 12%, transparent) 50%, transparent 50.2%),
+    linear-gradient(0deg, transparent 49.8%, color-mix(in oklch, var(--gold) 10%, transparent) 50%, transparent 50.2%);
+  background-size: 220px 220px;
+}
+
+.ambient {
+  position: absolute;
+  width: 30rem;
+  height: 30rem;
+  filter: blur(46px);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.ambient--left {
+  top: -9rem;
+  left: -10rem;
+  background: radial-gradient(circle, color-mix(in oklch, var(--wine) 70%, transparent) 0%, transparent 66%);
+}
+
+.ambient--right {
+  right: -11rem;
+  bottom: -11rem;
+  background: radial-gradient(circle, color-mix(in oklch, var(--gold) 34%, transparent) 0%, transparent 70%);
+}
+
+.ritual-compass {
+  position: absolute;
+  top: 50%;
+  left: 52%;
+  width: min(78vw, 860px);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in oklch, var(--gold) 18%, transparent);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent 0 8%, color-mix(in oklch, var(--gold) 24%, transparent) 8.2% 8.6%, transparent 8.8% 31%),
+    radial-gradient(circle, transparent 0 43%, color-mix(in oklch, var(--gold) 14%, transparent) 43.2% 43.6%, transparent 43.8%),
+    conic-gradient(
+      from -45deg,
+      transparent 0 10deg,
+      color-mix(in oklch, var(--gold) 16%, transparent) 10deg 12deg,
+      transparent 12deg 78deg,
+      color-mix(in oklch, var(--gold) 12%, transparent) 78deg 80deg,
+      transparent 80deg 90deg
+    ),
+    repeating-conic-gradient(
+      color-mix(in oklch, var(--gold) 18%, transparent) 0deg 1deg,
+      transparent 1deg 15deg
+    );
+  background-blend-mode: screen, normal, normal, normal;
+  mask-image: radial-gradient(circle, transparent 0 24%, black 24.5% 50%, transparent 50.4%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.ritual-compass::before,
+.ritual-compass::after {
+  content: "";
+  position: absolute;
+  inset: 10%;
+  border-radius: inherit;
+}
+
+.ritual-compass::before {
+  border: 1px solid color-mix(in oklch, var(--gold) 16%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklch, var(--gold) 8%, transparent),
+    0 0 60px color-mix(in oklch, var(--gold) 10%, transparent);
+}
+
+.ritual-compass::after {
+  inset: 18%;
+  background:
+    linear-gradient(0deg, transparent 48%, color-mix(in oklch, var(--gold) 26%, transparent) 49.4% 50.6%, transparent 52%),
+    linear-gradient(90deg, transparent 48%, color-mix(in oklch, var(--gold) 22%, transparent) 49.4% 50.6%, transparent 52%),
+    conic-gradient(
+      from 45deg,
+      transparent 0 19deg,
+      color-mix(in oklch, var(--gold) 18%, transparent) 19deg 26deg,
+      transparent 26deg 64deg,
+      color-mix(in oklch, var(--gold) 14%, transparent) 64deg 71deg,
+      transparent 71deg 90deg
+    );
+  clip-path: polygon(50% 0, 55% 44%, 100% 50%, 55% 56%, 50% 100%, 45% 56%, 0 50%, 45% 44%);
+}
+
+.ritual-compass__mark {
+  position: absolute;
+  color: color-mix(in oklch, var(--gold-soft) 58%, transparent);
+  font-family: "Cinzel", "Palatino Linotype", serif;
+  font-size: clamp(0.7rem, 1.1vw, 1rem);
+  letter-spacing: 0.18em;
+  text-shadow: 0 0 18px color-mix(in oklch, var(--gold) 46%, transparent);
+}
+
+.ritual-compass__mark--north {
+  top: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ritual-compass__mark--east {
+  top: 50%;
+  right: 7%;
+  transform: translateY(-50%);
+}
+
+.ritual-compass__mark--south {
+  bottom: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ritual-compass__mark--west {
+  top: 50%;
+  left: 7%;
+  transform: translateY(-50%);
+}
+
+.topbar,
+.workspace {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  max-width: 1380px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  animation: veil-in 620ms var(--ease-out-quint) both;
+}
+
+.topbar__title {
+  color: var(--text);
+  font-size: clamp(2rem, 4vw, 4.3rem);
+  line-height: 0.95;
+  text-shadow: 0 18px 48px color-mix(in oklch, var(--bg-deep) 68%, transparent);
+}
+
+.topbar__meta {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.topbar__meta span {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--surface-strong) 62%, transparent);
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  backdrop-filter: blur(16px);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: var(--space-xl);
+}
+
+.stage-rail,
+.panel {
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  background:
+    linear-gradient(145deg, color-mix(in oklch, var(--surface-strong) 86%, transparent), color-mix(in oklch, var(--surface) 78%, transparent)),
+    linear-gradient(135deg, color-mix(in oklch, var(--gold) 12%, transparent), transparent 42%);
+  backdrop-filter: blur(22px);
+  box-shadow: var(--shadow);
+}
+
+.stage-rail {
+  position: sticky;
+  top: var(--space-xl);
+  align-self: start;
+  padding: var(--space-2xl);
+  animation: veil-in 660ms var(--ease-out-quint) 80ms both;
+}
+
+.stage-rail__intro,
+.panel-copy {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.stage-rail__intro p:last-child,
+.panel-copy p:last-child,
+.result-block p,
+.history-card p,
+.empty-state p {
+  color: var(--text-muted);
+}
+
+.stage-rail__list {
+  display: grid;
+  gap: var(--space-md);
+  padding: 0;
+  margin: var(--space-xl) 0;
+  list-style: none;
+}
+
+.stage-chip {
+  position: relative;
+  display: grid;
+  gap: var(--space-xs);
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: color-mix(in oklch, var(--surface-soft) 72%, transparent);
+  color: var(--text-muted);
+  transition:
+    transform 260ms var(--ease-out-quart),
+    border-color 260ms var(--ease-out-quart),
+    background 260ms var(--ease-out-quart);
+}
+
+.stage-chip span {
+  font-weight: 700;
+  color: var(--text-soft);
+}
+
+.stage-chip.is-active {
+  border-color: var(--border-strong);
+  background: color-mix(in oklch, var(--gold) 18%, var(--surface-strong));
+  transform: translateX(6px);
+}
+
+.stage-chip.is-active::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 18px var(--gold);
+  transform: translateY(-50%);
+}
+
+.stage-chip.is-active span {
+  color: var(--gold-soft);
+}
+
+.content-area {
+  min-width: 0;
+}
+
+.stage-surface {
+  animation: stage-enter 520ms var(--ease-out-quint) both;
+}
+
+.panel {
+  padding: clamp(22px, 3vw, 34px);
+}
+
+.hero-panel {
+  position: relative;
+  display: grid;
+  gap: var(--space-xl);
+  overflow: hidden;
+}
+
+.hero-panel::before,
+.hero-panel::after {
+  content: "";
+  position: absolute;
+  right: clamp(20px, 4vw, 70px);
+  top: clamp(18px, 3vw, 44px);
+  width: clamp(84px, 14vw, 170px);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.hero-panel::before {
+  z-index: 1;
+  width: clamp(54px, 9vw, 108px);
+  translate: calc(clamp(84px, 14vw, 170px) * -0.18) calc(clamp(84px, 14vw, 170px) * 0.18);
+  background:
+    linear-gradient(0deg, color-mix(in oklch, var(--gold-soft) 58%, transparent), color-mix(in oklch, var(--gold) 20%, transparent)),
+    conic-gradient(
+      from 45deg,
+      transparent 0 18deg,
+      color-mix(in oklch, var(--gold) 42%, transparent) 18deg 27deg,
+      transparent 27deg 63deg,
+      color-mix(in oklch, var(--gold) 24%, transparent) 63deg 72deg,
+      transparent 72deg 90deg
+    );
+  clip-path: polygon(50% 0, 58% 40%, 100% 50%, 58% 60%, 50% 100%, 42% 60%, 0 50%, 42% 40%);
+  opacity: 0.62;
+  filter: drop-shadow(0 0 18px color-mix(in oklch, var(--gold) 24%, transparent));
+}
+
+.hero-panel::after {
+  border: 1px solid color-mix(in oklch, var(--gold) 34%, transparent);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, color-mix(in oklch, var(--gold) 42%, transparent) 0 3px, transparent 4px 31%),
+    linear-gradient(0deg, transparent 47%, color-mix(in oklch, var(--gold) 30%, transparent) 49% 51%, transparent 53%),
+    linear-gradient(90deg, transparent 47%, color-mix(in oklch, var(--gold) 26%, transparent) 49% 51%, transparent 53%),
+    conic-gradient(
+      from 45deg,
+      transparent 0 20deg,
+      color-mix(in oklch, var(--gold) 22%, transparent) 20deg 25deg,
+      transparent 25deg 65deg,
+      color-mix(in oklch, var(--gold) 18%, transparent) 65deg 70deg,
+      transparent 70deg 90deg
+    ),
+    repeating-conic-gradient(color-mix(in oklch, var(--gold) 30%, transparent) 0deg 2deg, transparent 2deg 18deg);
+  background-blend-mode: normal, normal, normal, screen, normal;
+  opacity: 0.48;
+  box-shadow:
+    inset 0 0 0 18px color-mix(in oklch, var(--gold) 3%, transparent),
+    inset 0 0 0 42px color-mix(in oklch, var(--gold) 4%, transparent);
+}
+
+.panel-copy {
+  max-width: 820px;
+}
+
+.panel-copy h1 {
+  color: var(--text);
+  font-size: clamp(2rem, 3vw, 3.2rem);
+  line-height: 1.05;
+}
+
+.action-row,
+.history-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.panel > .action-row {
+  margin-top: clamp(22px, 3vw, 34px);
+}
+
+@keyframes veil-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stage-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}

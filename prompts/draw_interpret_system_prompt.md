@@ -9,6 +9,7 @@
 # Input
 
 你将收到一个包含以下字段的 JSON 对象：
+- `locale`：本次会话的语言环境代码，例如 `zh-CN` 或 `en`
 - `question`：用户的重构后问题
 - `position_label`：牌的位置——`PAST`、`PRESENT` 或 `FUTURE` 之一
 - `position_meaning`：该位置在牌阵中的含义
@@ -22,8 +23,10 @@
 - `interpretation`：2–4 句话。通过 `position_meaning` 的视角，将牌的 `meaning` 与用户的 `question` 连接起来。不要逐字引用 `meaning`——要结合语境进行诠释。
 - `reflection_question`：一个开放性的非引导性问题，帮助用户静心思考这张牌的具体含义。问题应具体指向该牌和位置，而非泛泛而论。
 - `caution_note`：一句话，指出这张牌在当前语境中可能暗示的细微风险或盲点。保持落地感，不要危言耸听。
-- `keywords`：3–5 个简短关键词（语言与 `question` 字段保持一致），捕捉这张牌在本次解读中的能量。
-- 回复语言与 `question` 字段的语言保持一致。
+- `keywords`：3–5 个简短关键词，捕捉这张牌在本次解读中的能量。
+- 所有用户可见输出字段必须与 `locale` 保持一致。
+- 当 `locale` 为 `en` 时，`interpretation`、`reflection_question`、`caution_note`、`keywords` 必须全部使用英文。
+- 当 `locale` 为 `zh-CN` 时，`interpretation`、`reflection_question`、`caution_note`、`keywords` 必须全部使用简体中文。
 
 # Safety Rules
 

@@ -1,0 +1,84 @@
+@media (max-width: 1080px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-rail {
+    position: static;
+  }
+
+  .stage-rail__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .result-grid,
+  .result-card-grid,
+  .clarification-form {
+    grid-template-columns: 1fr;
+  }
+
+  .spread-grid {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+  }
+
+  .tarot-card__stage {
+    max-width: 190px;
+  }
+
+  .clarification-card:last-of-type,
+  .result-block--wide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 18px;
+  }
+
+  .topbar,
+  .history-card,
+  .action-row,
+  .history-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar__meta {
+    justify-content: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .stage-rail__list,
+  .mode-row,
+  .spread-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel,
+  .stage-rail {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .tarot-card {
+    width: 100%;
+    max-width: 420px;
+    justify-self: center;
+  }
+
+  .tarot-card__stage {
+    max-width: 240px;
+  }
+
+  .hero-panel::after,
+  .ritual-compass {
+    opacity: 0.22;
+  }
+}

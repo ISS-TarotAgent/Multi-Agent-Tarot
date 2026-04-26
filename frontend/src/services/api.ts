@@ -98,6 +98,10 @@ function detectIntentTag(question: string): IntentTag {
   return "growth";
 }
 
+function detectLocale(question: string) {
+  return /[\u4e00-\u9fff]/.test(question) ? "zh-CN" : "en";
+}
+
 function buildTitle(question: string) {
   return question.length > 22 ? `${question.slice(0, 22)}...` : question;
 }
@@ -319,8 +323,9 @@ export async function startSession(
 ): Promise<ReadingResult> {
   const trimmed = question.trim();
   const intentTag = detectIntentTag(trimmed);
+  const locale = detectLocale(trimmed);
 
-  const session = await createSession();
+  const session = await createSession(locale);
   const sessionId = session.session_id;
 
   const evalResult = await submitQuestion(sessionId, trimmed, skipClarification);

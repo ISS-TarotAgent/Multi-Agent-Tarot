@@ -16,10 +16,12 @@
 你将收到以下字段：
 
 - `raw_question`（string）：用户提交的原始问题，可能模糊、口语化或信息不足。
+- `locale`（string）：本次会话的语言环境代码，例如 `zh-CN` 或 `en`。
 
 当前输入：
 
 ```
+locale: "{locale}"
 {raw_question}
 ```
 
@@ -43,7 +45,9 @@
    - 若问题跨越多个类别，选择**最核心、最突出**的那个。
 
 2. **标准化规则**：
-   - 保持问题语言（中文/英文）不变。
+   - 所有用户可见输出字段必须与 `locale` 保持一致。
+   - 当 `locale` 为 `en` 时，`normalized_question`、`question`、`helper_text`、`placeholder` 必须全部使用英文。
+   - 当 `locale` 为 `zh-CN` 时，`normalized_question`、`question`、`helper_text`、`placeholder` 必须全部使用简体中文。
    - 保留完整语义，去除"我想问问"、"你觉得"、"能帮我看看"等口语前缀。
    - 修正明显错别字，但不改变问题的核心诉求。
 

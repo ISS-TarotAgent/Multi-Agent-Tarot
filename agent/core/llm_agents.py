@@ -68,7 +68,9 @@ class LLMClarifierAgent:
         temperature=0.2 保证输出稳定，response_format 强制返回 JSON 对象。
         若 intent_tag 不在预设范围内，回退为 "growth"（通用成长类）。
         """
-        prompt = self._init_prompt_template.replace("{raw_question}", payload.raw_question)
+        prompt = self._init_prompt_template.replace(
+            '"{locale}"', json.dumps(payload.locale, ensure_ascii=False)
+        ).replace("{raw_question}", payload.raw_question)
         last_exc: Exception | None = None
         for _ in range(_MAX_RETRIES):
             try:
@@ -113,6 +115,7 @@ class LLMClarifierAgent:
                 '"{original_question}"', json.dumps(payload.normalized_question, ensure_ascii=False)
             )
             .replace('"{intent_tag}"', json.dumps(payload.intent_tag, ensure_ascii=False))
+            .replace('"{locale}"', json.dumps(payload.locale, ensure_ascii=False))
             .replace("{clarification_answers}", answers_json)
         )
         last_exc: Exception | None = None
@@ -165,6 +168,7 @@ class LLMDrawAgent:
             # 将本张牌的上下文序列化为 JSON，作为用户消息传入 LLM
             card_input = json.dumps(
                 {
+                    "locale": payload.locale,
                     "question": payload.question,
                     "position_label": pos,
                     "position_meaning": _POSITION_MEANINGS[pos],

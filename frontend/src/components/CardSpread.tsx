@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import type { ReadingRecord } from "../types";
+import { getTarotCardImageUrl } from "../utils/tarotCardImages";
 
 interface CardSpreadProps {
   reading: ReadingRecord | null;
@@ -9,15 +11,44 @@ interface CardSpreadProps {
 
 export function CardSpread({ reading, isLoading, onContinue }: CardSpreadProps) {
   const [revealedCount, setRevealedCount] = useState(0);
+  const [flippingIndex, setFlippingIndex] = useState<number | null>(null);
+  const revealTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (revealTimerRef.current !== null) {
+      window.clearTimeout(revealTimerRef.current);
+    }
     setRevealedCount(0);
+    setFlippingIndex(null);
   }, [reading?.sessionId]);
+
+  useEffect(() => {
+    return () => {
+      if (revealTimerRef.current !== null) {
+        window.clearTimeout(revealTimerRef.current);
+      }
+    };
+  }, []);
 
   const allRevealed = useMemo(
     () => (reading ? revealedCount >= reading.cards.length : false),
     [reading, revealedCount]
   );
+
+  function revealNextCard() {
+    if (!reading || flippingIndex !== null || allRevealed) {
+      return;
+    }
+
+    const nextIndex = revealedCount;
+    setFlippingIndex(nextIndex);
+
+    revealTimerRef.current = window.setTimeout(() => {
+      setRevealedCount((count) => count + 1);
+      setFlippingIndex(null);
+      revealTimerRef.current = null;
+    }, 860);
+  }
 
   if (isLoading || !reading) {
     return (
@@ -32,8 +63,15 @@ export function CardSpread({ reading, isLoading, onContinue }: CardSpreadProps) 
         <div className="spread-grid">
           {[0, 1, 2].map((item) => (
             <article key={item} className="tarot-card tarot-card--loading">
-              <span className="tarot-card__role">Tarot Card</span>
-              <strong>Shuffling...</strong>
+              <div className="tarot-card__stage">
+                <div className="tarot-card__frame">
+                  <div className="tarot-card__back">
+                    <span className="tarot-card__sigil" />
+                    <span className="tarot-card__role">Tarot Card</span>
+                    <strong>Shuffling...</strong>
+                  </div>
+                </div>
+              </div>
             </article>
           ))}
         </div>
@@ -54,44 +92,88 @@ export function CardSpread({ reading, isLoading, onContinue }: CardSpreadProps) 
       <div className="spread-grid">
         {reading.cards.map((card, index) => {
           const isRevealed = index < revealedCount;
+          const isFlipping = index === flippingIndex;
+          const imageUrl = getTarotCardImageUrl(card.id);
           return (
             <article
               key={`${card.id}-${card.role}`}
-              className={`tarot-card ${isRevealed ? "is-revealed" : ""}`}
-              style={isRevealed ? { backgroundImage: card.accent } : undefined}
+              className={`tarot-card ${isRevealed ? "is-revealed" : ""} ${
+                isFlipping ? "is-flipping" : ""
+              } ${
+                card.orientation === "reversed" ? "is-reversed" : ""
+              }`}
+              style={{ "--card-accent": card.accent } as CSSProperties}
+              aria-label={`${card.role} card ${isRevealed ? card.name : "hidden"}`}
             >
-              <div className="tarot-card__meta">
-                <span className="tarot-card__role">{card.role}</span>
-                {isRevealed && (
-                  <span className="tarot-card__arcana">
-                    {card.arcana}{card.suit ? ` · ${card.suit}` : ""}
-                  </span>
-                )}
-              </div>
-              <strong>{isRevealed ? card.name : "?"}</strong>
-              <small>{isRevealed ? card.orientation : "Tap to reveal"}</small>
-              {isRevealed ? (
-                <>
-                  {card.keywords.length > 0 && (
-                    <div className="keyword-row">
-                      {card.keywords.map((keyword) => (
-                        <span key={keyword} className="keyword">
-                          {keyword}
-                        </span>
-                      ))}
+              <div className="tarot-card__stage">
+                <div className="tarot-card__frame">
+                  <div className="tarot-card__back" aria-hidden={isRevealed || isFlipping}>
+                    <span className="tarot-card__sigil" />
+                    <span className="tarot-card__role">{card.role}</span>
+                    <strong>Unrevealed</strong>
+                    <small>Drawn into position</small>
+                  </div>
+
+                  <div className="tarot-card__face" aria-hidden={!isRevealed && !isFlipping}>
+                    <div className="tarot-card__image-shell">
+                      {imageUrl ? (
+                        <img
+                          className="tarot-card__image"
+                          src={imageUrl}
+                          alt={`${card.name} tarot card`}
+                        />
+                      ) : (
+                        <div className="tarot-card__image tarot-card__image--fallback">
+                          <span>{card.name}</span>
+                        </div>
+                      )}
+                      <span className="tarot-card__position">{card.role}</span>
                     </div>
-                  )}
-                  <p>{card.interpretation}</p>
-                  {card.cautionNote && (
-                    <p className="card-caution">{card.cautionNote}</p>
-                  )}
-                  {card.reflectionPrompt && (
-                    <p className="card-reflection">{card.reflectionPrompt}</p>
-                  )}
-                </>
-              ) : (
-                <p className="tarot-card__hidden-hint">Reveal to see this card's meaning.</p>
-              )}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className={`tarot-card__details ${isRevealed ? "is-visible" : ""}`}
+                aria-hidden={!isRevealed}
+              >
+                <div className="tarot-card__details-inner">
+                  <div className="tarot-card__content">
+                    <div className="tarot-card__meta">
+                      <span className="tarot-card__role">{card.role}</span>
+                      <span className="tarot-card__arcana">
+                        {card.arcana}{card.suit ? ` · ${card.suit}` : ""}
+                      </span>
+                    </div>
+                    <strong className="tarot-card__name">{card.name}</strong>
+                    <small className="tarot-card__orientation">{card.orientation}</small>
+                    {card.keywords.length > 0 && (
+                      <div className="keyword-row">
+                        {card.keywords.map((keyword) => (
+                          <span key={keyword} className="keyword">
+                            {keyword}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <p>{card.interpretation}</p>
+                    {card.cautionNote && (
+                      <p className="card-caution">{card.cautionNote}</p>
+                    )}
+                    {card.reflectionPrompt && (
+                      <p className="card-reflection">{card.reflectionPrompt}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <p
+                className={`tarot-card__hidden-hint ${
+                  isFlipping || isRevealed ? "is-hidden" : ""
+                }`}
+              >
+                Reveal to inspect this card's name, orientation, and reading.
+              </p>
             </article>
           );
         })}
@@ -101,9 +183,10 @@ export function CardSpread({ reading, isLoading, onContinue }: CardSpreadProps) 
         {!allRevealed ? (
           <button
             className="primary-button"
-            onClick={() => setRevealedCount((count) => count + 1)}
+            onClick={revealNextCard}
+            disabled={flippingIndex !== null}
           >
-            Reveal card {revealedCount + 1}
+            {flippingIndex !== null ? "Revealing..." : `Reveal card ${revealedCount + 1}`}
           </button>
         ) : (
           <button className="primary-button" onClick={onContinue}>

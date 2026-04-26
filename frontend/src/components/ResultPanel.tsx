@@ -1,4 +1,6 @@
+import type { CSSProperties } from "react";
 import type { ReadingRecord } from "../types";
+import { getTarotCardImageUrl } from "../utils/tarotCardImages";
 
 interface ResultPanelProps {
   reading: ReadingRecord;
@@ -57,32 +59,56 @@ export function ResultPanel({ reading, onRestart, onViewHistory }: ResultPanelPr
         <section className="result-block result-block--wide">
           <h2>Card Readings</h2>
           <div className="result-card-grid">
-            {reading.cards.map((card) => (
-              <article key={`${card.id}-${card.role}`} className="result-card">
-                <div className="result-card__header">
-                  <span className="result-card__role">{card.role}</span>
-                  <span className="result-card__arcana">
-                    {card.arcana}{card.suit ? ` · ${card.suit}` : ""}
-                  </span>
-                </div>
-                <strong className="result-card__name">{card.name}</strong>
-                <small className="result-card__orientation">{card.orientation}</small>
-                {card.keywords.length > 0 && (
-                  <div className="keyword-row">
-                    {card.keywords.map((kw) => (
-                      <span key={kw} className="keyword">{kw}</span>
-                    ))}
+            {reading.cards.map((card) => {
+              const imageUrl = getTarotCardImageUrl(card.id);
+              return (
+                <article
+                  key={`${card.id}-${card.role}`}
+                  className={`result-card ${
+                    card.orientation === "reversed" ? "is-reversed" : ""
+                  }`}
+                  style={{ "--card-accent": card.accent } as CSSProperties}
+                >
+                  <div className="result-card__image-shell">
+                    {imageUrl ? (
+                      <img
+                        className="result-card__image"
+                        src={imageUrl}
+                        alt={`${card.name} tarot card`}
+                      />
+                    ) : (
+                      <div className="result-card__image result-card__image--fallback">
+                        <span>{card.name}</span>
+                      </div>
+                    )}
                   </div>
-                )}
-                <p className="result-card__interpretation">{card.interpretation}</p>
-                {card.cautionNote && (
-                  <p className="card-caution">{card.cautionNote}</p>
-                )}
-                {card.reflectionPrompt && (
-                  <p className="card-reflection">{card.reflectionPrompt}</p>
-                )}
-              </article>
-            ))}
+                  <div className="result-card__body">
+                    <div className="result-card__header">
+                      <span className="result-card__role">{card.role}</span>
+                      <span className="result-card__arcana">
+                        {card.arcana}{card.suit ? ` · ${card.suit}` : ""}
+                      </span>
+                    </div>
+                    <strong className="result-card__name">{card.name}</strong>
+                    <small className="result-card__orientation">{card.orientation}</small>
+                    {card.keywords.length > 0 && (
+                      <div className="keyword-row">
+                        {card.keywords.map((kw) => (
+                          <span key={kw} className="keyword">{kw}</span>
+                        ))}
+                      </div>
+                    )}
+                    <p className="result-card__interpretation">{card.interpretation}</p>
+                    {card.cautionNote && (
+                      <p className="card-caution">{card.cautionNote}</p>
+                    )}
+                    {card.reflectionPrompt && (
+                      <p className="card-reflection">{card.reflectionPrompt}</p>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
 

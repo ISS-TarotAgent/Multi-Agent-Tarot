@@ -315,11 +315,11 @@ def execute_safety_guard_step(
                     )
                 )
                 effective_risk = llm_result.risk_level
-                review_notes = f"LLM评估: {llm_result.reasoning}"
+                review_notes = f"LLM Evaluate: {llm_result.reasoning}"
             except Exception:
                 medium_hits = _scan(scan_text, _MEDIUM_RISK_KEYWORDS)
                 effective_risk = "MEDIUM" if medium_hits else "LOW"
-                review_notes = "LLM评估不可用，降级为规则判断"
+                review_notes = "LLM Evaluate不可用，降级为规则判断"
         else:
             high_hits = _scan(scan_text, _HIGH_RISK_KEYWORDS)
             if high_hits:
