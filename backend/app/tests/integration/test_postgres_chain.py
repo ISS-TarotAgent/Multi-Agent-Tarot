@@ -213,11 +213,9 @@ def test_postgresql_chain_runs_session_clarification_flow_and_persists_stage3_fa
     ]
     assert sorted(reading_level_steps) == sorted(
         [
-            ("draw_interpreter", "STARTED"),
             ("draw_interpreter", "SUCCEEDED"),
-            ("synthesis", "STARTED"),
+            ("intermediate_security", "SUCCEEDED"),
             ("synthesis", "SUCCEEDED"),
-            ("safety_guard", "STARTED"),
             ("safety_guard", "SUCCEEDED"),
             ("persistence", "SUCCEEDED"),
         ]

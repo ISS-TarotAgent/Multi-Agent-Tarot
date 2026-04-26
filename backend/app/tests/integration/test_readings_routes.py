@@ -32,7 +32,9 @@ def test_create_reading_returns_persisted_result_and_trace(db_client) -> None:
     trace_payload = trace_response.json()
     assert trace_payload["reading_id"] == reading_id
     assert len(trace_payload["events"]) == payload["trace_summary"]["event_count"]
-    assert trace_payload["events"][-1]["step_name"] == "persistence"
+    assert ("persistence", "SUCCEEDED") in [
+        (event["step_name"], event["event_status"]) for event in trace_payload["events"]
+    ]
 
 
 def test_ambiguous_question_exposes_clarification_prompt(db_client) -> None:
